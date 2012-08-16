@@ -83,10 +83,11 @@ class TreeNode:
 
 class DFSIterator:
 	def __init__(self, treenode):
+		self.treenode = treenode
 		self.nodestack = [treenode]
 
 	def __iter__(self):
-		return self;
+		return DFSIterator(self.treenode);
 
 	def __next__(self):
 		if not len(self.nodestack):
@@ -142,3 +143,41 @@ class TransactionFactory:
 				"category":	transaction.category.name,
 				"amount":	str(transaction.amount),
 				"comment":	transaction.comment}
+
+class Filter:
+	def __init__(self, filter_func):
+		self.filter_func = filter_func
+		
+	def __call__(self, item):
+		return self.filter_func(item)
+	
+	def orConcat(self, filter):
+		return Filter(lambda item: self(item) or filter(item))
+		
+	def andConcat(self, filter):
+		return Filter(lambda item: self(item) and filter(item))
+	
+	def negate(self):
+		return Filter(lambda item: not self(item))
+
+class FilterIterator:
+	def __init__(self, iterator, filter_func):
+		self.iterator = iterator
+		self.filter_func = filter_func
+		self.index = None
+		
+	def __iter__(self):
+		return self
+		
+	def __next__(self):
+		if self.index == None:
+			self.index = -1
+			
+		next = self.iterator.__next__()
+		self.index = self.index + 1
+		
+		while next != None and not self.filter_func(next):
+			next = self.iterator.__next__()
+			self.index = self.index + 1
+			
+		return next

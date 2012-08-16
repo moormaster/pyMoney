@@ -1,3 +1,4 @@
+import pymoney.app
 import pymoney.data
 import pymoney.io
 
@@ -11,44 +12,25 @@ def not_implemented(*pargs, **args):
 transaction=category=summary=not_implemented
 
 def init(**args):
-	global categorytree, transactions
-	global notfoundcategory, transactionfactory
-	global t_filename, c_filename, p_filename
-
-	t_filename = args["fileprefix"] + ".transactions"
-	c_filename = args["fileprefix"] + ".categories"
-	
-	try:
-		categorytree = pymoney.io.read_categories(c_filename)
-	except Exception as e:
-		print("failed to read categorytree from " + c_filename + ":\n" + str(e), file=sys.stderr)
-		categorytree = pymoney.data.TreeNode("All")
-	
-	notfoundcategory = categorytree.findNode("NOTFOUND")
-	if not notfoundcategory:
-		notfoundcategory = categorytree.appendChildNode(pymoney.data.TreeNode("NOTFOUND"))
-	
-	transactionfactory=pymoney.data.TransactionFactory(categorytree, notfoundcategory)
-	
-	try:
-		transactions = pymoney.io.read_transactions(t_filename, transactionfactory)
-	except Exception as e:
-		print("failed to read transactions from " + t_filename + ":\n" + str(e), file=sys.stderr)
-		transactions = []
-
+	global app
+	app = pymoney.app.PyMoney(args["fileprefix"])
 
 def transaction(**args):
 	def cmd_add(**args):
-		pymoney.io.write_transactions(t_filename, transactionfactory, [transactionfactory.create(args["date"], args["category"], args["amount"], args["comment"])], append=True)
+		app.add_transaction(args["date"], args["category"], args["amount"], args["comment"])
+		app.write_transactions()
 	
-	def cmd_list(**args):	
+	def cmd_list(**args):
+		filter = pymoney.data.Filter(lambda t: True)
 		filter_year = filter_month = filter_category = None
 		
 		if args["year"]:
 			filter_year = int(args["year"])
+			filter = filter.andConcat(lambda t: t.year == filter_year)
 			
 		if args["month"]:
 			filter_month = int(args["month"])
+			filter = filter.andConcat(lambda t: t.month == filter_month)
 			
 		if args["category"]:
 			filter_category = categorytree.findNode(args["category"])
@@ -56,23 +38,15 @@ def transaction(**args):
 			if not filter_category:
 				print("category not found: " + args["category"], file=sys.stderr)
 				return
+				
+			filter = filter.andConcat(lambda t: t.category == filter_category)
 
 
 		print("{0:>10} {1:<10} {2:<20} {3:>10} {4:<20}".format("Index", "Date", "Category", "Amount", "Comment"))
-				
-		for i in range(0, len(transactions)):
-			d = transactions[i]				
-			
-			if filter_year != None and d.date.year != filter_year:
-				continue
-				
-			if filter_month != None and d.date.month != filter_month:
-				continue
-				
-			if filter_category and d.category != filter_category and not d.category.isChildOf(filter_category):
-				continue
-			
-			_index = i
+		
+		iterator = app.filter_transactions(filter)
+		for d in iterator:
+			_index = iterator.index
 			_date = str(d.date)
 			
 			if args["fullnamecategories"]:
@@ -86,10 +60,8 @@ def transaction(**args):
 			print("{0:>10} {1:>10} {2:<20} {3:>10.2f} {4:<20}".format(_index, _date, _category, _amount, _comment))
 			
 	def cmd_delete(**args):
-		if args["index"] >= 0 and args["index"] < len(transactions):
-			del transactions[args["index"]]
-			
-		pymoney.io.write_transactions(t_filename, transactionfactory, transactions)
+		app.delete_transaction(args["index"])
+		app.write_transactions()
 		
 	d_commands = {
 		"add" : 	cmd_add,
@@ -101,96 +73,28 @@ def transaction(**args):
 			
 def category(**args):
 	def cmd_list(**args):
-		print(categorytree)
+		print(app.categorytree)
 
 	def cmd_add(**args):
-		node = categorytree.findNode(args["name"])
-		parentnode = categorytree.findNode(args["parentname"])
-		
-		if node and not node.isChildOf(notfoundcategory):
-			print("node already exists: " + args["name"], file=sys.stderr)
-			return
-
-		if not parentnode:
-			print("no such node: " + args["parentname"], file=sys.stderr)
-			return
-			
-		if node and node.isChildOf(notfoundcategory):
-			node.parent.removeChildNode(args["name"])
-		
-		parentnode.appendChildNode(pymoney.data.TreeNode(args["name"]))
-
-		pymoney.io.write_categories(c_filename, categorytree, notfoundcategory)
+		app.add_category(args["parentname"], args["name"])
+		app.write_categories()
 
 	def cmd_delete(**args):
-		node = categorytree.findNode(args["name"])
-		
-		if not node:
-			print("no such node: " + args["name"], file=sys.stderr)
-			return
-
-		if not node.parent:
-			print("cannot remove topnode: " + args["name"], file=sys.stderr)
-			return
-
-		node.parent.removeChildNode(node.name)
-		
-		pymoney.io.write_categories(c_filename, categorytree, notfoundcategory)
+		app.delete_category(args["name"])
+		app.write_categories()
 
 	def cmd_move(**args):
-		node = categorytree.findNode(args["name"])
-		newparent = categorytree.findNode(args["newparentname"])
-
-		if not node:
-			print("no such node: " + args["name"])
-			return
-
-		if not newparent:
-			print("no such node: " + args["newparentname"])
-			return
-
-		if newparent.isChildOf(node):
-			print("cannot move node to one of its subnodes: " + args["name"])
-			return
-
-		node.parent.removeChildNode(args["name"])
-		newparent.appendChildNode(node)
-
-		pymoney.io.write_categories(c_filename, categorytree, notfoundcategory)
+		app.move_category(args["name"], args["newparentname"])
+		app.write_categories()
 		
 	def cmd_rename_merge(**args):
-		node = categorytree.findNode(args["oldname"])
-		newnode = categorytree.findNode(args["newname"])
-		parent = node.parent
-		
-		if not node:
-			print("no such node: " + args["oldname"])
-			return
-			
-		if args["merge"] and not node.parent:
-			print("cannot move root node")
-			return
-		
-		if not args["merge"]:
-			if newnode and not newnode.isChildOf(notfoundcategory):
-				print("node already exists: " + args["newname"])
-				return
-
-		if newnode and newnode.isChildOf(notfoundcategory):
-			newnode.parent.removeChildNode(args["newname"])
-		
 		if args["merge"]:
-			node.parent.removeChildNode(nodename)
+			app.merge_category(args["name"], args["targetname"])
 		else:
-			node.rename(args["newname"])
-		
-		if args["merge"]:
-			for t in transactions:
-				if t.category == node:
-					t.category = newnode
-				
-		pymoney.io.write_categories(c_filename, categorytree, notfoundcategory)
-		pymoney.io.write_transactions(t_filename, transactionfactory, transactions)
+			app.rename_category(args["name"], args["newname"])
+			
+		app.write_categories()
+		app.write_transactions()
 		
 	def cmd_rename(**args):
 		_args = args.copy()
@@ -216,29 +120,20 @@ def category(**args):
 	
 def summary(**args):
 	def cmd_categories(**args):
-		d_summary = {}
+		filter = pymoney.data.Filter(lambda t: True)
+		
+		if args["year"] != None:
+			filter = filter.andConcat(lambda t: t.date.year == int(args["year"]))
 	
-		for c in categorytree:
-			d_summary[c.name] = pymoney.data.NodeSummary()
-			
-		for t in transactions:
-			if args["year"] and t.date.year != args["year"]:
-				continue
-			
-			if args["month"] and t.date.month != args["month"]:
-				continue
-			
-			d_summary[t.category.name].amount += t.amount
-			
-			c = t.category
-			while c:
-				d_summary[c.name].sum += t.amount
-				c = c.parent
+		if args["month"] != None:
+			filter = filter.andConcat(lambda t: t.date.month == int(args["month"]))
+	
+		d_summary = app.create_summary(filter)
 			
 		
 		print("{0:<30} {1:>10} {2:>10}".format("node", "amount", "sum"))
 		print()
-		for c in categorytree:
+		for c in app.categorytree:
 			if len(c.children):
 				nodesym = "+"
 			else:
@@ -249,14 +144,14 @@ def summary(**args):
 	def cmd_monthly(**args):
 		mindate = None
 		maxdate = None
-		for t in transactions:
+		for t in app.transactions:
 			if not mindate or t.date < mindate:
 				mindate = t.date
 				
 			if not maxdate or t.date > maxdate:
 				maxdate = t.date
 	
-		category = categorytree.findNode(args["category"])
+		category = app.categorytree.findNode(args["category"])
 		
 		if not category:
 			print("no such category: " + args["category"], file=sys.stderr)
@@ -269,21 +164,11 @@ def summary(**args):
 		print()
 	
 		while datetime.date(year, month, 1) <= maxdate:
-			summary = pymoney.data.NodeSummary()
-			
-			for t in transactions:
-				if t.date.year != year or t.date.month != month:
-					continue
-			
-				if t.category == category:
-					summary.amount += t.amount
-					summary.sum += t.amount 
-			
-				if t.category.isChildOf(category):
-					summary.sum += t.amount
+			filter = pymoney.data.Filter(lambda t: t.date.year == year and t.date.month == month)
+			d_summary = app.create_summary(filter)
 			
 		
-			print("{0:<10} {1:<30} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), category.name, summary.amount, summary.sum))
+			print("{0:<10} {1:<30} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), category.name, d_summary[args["category"]].amount, d_summary[args["category"]].sum))
 			
 			month = month + 1
 			
@@ -359,7 +244,7 @@ def main(argv):
 	
 	p_category_rename = sp_category.add_parser("rename")
 	p_category_rename.set_defaults(command="rename")
-	p_category_rename.add_argument("oldname")
+	p_category_rename.add_argument("name")
 	p_category_rename.add_argument("newname")
 	
 	p_category_list = sp_category.add_parser("list")
