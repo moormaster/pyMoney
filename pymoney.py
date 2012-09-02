@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import pymoney.app
 import pymoney.data
 import pymoney.io
@@ -26,14 +28,14 @@ def transaction(**args):
 		
 		if args["year"]:
 			filter_year = int(args["year"])
-			filter = filter.andConcat(lambda t: t.year == filter_year)
+			filter = filter.andConcat(lambda t: t.date.year == filter_year)
 			
 		if args["month"]:
 			filter_month = int(args["month"])
-			filter = filter.andConcat(lambda t: t.month == filter_month)
+			filter = filter.andConcat(lambda t: t.date.month == filter_month)
 			
 		if args["category"]:
-			filter_category = categorytree.findNode(args["category"])
+			filter_category = app.categorytree.findNode(args["category"])
 			
 			if not filter_category:
 				print("category not found: " + args["category"], file=sys.stderr)

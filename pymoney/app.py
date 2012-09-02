@@ -34,10 +34,10 @@ class PyMoney:
 		try:
 			self.transactions = io.read_transactions(self.filenames["transactions"], self.transactionfactory)
 		except IOError as e:
-			if not e.errno == errno.ENOENT:
-				raise e
+			self.transactions = []
 			
-			transactions = []
+			if not e.errno == errno.ENOENT:
+				raise e			
 		
 	def write_transactions(self):
 		io.write_transactions(self.filenames["transactions"], self.transactionfactory, self.transactions)
@@ -123,11 +123,11 @@ class PyMoney:
 		try:
 			self.categorytree = io.read_categories(self.filenames["categories"])
 		except IOError as e:
+			self.categorytree = data.TreeNode("All")
+			
 			if not e.errno == errno.ENOENT:
 				raise e
-			
-			self.categorytree = data.TreeNode("All")
-	
+				
 		self.notfoundcategory = self.categorytree.findNode("NOTFOUND")
 		if not self.notfoundcategory:
 			self.notfoundcategory = self.categorytree.appendChildNode(data.TreeNode("NOTFOUND"))
