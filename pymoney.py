@@ -41,7 +41,7 @@ def transaction(**args):
 				print("category not found: " + args["category"], file=sys.stderr)
 				return
 				
-			filter = filter.andConcat(lambda t: t.category == filter_category)
+			filter = filter.andConcat(lambda t: t.category == filter_category or t.category.isChildOf(filter_category))
 
 
 		print("{0:>10} {1:<10} {2:<20} {3:>10} {4:<20}".format("Index", "Date", "Category", "Amount", "Comment"))
@@ -213,8 +213,8 @@ def main(argv):
 	p_transaction_delete.add_argument("index", type=int)
 	
 	p_transaction_list = sp_transaction.add_parser("list")
-	p_transaction_list.add_argument("--year");
-	p_transaction_list.add_argument("--month");
+	p_transaction_list.add_argument("year", type=int, nargs='?');
+	p_transaction_list.add_argument("month", type=int, nargs='?');
 	p_transaction_list.add_argument("--category");
 	p_transaction_list.set_defaults(command="list")
 	
