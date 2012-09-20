@@ -29,7 +29,7 @@ _pymoney_category()
 		list)
 			;;
 		*)
-			COMPREPLY=( $( compgen -W "add delete merge move rename list" ${COMP_WORDS[$COMP_CWORD}} ) )
+			COMPREPLY=( $( compgen -W "add delete merge move rename list" ${COMP_WORDS[$COMP_CWORD]} ) )
 			;;
 	esac
 }
