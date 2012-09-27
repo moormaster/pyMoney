@@ -86,8 +86,8 @@ class PyMoney:
 		node.rename(newname)
 		
 	def merge_category(self, name, newname):
-		node = categorytree.findNode(name)
-		newnode = categorytree.findNode(newname)
+		node = self.categorytree.findNode(name)
+		newnode = self.categorytree.findNode(newname)
 		
 		if not node:
 			raise Exception("no such node: " + oldname)
@@ -98,8 +98,8 @@ class PyMoney:
 			print("cannot merge root node")
 			return
 		
-		node.parent.removeChildNode(nodename)
-		for t in transactions:
+		node.parent.removeChildNode(name)
+		for t in self.transactions:
 			if t.category == node:
 				t.category = newnode
 				
