@@ -23,7 +23,11 @@ class PyMoney:
 	def filter_transactions(self, filter_func):
 		return data.FilterIterator(self.transactions.__iter__(), filter_func)
 
-	def add_transaction(self, date, category, amount, comment):
+	def add_transaction(self, date, category, amount, comment, force=False):
+		node = self.categorytree.findNode(category)
+		if node == None and not force:
+			raise Exception("Category not found!")
+
 		newtransaction = self.transactionfactory.create(date, category, amount, comment)
 		self.transactions.append(newtransaction);
 				

@@ -19,7 +19,7 @@ def init(**args):
 
 def transaction(**args):
 	def cmd_add(**args):
-		app.add_transaction(args["date"], args["category"], args["amount"], args["comment"])
+		app.add_transaction(args["date"], args["category"], args["amount"], args["comment"], args["force"])
 		app.write_transactions()
 	
 	def cmd_list(**args):
@@ -207,6 +207,7 @@ def main(argv):
 	p_transaction_add.add_argument("category")
 	p_transaction_add.add_argument("amount")
 	p_transaction_add.add_argument("comment", default="", nargs='?')
+	p_transaction_add.add_argument("--force", action="store_true")
 	
 	p_transaction_delete = sp_transaction.add_parser("delete")
 	p_transaction_delete.set_defaults(command="delete")
