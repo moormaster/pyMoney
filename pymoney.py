@@ -9,10 +9,6 @@ import datetime
 import sys
 
 
-def not_implemented(*pargs, **args):
-	print("not implemented", file=sys.stderr)
-
-
 def init(**arguments):
 	global app_instance
 	app_instance = lib.app.PyMoney(arguments["fileprefix"])
