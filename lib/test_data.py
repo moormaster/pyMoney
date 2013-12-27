@@ -27,7 +27,7 @@ class TestMoneyData(TestCase):
 		self.assertEqual(len(l), 2)
 
 	def test_add_transaction(self):
-		self.assertRaisesRegex(Exception, "Category not found: 'UnknownCategory1'",
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory1",
 								self.moneydata.add_transaction, "2000-01-01", "UnknownCategory1", "60.0", "")
 
 		transactioncount = len(self.moneydata.transactions)
@@ -61,7 +61,7 @@ class TestMoneyData(TestCase):
 		self.assertEqual(len(list(self.moneydata.filter_transactions(filter_func))), 0)
 
 	def test_parse_transaction(self):
-		self.assertRaisesRegex(Exception, "No such category: 'UnknownCategory'",
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
 								self.moneydata.parse_transaction, "2000-01-01", "UnknownCategory", "10.0", "A comment")
 
 		newtransaction = self.moneydata.parse_transaction("2000-01-01", "Category1", "10.0", "A comment")
@@ -76,7 +76,7 @@ class TestMoneyData(TestCase):
 		self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.category))
 
 	def test_get_category(self):
-		self.assertRaisesRegex(Exception, "No such category: 'UnknownCategory'",
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
 								self.moneydata.get_category, "UnknownCategory", False)
 
 		existingcategory = self.moneydata.get_category("Category1")
@@ -101,9 +101,9 @@ class TestMoneyData(TestCase):
 		self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newcategory))
 
 	def test_add_category(self):
-		self.assertRaisesRegex(Exception, "Category already exists: 'Category1'",
+		self.assertRaisesRegex(data.DuplicateCategoryException, "Category1",
 								self.moneydata.add_category, "Category2", "Category1")
-		self.assertRaisesRegex(Exception, "No such category: 'UnknownCategory'",
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
 								self.moneydata.add_category, "UnknownCategory", "NewCategory1")
 
 		newcategory = self.moneydata.add_category("All", "NewCategory1")
@@ -128,9 +128,9 @@ class TestMoneyData(TestCase):
 		self.assertEqual(newcategory.parent.name, "All")
 
 	def test_delete_category(self):
-		self.assertRaisesRegex(Exception, "No such category: 'UnknownCategory'",
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
 								self.moneydata.delete_category, "UnknownCategory")
-		self.assertRaisesRegex(Exception, "Cannot remove top category: 'All'",
+		self.assertRaisesRegex(data.CategoryIsTopCategoryException, "All",
 								self.moneydata.delete_category, "All")
 
 		self.moneydata.delete_category("Category1")
@@ -139,9 +139,9 @@ class TestMoneyData(TestCase):
 		self.assertFalse(self.moneydata.categorytree.find_first_node("Category1"))
 
 	def test_rename_category(self):
-		self.assertRaisesRegex(Exception, "No such category: 'UnknownCategory'",
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
 								self.moneydata.rename_category, "UnknownCategory", "RenamedUnknownCategory")
-		self.assertRaisesRegex(Exception, "Category already exists: 'Category2'",
+		self.assertRaisesRegex(data.DuplicateCategoryException, "Category2",
 								self.moneydata.rename_category, "Category1", "Category2")
 
 		filter_func = lambda t: t.category.name == "Category1"
@@ -166,43 +166,27 @@ class TestMoneyData(TestCase):
 		)
 
 	def test_merge_category(self):
-		self.assertRaisesRegex(Exception, "No such category: 'UnknownCategory'",
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
 								self.moneydata.merge_category, "UnknownCategory", "Category1")
-		self.assertRaisesRegex(Exception, "No such target category: 'UnknownCategory'",
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
 								self.moneydata.merge_category, "Category1", "UnknownCategory")
-		self.assertRaisesRegex(Exception, "Cannot merge category with one of its sub categories: 'Category1'",
-								self.moneydata.merge_category, "Category1", "Subcategory1")
 
 		sourcecategory = self.moneydata.get_category("Category1")
 		targetcategory = self.moneydata.get_category("Category2")
 
-		subcategories = sourcecategory.children
-
 		filter_func = lambda t: t.category.is_contained_in_subtree(targetcategory)
 		transactions = list(self.moneydata.filter_transactions(filter_func))
 
-		self.moneydata.merge_category("Category1", "Category2")
-
-		for category in subcategories:
-			self.assertEqual(subcategories[category].parent, targetcategory)
+		self.moneydata.merge_category(sourcecategory.name, targetcategory.name)
 
 		for transaction in transactions:
 			self.assertEqual(transaction.category, targetcategory)
 
 	def test_move_category(self):
-		self.assertRaisesRegex(Exception, "No such category: 'UnknownCategory'",
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
 								self.moneydata.move_category, "UnknownCategory", "Category1")
-		self.assertRaisesRegex(Exception, "No such parent category: 'UnknownCategory'",
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
 								self.moneydata.move_category, "Category1", "UnknownCategory")
-		self.assertRaisesRegex(Exception, "Cannot move category to one of its sub categories: 'Category1'",
-								self.moneydata.move_category, "Category1", "Subcategory1")
-
-		category1 = self.moneydata.get_category("Category1")
-		category2 = self.moneydata.get_category("Category2")
-
-		self.moneydata.move_category("Category2", "Category1")
-
-		self.assertEqual(category2.parent, category1)
 
 	def test_create_summary(self):
 		filter_func = lambda t: True
@@ -247,6 +231,8 @@ class TestTreeNode(unittest.TestCase):
 		self.assertTrue(l == lcomp1 or l == lcomp2)
 
 	def test_append_childnode(self):
+		self.assertRaises(AssertionError, self.tree.append_childnode, object())
+
 		node = self.tree.append_childnode(data.TreeNode("Child"))
 
 		self.assertTrue(node is not None)
@@ -258,7 +244,7 @@ class TestTreeNode(unittest.TestCase):
 		self.assertEqual(subnode.parent, node)
 
 	def test_remove_childnode_by_name(self):
-		self.assertRaisesRegex(Exception, "No such childnode: 'NoChild'", self.tree.remove_childnode_by_name, "NoChild")
+		self.assertRaisesRegex(data.NoSuchNodeException, "NoChild", self.tree.remove_childnode_by_name, "NoChild")
 
 		self.tree.remove_childnode_by_name("Child1")
 
@@ -267,13 +253,51 @@ class TestTreeNode(unittest.TestCase):
 		self.assertEqual(self.tree.find_first_node("Child2"), self.childnode2)
 
 	def test_remove_childnode(self):
-		self.assertRaisesRegex(Exception, "Node is not a child", self.tree.remove_childnode, data.TreeNode("NoChild"))
+		self.assertRaisesRegex(	data.NodeIsNotAChildException, "('All', 'NoChild')",
+								self.tree.remove_childnode, data.TreeNode("NoChild"))
 
 		self.tree.remove_childnode(self.childnode1)
 
 		self.assertEqual(self.tree.find_first_node("Child1"), None)
 		self.assertEqual(self.tree.find_first_node("SubChild1"), None)
 		self.assertEqual(self.tree.find_first_node("Child2"), self.childnode2)
+
+	def test_merge(self):
+		sourcecategory = self.tree.find_first_node("Child1")
+		targetcategory = self.tree.find_first_node("SubChild1")
+
+		assert isinstance(sourcecategory, data.TreeNode)
+		assert isinstance(targetcategory, data.TreeNode)
+
+		self.assertRaisesRegex(data.TargetNodeIsPartOfSourceNodeSubTreeException, "('Child1', 'SubChild1')",
+		targetcategory.merge_node, sourcecategory)
+
+		sourcecategory = self.tree.find_first_node("Child1")
+		targetcategory = self.tree.find_first_node("Child2")
+
+		subcategories = sourcecategory.children
+
+		targetcategory.merge_node(sourcecategory)
+
+		for category in subcategories:
+			self.assertEqual(subcategories[category].parent, targetcategory)
+
+	def test_move(self):
+		sourcecategory = self.tree.find_first_node("Child1")
+		targetcategory = self.tree.find_first_node("SubChild1")
+
+		assert isinstance(sourcecategory, data.TreeNode)
+		assert isinstance(targetcategory, data.TreeNode)
+
+		self.assertRaisesRegex(data.TargetNodeIsPartOfSourceNodeSubTreeException, "('Child1', 'SubChild1')",
+			targetcategory.move_node, sourcecategory)
+
+		sourcecategory = self.tree.find_first_node("Child1")
+		targetcategory = self.tree.find_first_node("Child2")
+
+		targetcategory.move_node(sourcecategory)
+
+		self.assertEqual(sourcecategory.parent, targetcategory)
 
 	def test_rename(self):
 		self.subchildnode.rename("renamed")
@@ -335,9 +359,8 @@ class TestCategoryTreeNode(unittest.TestCase):
 		self.tree = data.CategoryTreeNode("All")
 
 	def test_append_childnode(self):
-		self.assertRaisesRegex(Exception, "Can only append CategoryTreeNode's",
-								self.tree.append_childnode, data.TreeNode("TreeNode"))
-		self.assertRaisesRegex(Exception, "Cannot insert duplicate category: 'All'",
+		self.assertRaises(AssertionError, self.tree.append_childnode, data.TreeNode("TreeNode"))
+		self.assertRaisesRegex(data.DuplicateCategoryException, "All",
 								self.tree.append_childnode, data.CategoryTreeNode("All"))
 
 		node = self.tree.append_childnode(data.CategoryTreeNode("Child"))
