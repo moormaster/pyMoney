@@ -8,6 +8,7 @@ import argparse
 import datetime
 import sys
 
+
 class PyMoneyConsole(lib.app.PyMoney):
 	def __init__(self, argv):
 		self.argumentparser = self.get_argument_parser()
@@ -77,7 +78,6 @@ class PyMoneyConsole(lib.app.PyMoney):
 		else:
 			d_commands[self.arguments_dict["command"]]()
 
-
 	def cmdgroup_category(self, parser):
 		def cmd_list():
 			print(self.moneydata.categorytree)
@@ -107,7 +107,6 @@ class PyMoneyConsole(lib.app.PyMoney):
 			self.moneydata.merge_category(self.arguments_dict["name"], self.arguments_dict["targetname"])
 			self.write()
 
-
 		d_commands = {
 			"add": cmd_add,
 			"delete": cmd_delete,
@@ -122,7 +121,6 @@ class PyMoneyConsole(lib.app.PyMoney):
 			parser.print_help()
 		else:
 			d_commands[self.arguments_dict["command"]]()
-
 
 	def cmdgroup_summary(self, parser):
 		def cmd_categories():
@@ -277,13 +275,11 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 		return p_main
 
-
 	def main(self):
 		try:
 			self.arguments.func(self.arguments.parser)
-		except Exception as e:
+		except AttributeError:
 			self.argumentparser.print_help()
-
 
 
 if __name__ == "__main__":
