@@ -14,10 +14,11 @@ class PyMoney:
 
 	def set_fileprefix(self, fileprefix):
 		self.fileprefix = fileprefix
-		
+
 		self.filenames = {
-			"transactions": 	self.fileprefix + ".transactions",
-			"categories":		self.fileprefix + ".categories"}
+			"transactions": self.fileprefix + ".transactions",
+			"categories": self.fileprefix + ".categories"
+		}
 
 	def read(self):
 		moneydata = data.MoneyData()
@@ -32,8 +33,7 @@ class PyMoney:
 		self.moneydata = moneydata
 
 	def write(self, skipwritetransactions=False):
-		lib.io.Categories.write(self.filenames["categories"], self.moneydata.categorytree,
-								self.moneydata.get_notfound_category())
+		lib.io.Categories.write(self.filenames["categories"], self.moneydata.categorytree, self.moneydata.get_notfound_category())
 
 		if not skipwritetransactions:
 			lib.io.Transactions.write(self.filenames["transactions"], self.moneydata.transactions)

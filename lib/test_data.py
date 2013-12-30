@@ -330,7 +330,7 @@ class TestTreeNode(unittest.TestCase):
 
 		l = self.tree.find_nodes("ANode")
 
-		self.assertEqual(set(l), set([anode1, anode2]))
+		self.assertEqual(set(l), {anode1, anode2})
 
 	def test_get_full_name(self):
 		self.assertEqual(self.subchildnode.get_full_name(), "All.Child1.SubChild1")

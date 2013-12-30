@@ -21,15 +21,20 @@ class PymoneyTestBase(unittest.TestCase):
 		if os.access("pymoney.categories", os.F_OK):
 			os.remove("pymoney.categories")
 
+	@staticmethod
+	def pymoney_main(argv):
+		pymoneyconsole = pymoney.PyMoneyConsole(argv)
+		pymoneyconsole.main()
+
 	def setUp_categories(self):
-		pymoney.main(["category", "add", "All", "Category1"])
-		pymoney.main(["category", "add", "Category1", "Subcategory1"])
-		pymoney.main(["category", "add", "All", "Category2"])
+		PymoneyTestBase.pymoney_main(["category", "add", "All", "Category1"])
+		PymoneyTestBase.pymoney_main(["category", "add", "Category1", "Subcategory1"])
+		PymoneyTestBase.pymoney_main(["category", "add", "All", "Category2"])
 
 	def setUp_transactions(self):
-		pymoney.main(["transaction", "add", "2000-01-01", "Category1", "10.0", "A comment"])
-		pymoney.main(["transaction", "add", "2000-01-01", "Subcategory1", "20.0", "A comment"])
-		pymoney.main(["transaction", "add", "2000-01-01", "Category2", "30.0", "A comment"])
+		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category1", "10.0", "A comment"])
+		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Subcategory1", "20.0", "A comment"])
+		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category2", "30.0", "A comment"])
 
 	def get_app(self):
 		read_app = app.PyMoney()
@@ -45,7 +50,7 @@ class TransactionsTest(PymoneyTestBase):
 		self.assertEqual(len(read_app.moneydata.transactions), 3)
 
 	def test_transaction_delete(self):
-		pymoney.main(["transaction", "delete", "2"])
+		PymoneyTestBase.pymoney_main(["transaction", "delete", "2"])
 
 		read_app = self.get_app()
 		filter_func = lambda t: t.category.name == "Category2"
@@ -53,12 +58,12 @@ class TransactionsTest(PymoneyTestBase):
 		self.assertEqual(len(read_app.moneydata.transactions), 2)
 
 	def test_transaction_list(self):
-		pymoney.main(["transaction", "list"])
+		PymoneyTestBase.pymoney_main(["transaction", "list"])
 
 
 class CategoriesTest(PymoneyTestBase):
 	def test_category_add(self):
-		pymoney.main(["category", "add", "All", "NewCategory"])
+		PymoneyTestBase.pymoney_main(["category", "add", "All", "NewCategory"])
 
 		read_app = self.get_app()
 		self.assertEqual(len(list(read_app.moneydata.categorytree)), 5)
@@ -69,7 +74,7 @@ class CategoriesTest(PymoneyTestBase):
 		self.assertEqual(category.parent.name, "All")
 
 	def test_category_delete(self):
-		pymoney.main(["category", "delete", "Category1"])
+		PymoneyTestBase.pymoney_main(["category", "delete", "Category1"])
 
 		read_app = self.get_app()
 
@@ -77,8 +82,8 @@ class CategoriesTest(PymoneyTestBase):
 		self.assertIsNotNone(notfoundcategory)
 		self.assertTrue("Category1" in notfoundcategory.children)
 
-		pymoney.main(["transaction", "delete", "1"])
-		pymoney.main(["transaction", "delete", "0"])
+		PymoneyTestBase.pymoney_main(["transaction", "delete", "1"])
+		PymoneyTestBase.pymoney_main(["transaction", "delete", "0"])
 
 		read_app = self.get_app()
 
@@ -87,7 +92,7 @@ class CategoriesTest(PymoneyTestBase):
 		self.assertIsNone(category)
 
 	def test_category_merge(self):
-		pymoney.main(["category", "merge", "Category1", "Category2"])
+		PymoneyTestBase.pymoney_main(["category", "merge", "Category1", "Category2"])
 
 		read_app = self.get_app()
 		self.assertEqual(len(list(read_app.moneydata.categorytree)), 3)
@@ -110,7 +115,7 @@ class CategoriesTest(PymoneyTestBase):
 		self.assertEqual(subcategory1.parent.name, "Category2")
 
 	def test_category_move(self):
-		pymoney.main(["category", "move", "Subcategory1", "Category2"])
+		PymoneyTestBase.pymoney_main(["category", "move", "Subcategory1", "Category2"])
 
 		read_app = self.get_app()
 		category1 = read_app.moneydata.categorytree.find_first_node("Category1")
@@ -120,7 +125,7 @@ class CategoriesTest(PymoneyTestBase):
 		self.assertEqual(len(category1.children), 0)
 
 	def test_category_rename(self):
-		pymoney.main(["category", "rename", "Category1", "RenamedCategory"])
+		PymoneyTestBase.pymoney_main(["category", "rename", "Category1", "RenamedCategory"])
 
 		read_add = self.get_app()
 		category1 = read_add.moneydata.categorytree.find_first_node("Category1")
@@ -132,15 +137,18 @@ class CategoriesTest(PymoneyTestBase):
 		self.assertEqual(renamedcategory.parent.name, "All")
 
 	def test_category_list(self):
-		pymoney.main(["category", "list"])
+		PymoneyTestBase.pymoney_main(["category", "list"])
+
+	def test_category_listnames(self):
+		PymoneyTestBase.pymoney_main(["category", "listnames"])
 
 
 class SummaryTest(PymoneyTestBase):
 	def test_summary_categories(self):
-		pymoney.main(["summary", "categories"])
+		PymoneyTestBase.pymoney_main(["summary", "categories"])
 
 	def test_summary_monthly(self):
-		pymoney.main(["summary", "monthly", "Category1"])
+		PymoneyTestBase.pymoney_main(["summary", "monthly", "Category1"])
 
 
 if __name__ == "__main__":
