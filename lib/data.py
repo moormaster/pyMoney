@@ -163,16 +163,25 @@ class TreeNode:
 	def __iter__(self):
 		return DFSIterator(self)
 
-	def __str__(self):
+	def __str__(self, fullname=False):
 		res = ""
 
 		for node in self:
-			_depth = "\t"*node.get_depth() + "+ "*bool(len(node.children)) + "- "*(not len(node.children))
-			_name = node.name
-
-			res += _depth + _name + "\n"
+			res += node.format(fullname) + "\n"
 
 		return res
+
+	def format(self, fullname=False):
+		_depth = "\t"*self.get_depth()
+		_sym = "+ "*bool(len(self.children)) + "- "*(not len(self.children))
+
+		if fullname:
+			_name = self.get_full_name()
+		else:
+			_name = self.name
+
+		return _depth + _sym  + _name
+
 
 	def append_childnode(self, node):
 		assert isinstance(node, TreeNode)

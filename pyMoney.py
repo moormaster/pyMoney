@@ -80,11 +80,16 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 	def cmdgroup_category(self, parser):
 		def cmd_list():
-			print(self.moneydata.categorytree)
+			print(self.moneydata.categorytree.__str__(fullname=self.arguments_dict["fullnamecategories"]))
 
 		def cmd_listnames():
 			for category in self.moneydata.categorytree:
-				print(category.name + " ", end="")
+				if self.arguments_dict["fullnamecategories"]:
+					_category = category.get_full_name()
+				else:
+					_category = category.name
+
+				print(_category + " ", end="")
 			print("")
 
 		def cmd_add():

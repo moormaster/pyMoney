@@ -1,4 +1,4 @@
-import pymoney
+import pyMoney
 from lib import app
 
 import unittest
@@ -23,7 +23,7 @@ class PymoneyTestBase(unittest.TestCase):
 
 	@staticmethod
 	def pymoney_main(argv):
-		pymoneyconsole = pymoney.PyMoneyConsole(argv)
+		pymoneyconsole = pyMoney.PyMoneyConsole(argv)
 		pymoneyconsole.main()
 
 	def setUp_categories(self):
@@ -59,6 +59,11 @@ class TransactionsTest(PymoneyTestBase):
 
 	def test_transaction_list(self):
 		PymoneyTestBase.pymoney_main(["transaction", "list"])
+		PymoneyTestBase.pymoney_main(["transaction", "list", "2000"])
+		PymoneyTestBase.pymoney_main(["transaction", "list", "2000", "01"])
+		PymoneyTestBase.pymoney_main(["transaction", "list", "2000", "01"])
+		PymoneyTestBase.pymoney_main(["transaction", "list", "2000", "01", "--category=Category1"])
+		PymoneyTestBase.pymoney_main(["transaction", "--fullnamecategories", "list", "2000", "01"])
 
 
 class CategoriesTest(PymoneyTestBase):
@@ -146,6 +151,8 @@ class CategoriesTest(PymoneyTestBase):
 class SummaryTest(PymoneyTestBase):
 	def test_summary_categories(self):
 		PymoneyTestBase.pymoney_main(["summary", "categories"])
+		PymoneyTestBase.pymoney_main(["summary", "categories", "2000"])
+		PymoneyTestBase.pymoney_main(["summary", "categories", "2000", "01"])
 
 	def test_summary_monthly(self):
 		PymoneyTestBase.pymoney_main(["summary", "monthly", "Category1"])

@@ -1,22 +1,27 @@
 _pymoney_transaction()
 {
-	case ${COMP_WORDS[2]} in
+	_ARGINDEX=$1
+	case ${COMP_WORDS[$_ARGINDEX]} in
+		--fullnamecategories)
+			_pymoney_transaction $(( $_ARGINDEX + 1 ))
+			;;
+
 		add)
 			case ${COMP_CWORD} in
-				3)
+				$(( $_ARGINDEX + 1 )) )
 					# date
 					;;
 
-				4)
+				$(( $_ARGINDEX + 2 )) )
 					# category
-					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" ${COMP_WORDS[$COMP_CWORD]} ) )
+					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
-				5)
+				$(( $_ARGINDEX + 3 )) )
 					# amount
 					;;
 
-				6)
+				$(( $_ARGINDEX + 4 )) )
 					# comment
 			esac
 			;;
@@ -25,34 +30,48 @@ _pymoney_transaction()
 			;;
 
 		list)
+			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
+				--category)
+					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				*)
+					COMPREPLY=( $( compgen -W "--category" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+			esac
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "add delete list" ${COMP_WORDS[$COMP_CWORD]} ) )
+			COMPREPLY=( $( compgen -W "--fullnamecategories add delete list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
 
 _pymoney_category()
 {
-	case ${COMP_WORDS[2]} in
+	_ARGINDEX=$1
+	case ${COMP_WORDS[$_ARGINDEX]} in
+		--fullnamecategories)
+			_pymoney_category $(( $_ARGINDEX + 1 ))
+			;;
+
 		add)
 			;;
 
 		delete | rename)
 			case $COMP_CWORD in
-				3)
+				$(( $_ARGINDEX + 1 )) )
 				# category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" ${COMP_WORDS[$COMP_CWORD]} ) )
+				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
 
 		merge | move)
 			case $COMP_CWORD in
-				3 | 4)
+				$(( $_ARGINDEX + 1 )) | $(( $_ARGINDEX + 2 )) )
 				# category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" ${COMP_WORDS[$COMP_CWORD]} ) )
+				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
@@ -61,28 +80,29 @@ _pymoney_category()
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "add delete merge move rename list" ${COMP_WORDS[$COMP_CWORD]} ) )
+			COMPREPLY=( $( compgen -W "--fullnamecategories add delete merge move rename list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
 
 _pymoney_summary()
 {
+	_ARGINDEX=$1
 	case ${COMP_WORDS[2]} in
 		categories)
 			;;
 
 		monthly)
 			case $COMP_CWORD in
-				3)
+				$(( $_ARGINDEX + 1 )) )
 				# category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" ${COMP_WORDS[$COMP_CWORD]} ) )
+				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "categories monthly" ${COMP_WORDS[$COMP_CWORD]} ) )
+			COMPREPLY=( $( compgen -W "categories monthly" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
@@ -91,21 +111,21 @@ _pymoney()
 {
 	case ${COMP_WORDS[1]} in
 		transaction)
-			_pymoney_transaction
+			_pymoney_transaction 2
 			;;
 
 		category)
-			_pymoney_category
+			_pymoney_category 2
 			;;
 
 		summary)
-			_pymoney_summary
+			_pymoney_summary 2
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "transaction category summary" ${COMP_WORDS[$COMP_CWORD]} ) )
+			COMPREPLY=( $( compgen -W "transaction category summary" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
 
-complete -F _pymoney pymoney.py
+complete -F _pymoney pyMoney.py
