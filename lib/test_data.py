@@ -40,7 +40,7 @@ class TestMoneyData(TestCase):
 
 		newtransaction = self.moneydata.add_transaction("2000-01-01", "UnknownCategory2", "50.0", "", True)
 
-		self.assertEquals(len(self.moneydata.transactions), transactioncount + 2)
+		self.assertEqual(len(self.moneydata.transactions), transactioncount + 2)
 		self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.category))
 
 	def test_delete_transaction(self):
