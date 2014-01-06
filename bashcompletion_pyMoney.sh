@@ -56,6 +56,12 @@ _pymoney_category()
 			;;
 
 		add)
+			case $COMP_CWORD in
+				$(( $_ARGINDEX + 1 )) )
+				# parent category
+				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				;;
+			esac
 			;;
 
 		delete | rename)
