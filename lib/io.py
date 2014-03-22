@@ -1,6 +1,7 @@
 from . import data
 import csv
 import os.path
+import re
 
 
 class Transactions:
@@ -76,17 +77,37 @@ class CategoryParser:
 		self.nodestack = []
 
 	def parse(self, line):
-		depth = line.count("	")
-		name = line.strip()
+		match = re.match("^(\t*)([+-0]) (.*)$", line)
+
+		if match is None:
+			raise IOError("Could not parse line: \"" + line + "\"")
+
+		groups = match.groups()
+
+		if not len(groups) == 3:
+			raise IOError("Could not parse line: \"" + line + "\"")
+
+		depth = match.group(1).count("	")
+		str_sign = match.group(2)
+		name = match.group(3).strip()
+
+		if str_sign == "+":
+			sign = 1
+		elif str_sign == "-":
+			sign = -1
+		elif str_sign == "0":
+			sign = 0
+		else:
+			raise data.InvalidSignException(str_sign)
 
 		while len(self.nodestack) > depth:
 			self.nodestack.pop()
 
 		if self.categorytree:
 			node = self.nodestack[len(self.nodestack) - 1]
-			node = node.append_childnode(data.CategoryTreeNode(name))
+			node = node.append_childnode(data.CategoryTreeNode(name, sign))
 		else:
-			self.categorytree = data.CategoryTreeNode(name)
+			self.categorytree = data.CategoryTreeNode(name, sign)
 			node = self.categorytree
 
 		self.nodestack.append(node)
@@ -100,7 +121,9 @@ class CategoryFormatter:
 
 	@staticmethod
 	def format(category):
-		return "	" * category.get_depth() + category.name
+		assert(isinstance(category, data.CategoryTreeNode))
+
+		return "	" * category.get_depth() + str(category.sign) + " " + category.name
 
 
 class TransactionParser:

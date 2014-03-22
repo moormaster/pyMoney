@@ -13,8 +13,12 @@ class MoneyDataFactory:
 	def create():
 		moneydata = data.MoneyData()
 
-		moneydata.add_category("All", "Category")
-		moneydata.add_category("All", "AnotherCategory")
+		moneydata.add_category("All", "Incoming", "+")
+		moneydata.add_category("All", "Outgoing", "-")
+
+		moneydata.add_category("Incoming", "Wages", "+")
+		moneydata.add_category("Outgoing", "Rent", "+")
+		moneydata.add_category("Outgoing", "AnotherCategory", "+")
 
 		return moneydata
 
@@ -26,8 +30,9 @@ class TestTransactions(unittest.TestCase):
 
 		self.moneydata = MoneyDataFactory.create()
 
-		self.moneydata.add_transaction("2000-01-01", "Category", "100.0", "A comment")
-		self.moneydata.add_transaction("2000-01-02", "AnotherCategory", "200.0", "A comment")
+		self.moneydata.add_transaction("2000-01-01", "Wages", "1000.0", "Wages")
+		self.moneydata.add_transaction("2000-01-02", "Rent", "400.0", "My appartment")
+		self.moneydata.add_transaction("2000-01-03", "AnotherCategory", "100.0", "A comment")
 
 	def tearDown(self):
 		if os.access("pymoney.transactions", os.F_OK):

@@ -3,7 +3,7 @@ import datetime
 
 class MoneyData:
 	def __init__(self):
-		self.categorytree = CategoryTreeNode("All")
+		self.categorytree = CategoryTreeNode("All", 1)
 		self.transactions = []
 
 	def filter_transactions(self, filter_func):
@@ -36,7 +36,7 @@ class MoneyData:
 
 		if len(nodes) == 0:
 			if autocreatenotfoundcategory:
-				newcategory = self.get_notfound_category(autocreate=True).append_childnode(CategoryTreeNode(name))
+				newcategory = self.get_notfound_category(autocreate=True).append_childnode(CategoryTreeNode(name, 1))
 				nodes = [newcategory]
 			else:
 				raise NoSuchCategoryException(name)
@@ -50,7 +50,7 @@ class MoneyData:
 		category = self.categorytree.find_first_node("NOTFOUND")
 
 		if category is None and autocreate:
-			category = self.categorytree.append_childnode(CategoryTreeNode("NOTFOUND"))
+			category = self.categorytree.append_childnode(CategoryTreeNode("NOTFOUND", 1))
 
 		return category
 
@@ -62,7 +62,7 @@ class MoneyData:
 
 		return category.is_contained_in_subtree(notfoundcategory)
 
-	def add_category(self, parentname, name):
+	def add_category(self, parentname, name, str_sign):
 		category = self.categorytree.find_first_node(name)
 		parentcategory = self.categorytree.find_first_node(parentname)
 
@@ -75,7 +75,7 @@ class MoneyData:
 		if category and self.category_is_contained_in_notfound_category(category):
 			category.parent.remove_childnode_by_name(name)
 
-		newcategory = CategoryTreeNode(name)
+		newcategory = CategoryTreeNode(name, Sign.parse(str_sign))
 		parentcategory.append_childnode(newcategory)
 
 		return newcategory
@@ -105,6 +105,14 @@ class MoneyData:
 			newcategory.parent.remove_childnode_by_name(newname)
 
 		category.rename(newname)
+
+	def setsign_of_category(self, name, str_newsign):
+		category = self.categorytree.find_first_node(name)
+
+		if not category:
+			raise NoSuchCategoryException(name)
+
+		category.sign = Sign.parse(str_newsign)
 
 	def merge_category(self, name, targetname):
 		category = self.categorytree.find_first_node(name)
@@ -144,11 +152,11 @@ class MoneyData:
 			if not transactionfilter(t):
 				continue
 
-			d_summary[t.category.name].amount += t.amount
+			d_summary[t.category.name].amount += t.category.sign.value * t.amount
 
 			c = t.category
-			while c:
-				d_summary[c.name].sum += t.amount
+			while not c is None:
+				d_summary[c.name].sum += t.category.get_absolute_sign().value * t.amount
 				c = c.parent
 
 		return d_summary
@@ -173,14 +181,13 @@ class TreeNode:
 
 	def format(self, fullname=False):
 		_depth = "\t"*self.get_depth()
-		_sym = "+ "*bool(len(self.children)) + "- "*(not len(self.children))
 
 		if fullname:
 			_name = self.get_full_name()
 		else:
 			_name = self.name
 
-		return _depth + _sym  + _name
+		return _depth + _name
 
 
 	def append_childnode(self, node):
@@ -296,35 +303,16 @@ class TreeNode:
 		return node.is_contained_in_subtree(self)
 
 
-class NoSuchNodeException(Exception):
-	def __init__(self, name):
-		Exception.__init__(self, name)
-		self.name = name
-
-
-class NodeIsNotAChildException(Exception):
-	def __init__(self, parentnode, node):
-		assert isinstance(parentnode, TreeNode)
-		assert isinstance(node, TreeNode)
-
-		Exception.__init__(self, parentnode.name, node.name)
-		self.parentnode = parentnode
-		self.node = node
-
-
-class TargetNodeIsPartOfSourceNodeSubTreeException(Exception):
-	def __init__(self, sourcenode, targetnode):
-		assert isinstance(sourcenode, TreeNode)
-		assert isinstance(targetnode, TreeNode)
-
-		Exception.__init__(self, sourcenode.name, targetnode.name)
-		self.sourcenode = sourcenode
-		self.targetnode = targetnode
-
-
 class CategoryTreeNode(TreeNode):
-	def __init__(self, name):
+	def __init__(self, name, sign):
 		TreeNode.__init__(self, name)
+
+		if type(sign) == int:
+			self.sign = Sign(sign)
+		elif isinstance(sign, Sign):
+			self.sign = sign
+		else:
+			raise TypeError("Can't convert type " + str(type(sign)) + " to " + str(Sign) + " implicitly")
 
 	def append_childnode(self, node):
 		assert isinstance(node, CategoryTreeNode)
@@ -334,33 +322,53 @@ class CategoryTreeNode(TreeNode):
 
 		return TreeNode.append_childnode(self, node)
 
+	def get_absolute_sign(self, root_category=None):
+		node = self
+		value = node.sign.value
+		while not node.parent is None and (root_category is None or not node == root_category):
+			node = node.parent
 
-class AmbiguousCategoryNameException(Exception):
-	def __init__(self, name):
-		Exception.__init__(self, name)
+			value = value * node.sign.value
 
-		self.name = name
+		return Sign(value)
 
+	def format(self, fullname=False):
+		_depth = "\t"*self.get_depth()
+		_sym = str(self.sign) + " "
 
-class DuplicateCategoryException(Exception):
-	def __init__(self, category):
-		assert isinstance(category, CategoryTreeNode)
+		if fullname:
+			_name = self.get_full_name()
+		else:
+			_name = self.name
 
-		Exception.__init__(self, category.name)
-		self.category = category
-
-
-class NoSuchCategoryException(NoSuchNodeException):
-	def __init__(self, name):
-		NoSuchNodeException.__init__(self, name)
+		return _depth + _sym  + _name
 
 
-class CategoryIsTopCategoryException(Exception):
-	def __init__(self, category):
-		assert isinstance(category, CategoryTreeNode)
+class Sign:
+	def __init__(self, value):
+		self.value = value
 
-		Exception.__init__(self, category.name)
-		self.category = category
+	def __str__(self):
+		if self.value == -1:
+			return "-"
+		elif self.value == 0:
+			return "0"
+		elif self.value == 1:
+			return "+"
+		else:
+			raise InvalidSignException(self.value)
+
+	def parse(str_sign):
+		if str_sign == "+":
+			value = 1
+		elif str_sign == "-":
+			value = -1
+		elif str_sign == "0":
+			value = 0
+		else:
+			raise InvalidSignException(str_sign)
+
+		return Sign(value)
 
 
 class DFSIterator:
@@ -386,6 +394,8 @@ class Transaction(object):
 	__slots__ = fields
 
 	def __init__(self, date, category, amount, comment):
+		assert(isinstance(category, CategoryTreeNode))
+
 		self.date = date
 		self.category = category
 		self.amount = amount
@@ -442,3 +452,61 @@ class Filter:
 		return Filter(lambda item: not self(item))
 
 
+class NoSuchNodeException(Exception):
+	def __init__(self, name):
+		Exception.__init__(self, name)
+		self.name = name
+
+
+class NodeIsNotAChildException(Exception):
+	def __init__(self, parentnode, node):
+		assert isinstance(parentnode, TreeNode)
+		assert isinstance(node, TreeNode)
+
+		Exception.__init__(self, parentnode.name, node.name)
+		self.parentnode = parentnode
+		self.node = node
+
+
+class TargetNodeIsPartOfSourceNodeSubTreeException(Exception):
+	def __init__(self, sourcenode, targetnode):
+		assert isinstance(sourcenode, TreeNode)
+		assert isinstance(targetnode, TreeNode)
+
+		Exception.__init__(self, sourcenode.name, targetnode.name)
+		self.sourcenode = sourcenode
+		self.targetnode = targetnode
+
+class AmbiguousCategoryNameException(Exception):
+	def __init__(self, name):
+		Exception.__init__(self, name)
+
+		self.name = name
+
+
+class DuplicateCategoryException(Exception):
+	def __init__(self, category):
+		assert isinstance(category, CategoryTreeNode)
+
+		Exception.__init__(self, category.name)
+		self.category = category
+
+
+class NoSuchCategoryException(NoSuchNodeException):
+	def __init__(self, name):
+		NoSuchNodeException.__init__(self, name)
+
+
+class CategoryIsTopCategoryException(Exception):
+	def __init__(self, category):
+		assert isinstance(category, CategoryTreeNode)
+
+		Exception.__init__(self, category.name)
+		self.category = category
+
+
+class InvalidSignException(Exception):
+	def __init__(self, str_sign):
+		Exception.__init__(self, str_sign)
+
+		self.str_sign = str_sign

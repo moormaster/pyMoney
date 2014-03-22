@@ -58,7 +58,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 				else:
 					_category = d.category.name
 
-				_amount = d.amount
+				assert isinstance(d.category, lib.data.CategoryTreeNode)
+				_amount = d.category.get_absolute_sign().value * d.amount
 				_comment = d.comment
 
 				print("{0:>10} {1:>10} {2:<20} {3:>10.2f} {4:<20}".format(_index, _date, _category, _amount, _comment))
@@ -93,7 +94,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			print("")
 
 		def cmd_add():
-			self.moneydata.add_category(self.arguments_dict["parentname"], self.arguments_dict["name"])
+			self.moneydata.add_category(self.arguments_dict["parentname"], self.arguments_dict["name"], self.arguments_dict["sign"])
 			self.write(skipwritetransactions=True)
 
 		def cmd_delete():
@@ -108,6 +109,10 @@ class PyMoneyConsole(lib.app.PyMoney):
 			self.moneydata.rename_category(self.arguments_dict["name"], self.arguments_dict["newname"])
 			self.write()
 
+		def cmd_setsign():
+			self.moneydata.setsign_of_category(self.arguments_dict["name"], self.arguments_dict["newsign"])
+			self.write()
+
 		def cmd_merge():
 			self.moneydata.merge_category(self.arguments_dict["name"], self.arguments_dict["targetname"])
 			self.write()
@@ -117,6 +122,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			"delete": cmd_delete,
 			"move": cmd_move,
 			"rename": cmd_rename,
+			"setsign": cmd_setsign,
 			"merge": cmd_merge,
 			"list": cmd_list,
 			"listnames": cmd_listnames
@@ -142,12 +148,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			print("{0:<40} {1:>10} {2:>10}".format("node", "amount", "sum"))
 			print()
 			for c in self.moneydata.categorytree:
-				if len(c.children):
-					nodesym = "+"
-				else:
-					nodesym = "-"
-
-				print("{0:<40} {1:>10.2f} {2:>10.2f}".format("    " * c.get_depth() + " " + nodesym + " " + c.name,
+				print("{0:<40} {1:>10.2f} {2:>10.2f}".format("    " * c.get_depth() + " " + str(c.sign) + " " + c.name,
 																d_summary[c.name].amount, d_summary[c.name].sum))
 
 		def cmd_monthly():
@@ -236,6 +237,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		p_category_add = sp_category.add_parser("add")
 		p_category_add.set_defaults(command="add")
 		p_category_add.add_argument("parentname")
+		p_category_add.add_argument("sign")
 		p_category_add.add_argument("name")
 
 		p_category_delete = sp_category.add_parser("delete")
@@ -252,10 +254,20 @@ class PyMoneyConsole(lib.app.PyMoney):
 		p_category_move.add_argument("name")
 		p_category_move.add_argument("newparentname")
 
+		p_category_move = sp_category.add_parser("setsign")
+		p_category_move.set_defaults(command="setsign")
+		p_category_move.add_argument("name")
+		p_category_move.add_argument("newsign")
+
 		p_category_rename = sp_category.add_parser("rename")
 		p_category_rename.set_defaults(command="rename")
 		p_category_rename.add_argument("name")
 		p_category_rename.add_argument("newname")
+
+		p_category_changesign = sp_category.add_parser("changesign")
+		p_category_changesign.set_defaults(command="changesign")
+		p_category_changesign.add_argument("name")
+		p_category_changesign.add_argument("newsign")
 
 		p_category_list = sp_category.add_parser("list")
 		p_category_list.set_defaults(command="list")

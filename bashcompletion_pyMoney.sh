@@ -64,7 +64,7 @@ _pymoney_category()
 			esac
 			;;
 
-		delete | rename)
+		delete | rename | setsign )
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
 				# category
@@ -86,7 +86,7 @@ _pymoney_category()
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "--fullnamecategories add delete merge move rename list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "--fullnamecategories add delete merge move rename setsign list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }

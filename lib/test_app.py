@@ -13,9 +13,9 @@ class TestPyMoney(unittest.TestCase):
 
 		self.app = app.PyMoney()
 
-		self.app.moneydata.add_category("All", "Category1")
-		self.app.moneydata.add_category("Category1", "Subcategory1")
-		self.app.moneydata.add_category("All", "Category2")
+		self.app.moneydata.add_category("All", "Category1", "+")
+		self.app.moneydata.add_category("Category1", "Subcategory1", "+")
+		self.app.moneydata.add_category("All", "Category2", "+")
 
 		self.app.moneydata.add_transaction("2000-01-01", "Category1", 10.0, "A comment")
 		self.app.moneydata.add_transaction("2000-01-02", "Subcategory1", 20.0, "A comment")

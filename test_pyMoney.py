@@ -1,5 +1,6 @@
 import pyMoney
 from lib import app
+from lib import data
 
 import unittest
 import os
@@ -27,9 +28,9 @@ class PymoneyTestBase(unittest.TestCase):
 		pymoneyconsole.main()
 
 	def setUp_categories(self):
-		PymoneyTestBase.pymoney_main(["category", "add", "All", "Category1"])
-		PymoneyTestBase.pymoney_main(["category", "add", "Category1", "Subcategory1"])
-		PymoneyTestBase.pymoney_main(["category", "add", "All", "Category2"])
+		PymoneyTestBase.pymoney_main(["category", "add", "All", "+", "Category1"])
+		PymoneyTestBase.pymoney_main(["category", "add", "Category1", "+", "Subcategory1"])
+		PymoneyTestBase.pymoney_main(["category", "add", "All", "+", "Category2"])
 
 	def setUp_transactions(self):
 		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category1", "10.0", "A comment"])
@@ -68,7 +69,7 @@ class TransactionsTest(PymoneyTestBase):
 
 class CategoriesTest(PymoneyTestBase):
 	def test_category_add(self):
-		PymoneyTestBase.pymoney_main(["category", "add", "All", "NewCategory"])
+		PymoneyTestBase.pymoney_main(["category", "add", "All", "+", "NewCategory"])
 
 		read_app = self.get_app()
 		self.assertEqual(len(list(read_app.moneydata.categorytree)), 5)
@@ -140,6 +141,16 @@ class CategoriesTest(PymoneyTestBase):
 		self.assertIsNotNone(renamedcategory)
 		self.assertEqual(renamedcategory.name, "RenamedCategory")
 		self.assertEqual(renamedcategory.parent.name, "All")
+
+	def test_category_setsign(self):
+		PymoneyTestBase.pymoney_main(["category", "setsign", "Category1", "-"])
+
+		read_add = self.get_app()
+		category1 = read_add.moneydata.categorytree.find_first_node("Category1")
+		assert(isinstance(category1, data.CategoryTreeNode))
+
+		self.assertIsNotNone(category1)
+		self.assertEqual(category1.sign.value, -1)
 
 	def test_category_list(self):
 		PymoneyTestBase.pymoney_main(["category", "list"])
