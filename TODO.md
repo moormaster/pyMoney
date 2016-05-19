@@ -1,3 +1,3 @@
-- [ ] remove "category changesign" command from commandline parser
-- [ ] rename "category list" command to "category printtree"
-- [ ] refactoring: make unit tests more modular
+- [x] remove "category changesign" command from commandline parser
+- [ ] rename "category list" command to "category print", "category listnames" to "category list"
+

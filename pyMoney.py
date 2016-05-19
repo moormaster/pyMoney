@@ -264,11 +264,6 @@ class PyMoneyConsole(lib.app.PyMoney):
 		p_category_rename.add_argument("name")
 		p_category_rename.add_argument("newname")
 
-		p_category_changesign = sp_category.add_parser("changesign")
-		p_category_changesign.set_defaults(command="changesign")
-		p_category_changesign.add_argument("name")
-		p_category_changesign.add_argument("newsign")
-
 		p_category_list = sp_category.add_parser("list")
 		p_category_list.set_defaults(command="list")
 
