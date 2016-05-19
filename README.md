@@ -33,4 +33,9 @@ node                                         amount        sum
          + Misc                               14.99     -14.99
      + Incoming                             1500.00    1500.00
 
+$ ./pyMoney.py transaction list 2016 01
+     Index Date       Category                 Amount Comment
+         0 2016-01-01 Incoming                1500.00 Wages
+         1 2016-01-05 Life                     -30.00 Food
+         2 2016-01-10 Misc                     -14.99 Favorite DVD
 ```
