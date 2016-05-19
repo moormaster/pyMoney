@@ -12,7 +12,7 @@ $ ./pyMoney.py category add All - Outgoing
 $ ./pyMoney.py category add Outgoing + Life
 $ ./pyMoney.py category add Outgoing + Misc
 
-$ ./pyMoney.py category list
+$ ./pyMoney.py category tree
 + All
         - Outgoing
                 + Misc
