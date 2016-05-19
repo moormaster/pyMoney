@@ -3,7 +3,7 @@ A commandline tool to track personal expenses within a tree of categories
 
 ## Example usage:
 ```
-$ ./pyMoney.py category list
+$ ./pyMoney.py category tree
 + All
 
 
