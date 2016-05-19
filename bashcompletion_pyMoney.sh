@@ -76,17 +76,17 @@ _pymoney_category()
 		merge | move)
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) | $(( $_ARGINDEX + 2 )) )
-				# category
+				# parent category / category
 				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
 
-		list)
-			;;
+		list | tree)
+	        ;;
 
 		*)
-			COMPREPLY=( $( compgen -W "--fullnamecategories add delete merge move rename setsign list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "--fullnamecategories add delete merge move rename setsign list tree" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
