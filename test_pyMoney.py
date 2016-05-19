@@ -155,8 +155,8 @@ class CategoriesTest(PymoneyTestBase):
 	def test_category_list(self):
 		PymoneyTestBase.pymoney_main(["category", "list"])
 
-	def test_category_listnames(self):
-		PymoneyTestBase.pymoney_main(["category", "listnames"])
+	def test_category_tree(self):
+		PymoneyTestBase.pymoney_main(["category", "tree"])
 
 
 class SummaryTest(PymoneyTestBase):

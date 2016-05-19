@@ -80,17 +80,17 @@ class PyMoneyConsole(lib.app.PyMoney):
 			d_commands[self.arguments_dict["command"]]()
 
 	def cmdgroup_category(self, parser):
-		def cmd_list():
+		def cmd_tree():
 			print(self.moneydata.categorytree.__str__(fullname=self.arguments_dict["fullnamecategories"]))
 
-		def cmd_listnames():
+		def cmd_list():
 			for category in self.moneydata.categorytree:
 				if self.arguments_dict["fullnamecategories"]:
 					_category = category.get_full_name()
 				else:
 					_category = category.name
 
-				print(_category + " ", end="")
+				print(_category)
 			print("")
 
 		def cmd_add():
@@ -125,7 +125,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			"setsign": cmd_setsign,
 			"merge": cmd_merge,
 			"list": cmd_list,
-			"listnames": cmd_listnames
+			"tree": cmd_tree
 		}
 
 		if not "command" in self.arguments_dict:
@@ -264,11 +264,11 @@ class PyMoneyConsole(lib.app.PyMoney):
 		p_category_rename.add_argument("name")
 		p_category_rename.add_argument("newname")
 
-		p_category_list = sp_category.add_parser("list")
-		p_category_list.set_defaults(command="list")
+		p_category_list = sp_category.add_parser("tree")
+		p_category_list.set_defaults(command="tree")
 
-		p_category_listnames = sp_category.add_parser("listnames")
-		p_category_listnames.set_defaults(command="listnames")
+		p_category_listnames = sp_category.add_parser("list")
+		p_category_listnames.set_defaults(command="list")
 
 		### summary
 		p_summary = sp_main.add_parser("summary")
