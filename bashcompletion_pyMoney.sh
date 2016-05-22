@@ -14,7 +14,7 @@ _pymoney_transaction()
 
 				$(( $_ARGINDEX + 2 )) )
 					# category
-					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				$(( $_ARGINDEX + 3 )) )
@@ -32,7 +32,7 @@ _pymoney_transaction()
 		list)
 			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
 				--category)
-					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				*)
@@ -59,7 +59,7 @@ _pymoney_category()
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
 				# parent category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
@@ -68,7 +68,7 @@ _pymoney_category()
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
 				# category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
@@ -77,7 +77,7 @@ _pymoney_category()
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) | $(( $_ARGINDEX + 2 )) )
 				# parent category / category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
@@ -102,7 +102,7 @@ _pymoney_summary()
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
 				# category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category listnames )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
