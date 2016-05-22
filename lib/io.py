@@ -2,6 +2,7 @@ from . import data
 import csv
 import os.path
 import re
+import datetime
 
 
 class Transactions:
@@ -127,12 +128,43 @@ class CategoryFormatter:
 
 
 class TransactionParser:
-	def __init__(self, moneydata, dateformat="%Y-%m-%d"):
-		self.moneydata = moneydata
+	def __init__(self, categorytree, notfoundcategoryname, dateformat="%Y-%m-%d"):
+		self.categorytree = categorytree
 		self.dateformat = dateformat
+		self.notfoundcategoryname = notfoundcategoryname
+
+		self.autocreatenotfoundcategory = True
+
+	def get_category(self, name):
+		nodes = self.categorytree.find_nodes(name)
+
+		if len(nodes) == 0:
+			if self.autocreatenotfoundcategory:
+				newcategory = self.get_notfound_category(autocreate=True).append_childnode(data.CategoryTreeNode(name, 1))
+				nodes = [newcategory]
+			else:
+				raise data.NoSuchCategoryException(name)
+
+		if len(nodes) > 1:
+			raise data.AmbiguousCategoryNameException(name)
+
+		return nodes[0]
+
+	def get_notfound_category(self, autocreate=False):
+		category = self.categorytree.find_first_node(self.notfoundcategoryname)
+
+		if category is None and autocreate:
+			category = self.categorytree.append_childnode(data.CategoryTreeNode(self.notfoundcategoryname, 1))
+
+		return category
 
 	def parse(self, date, category, amount, comment):
-		return self.moneydata.parse_transaction(date, category, amount, comment, True, self.dateformat)
+		date = datetime.datetime.strptime(date, self.dateformat).date()
+		category = self.get_category(category)
+		amount = float(amount)
+		comment = comment
+
+		return data.Transaction(date, category, amount, comment)
 
 
 class TransactionFormatter:

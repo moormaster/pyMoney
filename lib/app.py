@@ -27,7 +27,7 @@ class PyMoney:
 			moneydata.categorytree = lib.io.Categories.read(self.filenames["categories"])
 
 		if os.access(self.filenames["transactions"], os.F_OK):
-			transactionparser = lib.io.TransactionParser(moneydata)
+			transactionparser = lib.io.TransactionParser(moneydata.categorytree, moneydata.notfoundcategoryname)
 			moneydata.transactions = lib.io.Transactions.read(self.filenames["transactions"], transactionparser)
 
 		self.moneydata = moneydata

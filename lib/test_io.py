@@ -1,5 +1,5 @@
 from lib import data
-import lib.io
+from lib import io
 
 import os
 import unittest
@@ -39,15 +39,15 @@ class TestTransactions(unittest.TestCase):
 			os.remove("pymoney.transactions")
 
 	def test_read(self):
-		lib.io.Transactions.write("pymoney.transactions", self.moneydata.transactions, False)
+		io.Transactions.write("pymoney.transactions", self.moneydata.transactions, False)
 
 		categorycount = len(list(self.moneydata.categorytree))
 		self.moneydata.delete_category("AnotherCategory")
 
 		self.assertEqual(categorycount-1, len(list(self.moneydata.categorytree)))
 
-		transactionparser = lib.io.TransactionParser(self.moneydata)
-		t = lib.io.Transactions.read("pymoney.transactions", transactionparser)
+		transactionparser = io.TransactionParser(self.moneydata.categorytree, self.moneydata.notfoundcategoryname)
+		t = io.Transactions.read("pymoney.transactions", transactionparser)
 
 		foreigncategory = self.moneydata.get_category("AnotherCategory")
 		self.assertTrue(foreigncategory is not None)
@@ -81,9 +81,9 @@ class TestCategories(unittest.TestCase):
 			os.remove("pymoney.categories")
 
 	def test_read(self):
-		lib.io.Categories.write("pymoney.categories", self.moneydata.categorytree, self.moneydata.get_notfound_category())
+		io.Categories.write("pymoney.categories", self.moneydata.categorytree, self.moneydata.get_notfound_category())
 
-		c = lib.io.Categories.read("pymoney.categories")
+		c = io.Categories.read("pymoney.categories")
 
 		self.assertEqual(len(list(c)), len(list(self.moneydata.categorytree)))
 
@@ -102,6 +102,32 @@ class TestCategories(unittest.TestCase):
 		# nothing to test here
 		return
 
+
+class TestTransactionParser:
+	def setUp(self):
+		self.categorytree = data.CategoryTreeNode("All", 1)
+		self.parser = io.TransactionParser(self.categorytree, "NOTFOUND")
+
+		self.categorytree.append_childnode("Category1")
+
+	def test_get_category(self):
+		self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
+							   self.parser.get_category, "UnknownCategory", False)
+
+		existingcategory = self.parser.get_category("Category1")
+		self.assertEqual(existingcategory.name, "Category1")
+
+		notexistingcategory = self.parser.get_category("UnknownCategory", True)
+		notfoundcategory = self.parser.get_notfound_category()
+		self.assertTrue(notexistingcategory.is_contained_in_subtree(notfoundcategory))
+
+	def test_get_notfound_category(self):
+		self.assertIsNone(self.parser.get_notfound_category())
+		self.assertIsNotNone(self.parser.get_notfound_category(True))
+
+		notfoundcategory = self.parser.get_notfound_category()
+		newcategory = self.categorytree.add_category("NOTFOUND", "NewCategory1", "+")
+		self.assertTrue(newcategory.is_contained_in_subtree(notfoundcategory))
 
 if __name__ == "__main__":
 	unittest.main()

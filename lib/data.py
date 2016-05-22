@@ -1,10 +1,12 @@
-import datetime
+from . import io
 
 
 class MoneyData:
 	def __init__(self):
 		self.categorytree = CategoryTreeNode("All", 1)
 		self.transactions = []
+
+		self.notfoundcategoryname = "NOTFOUND"
 
 	def filter_transactions(self, filter_func):
 		return FilterIterator(self.transactions.__iter__(), filter_func)
@@ -24,38 +26,29 @@ class MoneyData:
 
 	def parse_transaction(	self, str_date, str_category, str_amount, str_comment,
 							autocreatenotfoundcategory=False, dateformat="%Y-%m-%d"):
-		date = datetime.datetime.strptime(str_date, dateformat).date()
-		category = self.get_category(str_category, autocreatenotfoundcategory)
-		amount = float(str_amount)
-		comment = str_comment
+		parser = io.TransactionParser(self.categorytree, self.notfoundcategoryname, dateformat)
+		parser.autocreatenotfoundcategory = autocreatenotfoundcategory
 
-		return Transaction(date, category, amount, comment)
+		return parser.parse(str_date, str_category, str_amount, str_comment)
 
-	def get_category(self, name, autocreatenotfoundcategory=False):
+	def get_category(self, name):
 		nodes = self.categorytree.find_nodes(name)
 
 		if len(nodes) == 0:
-			if autocreatenotfoundcategory:
-				newcategory = self.get_notfound_category(autocreate=True).append_childnode(CategoryTreeNode(name, 1))
-				nodes = [newcategory]
-			else:
-				raise NoSuchCategoryException(name)
+			raise NoSuchCategoryException(name)
 
 		if len(nodes) > 1:
 			raise AmbiguousCategoryNameException(name)
 
 		return nodes[0]
 
-	def get_notfound_category(self, autocreate=False):
-		category = self.categorytree.find_first_node("NOTFOUND")
-
-		if category is None and autocreate:
-			category = self.categorytree.append_childnode(CategoryTreeNode("NOTFOUND", 1))
+	def get_notfound_category(self):
+		category = self.categorytree.find_first_node(self.notfoundcategoryname)
 
 		return category
 
 	def category_is_contained_in_notfound_category(self, category):
-		notfoundcategory = self.get_notfound_category(False)
+		notfoundcategory = self.get_notfound_category()
 
 		if notfoundcategory is None:
 			return False
