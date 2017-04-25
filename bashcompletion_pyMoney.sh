@@ -107,8 +107,17 @@ _pymoney_summary()
 			esac
 			;;
 
+		yearly)
+			case $COMP_CWORD in
+				$(( $_ARGINDEX + 1 )) )
+				# category
+				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				;;
+			esac
+			;;
+
 		*)
-			COMPREPLY=( $( compgen -W "categories monthly" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "categories monthly yearly" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }

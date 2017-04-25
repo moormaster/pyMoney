@@ -151,6 +151,32 @@ class PyMoneyConsole(lib.app.PyMoney):
 				print("{0:<40} {1:>10.2f} {2:>10.2f}".format("    " * c.get_depth() + " " + str(c.sign) + " " + c.name,
 																d_summary[c.name].amount, d_summary[c.name].sum))
 
+		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate):
+			year = start_year
+			month = start_month
+
+			print("{0:<10} {1:<40} {2:>10} {3:>10}".format("date", "node", "amount", "sum"))
+			print()
+
+			while datetime.date(year, month, 1) <= maxdate:
+				if diff_months == 1:
+					transactionfilter = lib.data.Filter(lambda t: t.date.year == year and t.date.month == month)
+				elif diff_months == 12:
+					transactionfilter = lib.data.Filter(lambda t: t.date.year == year)
+				else:
+					raise Exception("diff_months value not supported: " + str(diff_months))
+				d_summary = self.moneydata.create_summary(transactionfilter)
+
+				print("{0:<10} {1:<40} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), category.name,
+																	 d_summary[self.arguments_dict["category"]].amount,
+																	 d_summary[self.arguments_dict["category"]].sum))
+
+				month += diff_months
+
+				if month > 12:
+					year += int(month / 12)
+					month %= 12
+
 		def cmd_monthly():
 			mindate = None
 			maxdate = None
@@ -167,29 +193,30 @@ class PyMoneyConsole(lib.app.PyMoney):
 				print("no such category: " + self.arguments_dict["category"], file=sys.stderr)
 				return
 
-			year = mindate.year
-			month = mindate.month
+			sub_time_interval_summary(category, mindate.year, mindate.month, 1, maxdate)
 
-			print("{0:<10} {1:<40} {2:>10} {3:>10}".format("date", "node", "amount", "sum"))
-			print()
+		def cmd_yearly():
+			mindate = None
+			maxdate = None
+			for transaction in self.moneydata.transactions:
+				if not mindate or transaction.date < mindate:
+					mindate = transaction.date
 
-			while datetime.date(year, month, 1) <= maxdate:
-				transactionfilter = lib.data.Filter(lambda t: t.date.year == year and t.date.month == month)
-				d_summary = self.moneydata.create_summary(transactionfilter)
+				if not maxdate or transaction.date > maxdate:
+					maxdate = transaction.date
 
-				print("{0:<10} {1:<40} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), category.name,
-																	d_summary[self.arguments_dict["category"]].amount,
-																	d_summary[self.arguments_dict["category"]].sum))
+			category = self.moneydata.categorytree.find_first_node(self.arguments_dict["category"])
 
-				month += 1
+			if not category:
+				print("no such category: " + self.arguments_dict["category"], file=sys.stderr)
+				return
 
-				if month > 12:
-					month = 1
-					year += 1
+			sub_time_interval_summary(category, mindate.year, 1, 12, maxdate)
 
 		d_commands = {
 			"categories": cmd_categories,
-			"monthly": cmd_monthly
+			"monthly": cmd_monthly,
+			"yearly": cmd_yearly
 		}
 
 		if not "command" in self.arguments_dict:
@@ -284,6 +311,10 @@ class PyMoneyConsole(lib.app.PyMoney):
 		p_summary_monthly = sp_summary.add_parser("monthly")
 		p_summary_monthly.set_defaults(command="monthly")
 		p_summary_monthly.add_argument("category")
+
+		p_summary_yearly = sp_summary.add_parser("yearly")
+		p_summary_yearly.set_defaults(command="yearly")
+		p_summary_yearly.add_argument("category")
 
 		return p_main
 
