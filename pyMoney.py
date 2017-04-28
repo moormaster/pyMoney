@@ -145,17 +145,17 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			d_summary = self.moneydata.create_summary(transactionfilter)
 
-			print("{0:<40} {1:>10} {2:>10}".format("node", "amount", "sum"))
+			print("{0:<55} {1:>10} {2:>10}".format("node", "amount", "sum"))
 			print()
 			for c in self.moneydata.categorytree:
-				print("{0:<40} {1:>10.2f} {2:>10.2f}".format("    " * c.get_depth() + " " + str(c.sign) + " " + c.name,
+				print("{0:<55} {1:>10.2f} {2:>10.2f}".format("    " * c.get_depth() + " " + str(c.sign) + " " + c.name,
 																d_summary[c.name].amount, d_summary[c.name].sum))
 
 		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate):
 			year = start_year
 			month = start_month
 
-			print("{0:<10} {1:<40} {2:>10} {3:>10}".format("date", "node", "amount", "sum"))
+			print("{0:<10} {1:<55} {2:>10} {3:>10}".format("date", "node", "amount", "sum"))
 			print()
 
 			while datetime.date(year, month, 1) <= maxdate:
@@ -167,7 +167,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 					raise Exception("diff_months value not supported: " + str(diff_months))
 				d_summary = self.moneydata.create_summary(transactionfilter)
 
-				print("{0:<10} {1:<40} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), category.name,
+				print("{0:<10} {1:<55} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), category.name,
 																	 d_summary[self.arguments_dict["category"]].amount,
 																	 d_summary[self.arguments_dict["category"]].sum))
 
