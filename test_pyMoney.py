@@ -31,11 +31,13 @@ class PymoneyTestBase(unittest.TestCase):
 		PymoneyTestBase.pymoney_main(["category", "add", "All", "+", "Category1"])
 		PymoneyTestBase.pymoney_main(["category", "add", "Category1", "+", "Subcategory1"])
 		PymoneyTestBase.pymoney_main(["category", "add", "All", "+", "Category2"])
+		PymoneyTestBase.pymoney_main(["category", "add", "Category2", "+", "Subcategory1"])
 
 	def setUp_transactions(self):
 		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category1", "10.0", "A comment"])
-		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Subcategory1", "20.0", "A comment"])
+		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category1.Subcategory1", "20.0", "A comment"])
 		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category2", "30.0", "A comment"])
+		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category2.Subcategory1", "40.0", "A comment"])
 
 	def get_app(self):
 		read_app = app.PyMoney()
@@ -72,7 +74,7 @@ class CategoriesTest(PymoneyTestBase):
 		PymoneyTestBase.pymoney_main(["category", "add", "All", "+", "NewCategory"])
 
 		read_app = self.get_app()
-		self.assertEqual(len(list(read_app.moneydata.categorytree)), 5)
+		self.assertEqual(len(list(read_app.moneydata.categorytree)), 6)
 
 		category = read_app.moneydata.categorytree.find_first_node("NewCategory")
 		self.assertIsNotNone(category)
@@ -93,7 +95,7 @@ class CategoriesTest(PymoneyTestBase):
 
 		read_app = self.get_app()
 
-		self.assertEqual(len(list(read_app.moneydata.categorytree)), 2)
+		self.assertEqual(len(list(read_app.moneydata.categorytree)), 3)
 		category = read_app.moneydata.categorytree.find_first_node("Category1")
 		self.assertIsNone(category)
 

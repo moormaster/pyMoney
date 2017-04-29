@@ -136,7 +136,7 @@ class TransactionParser:
 		self.autocreatenotfoundcategory = True
 
 	def get_category(self, name):
-		nodes = self.categorytree.find_nodes(name)
+		nodes = self.categorytree.find_nodes_by_relative_path(name)
 
 		if len(nodes) == 0:
 			if self.autocreatenotfoundcategory:
@@ -151,7 +151,7 @@ class TransactionParser:
 		return nodes[0]
 
 	def get_notfound_category(self, autocreate=False):
-		category = self.categorytree.find_first_node(self.notfoundcategoryname)
+		category = self.categorytree.find_first_node_by_relative_path(self.categorytree.name + "." + self.notfoundcategoryname)
 
 		if category is None and autocreate:
 			category = self.categorytree.append_childnode(data.CategoryTreeNode(self.notfoundcategoryname, 1))
@@ -174,6 +174,6 @@ class TransactionFormatter:
 	@staticmethod
 	def format(transaction):
 		return {"date":		str(transaction.date),
-				"category":	transaction.category.name,
+				"category":	transaction.category.get_unique_name(),
 				"amount":	str(transaction.amount),
 				"comment":	transaction.comment}

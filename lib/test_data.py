@@ -102,8 +102,12 @@ class TestMoneyData(TestCase):
         self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newcategory))
 
     def test_add_category(self):
-        self.assertRaisesRegex(data.DuplicateCategoryException, "Category1",
-                               self.moneydata.add_category, "Category2", "Category1", "+")
+        # duplicate category names are allowed if they dont share the same dad
+        self.moneydata.add_category("Category1", "SubCategory1", "+")
+        self.moneydata.add_category("Category2", "SubCategory1", "+")
+
+        self.assertRaisesRegex(data.DuplicateCategoryException, "SubCategory1",
+                               self.moneydata.add_category, "Category2", "SubCategory1", "+")
         self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
                                self.moneydata.add_category, "UnknownCategory", "NewCategory1", "+")
 
@@ -227,24 +231,28 @@ class TestTreeNode(unittest.TestCase):
 
         self.childnode1 = data.TreeNode("Child1")
         self.childnode2 = data.TreeNode("Child2")
-        self.subchildnode = data.TreeNode("SubChild1")
+        self.subchildnode1 = data.TreeNode("SubChild1")
+        self.subchildnode2 = data.TreeNode("SubChild1")
 
         self.tree.append_childnode(self.childnode1)
         self.tree.append_childnode(self.childnode2)
 
-        self.childnode1.append_childnode(self.subchildnode)
+        self.childnode1.append_childnode(self.subchildnode1)
+        self.childnode2.append_childnode(self.subchildnode2)
 
     def test___iter__(self):
         l = list(self.tree)
         lcomp1 = [self.tree,
                   self.childnode1,
-                  self.subchildnode,
-                  self.childnode2]
+                  self.subchildnode1,
+                  self.childnode2,
+                  self.subchildnode2]
 
         lcomp2 = [self.tree,
                   self.childnode2,
+                  self.subchildnode2,
                   self.childnode1,
-                  self.subchildnode]
+                  self.subchildnode1]
 
         self.assertTrue(l == lcomp1 or l == lcomp2)
 
@@ -252,7 +260,7 @@ class TestTreeNode(unittest.TestCase):
         self.assertRegex(self.tree.format(), "[\t]{0}[^\t]*")
         self.assertRegex(self.childnode1.format(), "[\t]{1}[^\t]*")
         self.assertRegex(self.childnode2.format(), "[\t]{1}[^\t]*")
-        self.assertRegex(self.subchildnode.format(), "[\t]{2}[^\t]*")
+        self.assertRegex(self.subchildnode1.format(), "[\t]{2}[^\t]*")
 
     def test_append_childnode(self):
         self.assertRaises(AssertionError, self.tree.append_childnode, object())
@@ -273,7 +281,7 @@ class TestTreeNode(unittest.TestCase):
         self.tree.remove_childnode_by_name("Child1")
 
         self.assertEqual(self.tree.find_first_node("Child1"), None)
-        self.assertEqual(self.tree.find_first_node("SubChild1"), None)
+        self.assertNotEqual(self.tree.find_first_node("SubChild1"), self.subchildnode1)
         self.assertEqual(self.tree.find_first_node("Child2"), self.childnode2)
 
     def test_remove_childnode(self):
@@ -283,12 +291,12 @@ class TestTreeNode(unittest.TestCase):
         self.tree.remove_childnode(self.childnode1)
 
         self.assertEqual(self.tree.find_first_node("Child1"), None)
-        self.assertEqual(self.tree.find_first_node("SubChild1"), None)
+        self.assertNotEqual(self.tree.find_first_node("SubChild1"), self.subchildnode1)
         self.assertEqual(self.tree.find_first_node("Child2"), self.childnode2)
 
     def test_merge(self):
-        sourcecategory = self.tree.find_first_node("Child1")
-        targetcategory = self.tree.find_first_node("SubChild1")
+        sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
+        targetcategory = self.tree.find_first_node_by_relative_path("Child1.SubChild1")
 
         assert isinstance(sourcecategory, data.TreeNode)
         assert isinstance(targetcategory, data.TreeNode)
@@ -296,8 +304,8 @@ class TestTreeNode(unittest.TestCase):
         self.assertRaisesRegex(data.TargetNodeIsPartOfSourceNodeSubTreeException, "('Child1', 'SubChild1')",
                                targetcategory.merge_node, sourcecategory)
 
-        sourcecategory = self.tree.find_first_node("Child1")
-        targetcategory = self.tree.find_first_node("Child2")
+        sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
+        targetcategory = self.tree.find_first_node_by_relative_path("Child2")
 
         subcategories = sourcecategory.children
 
@@ -324,55 +332,55 @@ class TestTreeNode(unittest.TestCase):
         self.assertEqual(sourcecategory.parent, targetcategory)
 
     def test_rename(self):
-        self.subchildnode.rename("renamed")
+        self.subchildnode1.rename("renamed")
 
-        self.assertEqual(self.subchildnode.name, "renamed")
-        self.assertEqual(self.tree.find_first_node("renamed"), self.subchildnode)
+        self.assertEqual(self.subchildnode1.name, "renamed")
+        self.assertEqual(self.tree.find_first_node("renamed"), self.subchildnode1)
 
     def test_get_depth(self):
         self.assertEqual(self.tree.get_depth(), 0)
         self.assertEqual(self.childnode1.get_depth(), 1)
-        self.assertEqual(self.subchildnode.get_depth(), 2)
+        self.assertEqual(self.subchildnode1.get_depth(), 2)
 
     def test_get_root(self):
         self.assertEqual(self.tree.get_root(), self.tree)
         self.assertEqual(self.childnode1.get_root(), self.tree)
-        self.assertEqual(self.subchildnode.get_root(), self.tree)
+        self.assertEqual(self.subchildnode1.get_root(), self.tree)
 
     def test_find_first_node(self):
         node = self.tree.find_first_node("SubChild1")
-        selfnode = self.subchildnode.find_first_node("SubChild1")
+        selfnode = self.subchildnode1.find_first_node("SubChild1")
         notfoundnode = self.tree.find_first_node("NoChild")
 
-        self.assertEqual(node, self.subchildnode)
-        self.assertEqual(selfnode, self.subchildnode)
+        self.assertEqual(node, self.subchildnode1)
+        self.assertEqual(selfnode, self.subchildnode1)
         self.assertEqual(notfoundnode, None)
 
     def test_find_nodes(self):
         anode1 = self.tree.append_childnode(data.TreeNode("ANode"))
-        anode2 = self.subchildnode.append_childnode(data.TreeNode("ANode"))
+        anode2 = self.subchildnode1.append_childnode(data.TreeNode("ANode"))
 
         l = self.tree.find_nodes("ANode")
 
         self.assertEqual(set(l), {anode1, anode2})
 
     def test_get_full_name(self):
-        self.assertEqual(self.subchildnode.get_full_name(), "All.Child1.SubChild1")
+        self.assertEqual(self.subchildnode1.get_full_name(), "All.Child1.SubChild1")
 
     def test_is_contained_in_subtree(self):
-        self.assertTrue(self.subchildnode.is_contained_in_subtree(self.subchildnode))
+        self.assertTrue(self.subchildnode1.is_contained_in_subtree(self.subchildnode1))
 
-        self.assertTrue(self.subchildnode.is_contained_in_subtree(self.childnode1))
-        self.assertFalse(self.subchildnode.is_contained_in_subtree(self.childnode2))
+        self.assertTrue(self.subchildnode1.is_contained_in_subtree(self.childnode1))
+        self.assertFalse(self.subchildnode1.is_contained_in_subtree(self.childnode2))
 
         self.assertTrue(self.childnode1.is_contained_in_subtree(self.tree))
 
     def test_is_root_of(self):
         self.assertTrue(self.tree.is_root_of(self.childnode1))
-        self.assertTrue(self.tree.is_root_of(self.subchildnode))
+        self.assertTrue(self.tree.is_root_of(self.subchildnode1))
 
-        self.assertTrue(self.childnode1.is_root_of(self.subchildnode))
-        self.assertFalse(self.childnode2.is_root_of(self.subchildnode))
+        self.assertTrue(self.childnode1.is_root_of(self.subchildnode1))
+        self.assertFalse(self.childnode2.is_root_of(self.subchildnode1))
 
         self.assertFalse(self.childnode1.is_root_of(self.childnode2))
         self.assertFalse(self.childnode2.is_root_of(self.childnode1))

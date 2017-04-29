@@ -12,7 +12,7 @@ class MoneyData:
 		return FilterIterator(self.transactions.__iter__(), filter_func)
 
 	def add_transaction(self, str_date, str_category, str_amount, str_comment, force=False):
-		node = self.categorytree.find_first_node(str_category)
+		node = self.categorytree.find_first_node_by_relative_path(str_category)
 		if node is None and not force:
 			raise NoSuchCategoryException(str_category)
 
@@ -32,7 +32,7 @@ class MoneyData:
 		return parser.parse(str_date, str_category, str_amount, str_comment)
 
 	def get_category(self, name):
-		nodes = self.categorytree.find_nodes(name)
+		nodes = self.categorytree.find_nodes_by_relative_path(name)
 
 		if len(nodes) == 0:
 			raise NoSuchCategoryException(name)
@@ -43,7 +43,7 @@ class MoneyData:
 		return nodes[0]
 
 	def get_notfound_category(self):
-		category = self.categorytree.find_first_node(self.notfoundcategoryname)
+		category = self.categorytree.find_first_node_by_relative_path(self.categorytree.name + "." + self.notfoundcategoryname)
 
 		return category
 
@@ -57,13 +57,7 @@ class MoneyData:
 
 	def add_category(self, parentname, name, str_sign):
 		category = self.categorytree.find_first_node(name)
-		parentcategory = self.categorytree.find_first_node(parentname)
-
-		if category and not self.category_is_contained_in_notfound_category(category):
-			raise DuplicateCategoryException(category)
-
-		if not parentcategory:
-			raise NoSuchCategoryException(parentname)
+		parentcategory = self.get_category(parentname)
 
 		if category and self.category_is_contained_in_notfound_category(category):
 			category.parent.remove_childnode_by_name(name)
@@ -74,7 +68,7 @@ class MoneyData:
 		return newcategory
 
 	def delete_category(self, name):
-		node = self.categorytree.find_first_node(name)
+		node = self.get_category(name)
 
 		if not node:
 			raise NoSuchCategoryException(name)
@@ -85,13 +79,10 @@ class MoneyData:
 		node.parent.remove_childnode(node)
 
 	def rename_category(self, name, newname):
-		category = self.categorytree.find_first_node(name)
+		category = self.get_category(name)
 		newcategory = self.categorytree.find_first_node(newname)
 
-		if not category:
-			raise NoSuchCategoryException(name)
-
-		if newcategory and not self.category_is_contained_in_notfound_category(newcategory):
+		if newname in category.parent.children:
 			raise DuplicateCategoryException(newcategory)
 
 		if newcategory and self.category_is_contained_in_notfound_category(newcategory):
@@ -100,22 +91,13 @@ class MoneyData:
 		category.rename(newname)
 
 	def setsign_of_category(self, name, str_newsign):
-		category = self.categorytree.find_first_node(name)
-
-		if not category:
-			raise NoSuchCategoryException(name)
+		category = self.get_category(name)
 
 		category.sign = Sign.parse(str_newsign)
 
 	def merge_category(self, name, targetname):
-		category = self.categorytree.find_first_node(name)
-		targetcategory = self.categorytree.find_first_node(targetname)
-
-		if not category:
-			raise NoSuchCategoryException(name)
-
-		if not targetcategory:
-			raise NoSuchCategoryException(targetname)
+		category = self.get_category(name)
+		targetcategory = self.get_category(targetname)
 
 		targetcategory.merge_node(category)
 
@@ -124,14 +106,8 @@ class MoneyData:
 				t.category = targetcategory
 
 	def move_category(self, name, newparentname):
-		node = self.categorytree.find_first_node(name)
-		newparent = self.categorytree.find_first_node(newparentname)
-
-		if not node:
-			raise NoSuchCategoryException(name)
-
-		if not newparent:
-			raise NoSuchCategoryException(newparentname)
+		node = self.get_category(name)
+		newparent = self.get_category(newparentname)
 
 		newparent.move_node(node)
 
@@ -186,6 +162,9 @@ class TreeNode:
 	def append_childnode(self, node):
 		assert isinstance(node, TreeNode)
 
+		if node.name in self.children:
+			raise DuplicateNodeException(self, node.name)
+
 		self.children[node.name] = node
 		node.parent = self
 
@@ -234,6 +213,9 @@ class TreeNode:
 		parent = self.parent
 
 		if parent:
+			if newnodename in parent.children:
+				raise DuplicateNodeException(parent, newnodename)
+
 			parent.children.pop(self.name)
 			parent.children[newnodename] = self
 
@@ -275,11 +257,75 @@ class TreeNode:
 
 		return l
 
+	def find_nodes_by_relative_path(self, path):
+		names = path.split(".")
+		l = self.find_nodes(names[-1])
+
+		for i in range(len(l)).__reversed__():
+			match = True
+
+			node = l[i]
+			for j in range(len(names)).__reversed__():
+				if node is None or node.name != names[j]:
+					match = False
+
+				if not node is None:
+					node = node.parent
+
+			if not match:
+				l.pop(i)
+
+		return l
+
+	def find_first_node_by_relative_path(self, path):
+		l = self.find_nodes_by_relative_path(path)
+
+		if len(l) > 0:
+			return l[0]
+
+		return None
+
 	def get_full_name(self):
 		if self.parent:
 			return self.parent.get_full_name() + "." + self.name
 		else:
 			return self.name
+
+	def get_relative_name_to(self, ancestor):
+		assert isinstance(ancestor, TreeNode)
+
+		node = self
+		name = self.name;
+		while not node is ancestor:
+			node = node.parent
+			name = node.name + "." + name
+
+		return name
+
+	def get_unique_name(self):
+		root_node = self.get_root()
+
+		matching_nodes = root_node.find_nodes(self.name)
+		namestart_nodes = matching_nodes.copy()
+
+		namestart_node = self
+		has_duplicates = len(matching_nodes) > 1
+
+		while has_duplicates:
+			names = []
+
+			has_duplicates = False
+			for i in range(len(namestart_nodes)):
+				namestart_nodes[i] = namestart_nodes[i].parent
+				nodename = matching_nodes[i].get_relative_name_to(namestart_nodes[i])
+				if matching_nodes[i] is self:
+					namestart_node = namestart_nodes[i]
+
+				if nodename in names:
+					has_duplicates = True
+				names.append(nodename)
+
+		return self.get_relative_name_to(namestart_node)
 
 	def is_contained_in_subtree(self, node):
 		if node == self:
@@ -310,7 +356,12 @@ class CategoryTreeNode(TreeNode):
 	def append_childnode(self, node):
 		assert isinstance(node, CategoryTreeNode)
 
-		if self.find_first_node(node.name):
+		root_node = self.get_root()
+
+		if node.name == root_node.name:
+			raise DuplicateCategoryException(node)
+
+		if node.name in self.children:
 			raise DuplicateCategoryException(node)
 
 		return TreeNode.append_childnode(self, node)
@@ -450,6 +501,14 @@ class NoSuchNodeException(Exception):
 		Exception.__init__(self, name)
 		self.name = name
 
+
+class DuplicateNodeException(Exception):
+	def __init__(self, parentnode, name):
+		assert isinstance(parentnode, TreeNode)
+
+		Exception.__init__(self, name)
+		self.parentnode = parentnode
+		self.name = name
 
 class NodeIsNotAChildException(Exception):
 	def __init__(self, parentnode, node):
