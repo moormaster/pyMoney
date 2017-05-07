@@ -1,6 +1,6 @@
 - [x] remove "category changesign" command from commandline parser
 - [x] rename "category list" command to "category tree", "category listnames" to "category list"
-- [ ] allow to mention parent category names to make duplicate category names unique 
+- [x] allow to mention parent category names to make duplicate category names unique 
 
       Category  Shortest unique name
       
