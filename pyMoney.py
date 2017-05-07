@@ -46,7 +46,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				transactionfilter = transactionfilter.and_concat(
 					lambda t: t.category == filter_category or t.category.is_contained_in_subtree(filter_category))
 
-			print("{0:>10} {1:<10} {2:<20} {3:>10} {4:<20}".format("Index", "Date", "Category", "Amount", "Comment"))
+			print("{0:>10} {1:<10} {2:<55} {3:>10} {4:<20}".format("Index", "Date", "Category", "Amount", "Comment"))
 
 			iterator = self.moneydata.filter_transactions(transactionfilter)
 			for d in iterator:
@@ -56,13 +56,13 @@ class PyMoneyConsole(lib.app.PyMoney):
 				if self.arguments_dict["fullnamecategories"]:
 					_category = d.category.get_full_name()
 				else:
-					_category = d.category.name
+					_category = d.category.get_unique_name()
 
 				assert isinstance(d.category, lib.data.CategoryTreeNode)
 				_amount = d.category.get_absolute_sign().value * d.amount
 				_comment = d.comment
 
-				print("{0:>10} {1:>10} {2:<20} {3:>10.2f} {4:<20}".format(_index, _date, _category, _amount, _comment))
+				print("{0:>10} {1:>10} {2:<55} {3:>10.2f} {4:<20}".format(_index, _date, _category, _amount, _comment))
 
 		def cmd_delete():
 			self.moneydata.delete_transaction(self.arguments_dict["index"])
@@ -88,7 +88,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				if self.arguments_dict["fullnamecategories"]:
 					_category = category.get_full_name()
 				else:
-					_category = category.name
+					_category = category.get_unique_name()
 
 				print(_category)
 			print("")
