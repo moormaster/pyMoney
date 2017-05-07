@@ -307,10 +307,11 @@ class TestTreeNode(unittest.TestCase):
         sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
         targetcategory = self.tree.find_first_node_by_relative_path("Child2")
 
-        subcategories = sourcecategory.children
+        subcategories = targetcategory.children
 
         targetcategory.merge_node(sourcecategory)
 
+        self.assertEqual(len(subcategories), 1)
         for category in subcategories:
             self.assertEqual(subcategories[category].parent, targetcategory)
 

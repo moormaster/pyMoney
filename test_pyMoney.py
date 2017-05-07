@@ -130,7 +130,7 @@ class CategoriesTest(PymoneyTestBase):
 		subcategory1 = read_app.moneydata.categorytree.find_first_node_by_relative_path("All.Subcategory1")
 
 		self.assertEqual(subcategory1.parent.name, "All")
-		self.assertEqual(len(allcategory.children), 1)
+		self.assertEqual(len(allcategory.children), 3)
 
 	def test_category_rename(self):
 		PymoneyTestBase.pymoney_main(["category", "rename", "Category1", "RenamedCategory"])

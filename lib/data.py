@@ -118,11 +118,10 @@ class MoneyData:
 
 			i = i+1
 
-		for i in range(len(categories)).__reversed__():
-			category = categories[i]
-			targetcategory = targetcategories[i]
+		category = categories[0]
+		targetcategory = targetcategories[0]
 
-			targetcategory.merge_node(category)
+		targetcategory.merge_node(category)
 
 	def move_category(self, name, newparentname):
 		node = self.get_category(name)
@@ -216,8 +215,11 @@ class TreeNode:
 			children.append(sourcenode.children[c])
 
 		for c in children:
-			sourcenode.remove_childnode(c)
-			self.append_childnode(c)
+			if c.name in  self.children:
+				self.children[c.name].merge_node(c)
+			else:
+				sourcenode.remove_childnode(c)
+				self.append_childnode(c)
 
 	def move_node(self, sourcenode):
 		if self.is_contained_in_subtree(sourcenode):
