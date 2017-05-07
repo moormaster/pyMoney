@@ -96,14 +96,33 @@ class MoneyData:
 		category.sign = Sign.parse(str_newsign)
 
 	def merge_category(self, name, targetname):
-		category = self.get_category(name)
-		targetcategory = self.get_category(targetname)
+		categories = []
+		targetcategories = []
 
-		targetcategory.merge_node(category)
+		categories.append(self.get_category(name))
+		targetcategories.append(self.get_category(targetname))
 
-		for t in self.transactions:
-			if t.category == category:
-				t.category = targetcategory
+		i=0
+		while i<len(categories):
+			category = categories[i]
+			targetcategory = targetcategories[i]
+
+			for child in category.children:
+				if child in targetcategory.children:
+					categories.append(category.children[child])
+					targetcategories.append(targetcategory.children[child])
+
+			for t in self.transactions:
+				if t.category == category:
+					t.category = targetcategory
+
+			i = i+1
+
+		for i in range(len(categories)).__reversed__():
+			category = categories[i]
+			targetcategory = targetcategories[i]
+
+			targetcategory.merge_node(category)
 
 	def move_category(self, name, newparentname):
 		node = self.get_category(name)
@@ -295,7 +314,7 @@ class TreeNode:
 		assert isinstance(ancestor, TreeNode)
 
 		node = self
-		name = self.name;
+		name = self.name
 		while not node is ancestor:
 			node = node.parent
 			name = node.name + "." + name

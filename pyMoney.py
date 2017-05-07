@@ -103,7 +103,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 		def cmd_move():
 			self.moneydata.move_category(self.arguments_dict["name"], self.arguments_dict["newparentname"])
-			self.write(skipwritetransactions=True)
+			self.write()
 
 		def cmd_rename():
 			self.moneydata.rename_category(self.arguments_dict["name"], self.arguments_dict["newname"])
