@@ -39,7 +39,7 @@ class TestTransactions(unittest.TestCase):
 			os.remove("pymoney.transactions")
 
 	def test_read(self):
-		io.Transactions.write("pymoney.transactions", self.moneydata.transactions, False)
+		io.Transactions.write("pymoney.transactions", self.moneydata.transactions, self.moneydata.get_notfound_category(), False)
 
 		categorycount = len(list(self.moneydata.categorytree))
 		self.moneydata.delete_category("AnotherCategory")

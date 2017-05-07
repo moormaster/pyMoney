@@ -36,4 +36,4 @@ class PyMoney:
 		lib.io.Categories.write(self.filenames["categories"], self.moneydata.categorytree, self.moneydata.get_notfound_category())
 
 		if not skipwritetransactions:
-			lib.io.Transactions.write(self.filenames["transactions"], self.moneydata.transactions)
+			lib.io.Transactions.write(self.filenames["transactions"], self.moneydata.transactions, self.moneydata.get_notfound_category())

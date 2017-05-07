@@ -24,7 +24,7 @@ class Transactions:
 			return sorted(transactionlist, key=lambda t: t.date)
 
 	@staticmethod
-	def write(filename, transactions, append=False):
+	def write(filename, transactions, notfoundcategory, append=False):
 		if append and not os.path.exists(filename):
 			append = False
 
@@ -40,7 +40,7 @@ class Transactions:
 				w.writeheader()
 
 			for t in transactions:
-				w.writerow(TransactionFormatter.format(t))
+				w.writerow(TransactionFormatter.format(t, notfoundcategory))
 
 			f.close()
 
@@ -140,7 +140,15 @@ class TransactionParser:
 
 		if len(nodes) == 0:
 			if self.autocreatenotfoundcategory:
-				newcategory = self.get_notfound_category(autocreate=True).append_childnode(data.CategoryTreeNode(name, 1))
+				notfoundcategory = self.get_notfound_category(autocreate=True)
+				nodeNames = name.split(".")
+
+				newcategory = notfoundcategory
+				for i in range(len(nodeNames)):
+					if nodeNames[i] in newcategory.children:
+						newcategory = newcategory.children[nodeNames[i]]
+					else:
+						newcategory = newcategory.append_childnode(data.CategoryTreeNode(nodeNames[i], 1))
 				nodes = [newcategory]
 			else:
 				raise data.NoSuchCategoryException(name)
@@ -172,8 +180,14 @@ class TransactionFormatter:
 		pass
 
 	@staticmethod
-	def format(transaction):
+	def format(transaction, notfoundcategory):
+		if not notfoundcategory is None and transaction.category.is_contained_in_subtree(notfoundcategory):
+			str_category = transaction.category.get_relative_name_to(notfoundcategory)
+			str_category = str_category[len(notfoundcategory.name)+1:]
+		else:
+			str_category = transaction.category.get_unique_name()
+
 		return {"date":		str(transaction.date),
-				"category":	transaction.category.get_unique_name(),
+				"category":	str_category,
 				"amount":	str(transaction.amount),
 				"comment":	transaction.comment}

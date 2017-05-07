@@ -12,9 +12,11 @@ class MoneyData:
 		return FilterIterator(self.transactions.__iter__(), filter_func)
 
 	def add_transaction(self, str_date, str_category, str_amount, str_comment, force=False):
-		node = self.categorytree.find_first_node_by_relative_path(str_category)
-		if node is None and not force:
-			raise NoSuchCategoryException(str_category)
+		try:
+			node = self.get_category(str_category)
+		except NoSuchCategoryException as e:
+			if not force:
+				raise e
 
 		newtransaction = self.parse_transaction(str_date, str_category, str_amount, str_comment, force)
 		self.transactions.append(newtransaction)
@@ -43,14 +45,17 @@ class MoneyData:
 		return nodes[0]
 
 	def get_notfound_category(self):
-		category = self.categorytree.find_first_node_by_relative_path(self.categorytree.name + "." + self.notfoundcategoryname)
+		try:
+			category = self.get_category(self.categorytree.name + "." + self.notfoundcategoryname)
+		except NoSuchCategoryException as e:
+			return None
 
 		return category
 
 	def category_is_contained_in_notfound_category(self, category):
-		notfoundcategory = self.get_notfound_category()
-
-		if notfoundcategory is None:
+		try:
+			notfoundcategory = self.get_notfound_category()
+		except NoSuchCategoryException as e:
 			return False
 
 		return category.is_contained_in_subtree(notfoundcategory)

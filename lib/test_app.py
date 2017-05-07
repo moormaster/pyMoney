@@ -21,7 +21,7 @@ class TestPyMoney(unittest.TestCase):
 		self.app.moneydata.add_transaction("2000-01-02", "Subcategory1", 20.0, "A comment")
 		self.app.moneydata.add_transaction("2000-01-03", "Category2", 30.0, "A comment")
 
-		self.app.moneydata.add_transaction("2000-01-04", "UnknownCategory", 40.0, "A comment", True)
+		self.app.moneydata.add_transaction("2000-01-04", "UnknownCategory.UnknownSubCategory", 40.0, "A comment", True)
 
 	def tearDown(self):
 		if os.access("pymoney.transactions", os.F_OK):
@@ -48,7 +48,7 @@ class TestPyMoney(unittest.TestCase):
 		self.assertEqual(len(read_app.moneydata.transactions), len(self.app.moneydata.transactions))
 
 		for originalcategory in self.app.moneydata.categorytree:
-			category = read_app.moneydata.get_category(originalcategory.name)
+			category = read_app.moneydata.get_category(originalcategory.get_unique_name())
 
 			self.assertIsNotNone(category)
 			self.assertEqual(category.name, originalcategory.name)
