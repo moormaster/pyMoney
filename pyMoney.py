@@ -149,7 +149,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			print()
 			for c in self.moneydata.categorytree:
 				print("{0:<55} {1:>10.2f} {2:>10.2f}".format("    " * c.get_depth() + " " + str(c.sign) + " " + c.name,
-																d_summary[c.name].amount, d_summary[c.name].sum))
+																d_summary[c.get_unique_name()].amount, d_summary[c.get_unique_name()].sum))
 
 		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate):
 			year = start_year

@@ -13,10 +13,12 @@ class TestMoneyData(TestCase):
         self.moneydata.add_category("All", "Category2", "+")
 
         self.moneydata.add_category("Category1", "Subcategory1", "-")
+        self.moneydata.add_category("Category2", "Subcategory1", "-")
 
         self.moneydata.add_transaction("2000-01-01", "Category1", "10.0", "")
-        self.moneydata.add_transaction("2000-01-02", "Subcategory1", "20.0", "")
+        self.moneydata.add_transaction("2000-01-02", "Category1.Subcategory1", "20.0", "")
         self.moneydata.add_transaction("2000-01-03", "Category2", "30.0", "")
+        self.moneydata.add_transaction("2000-01-04", "Category2.Subcategory1", "35.0", "")
 
     def test_filter_transactions(self):
         category = self.moneydata.get_category("Category1")
@@ -52,7 +54,7 @@ class TestMoneyData(TestCase):
         self.assertEqual(len(self.moneydata.transactions), transactioncount - 1)
 
         category = self.moneydata.get_category("Category1")
-        subcategory = self.moneydata.get_category("Subcategory1")
+        subcategory = self.moneydata.get_category("Category1.Subcategory1")
 
         filter_func = lambda t: t.category == category
         self.assertEqual(len(list(self.moneydata.filter_transactions(filter_func))), 1)
@@ -140,8 +142,8 @@ class TestMoneyData(TestCase):
 
         self.moneydata.delete_category("Category1")
 
-        self.assertFalse(self.moneydata.categorytree.find_first_node("Subcategory1"))
-        self.assertFalse(self.moneydata.categorytree.find_first_node("Category1"))
+        self.assertFalse(self.moneydata.categorytree.find_first_node_by_relative_path("Category1.Subcategory1"))
+        self.assertFalse(self.moneydata.categorytree.find_first_node_by_relative_path("Category1"))
 
     def test_rename_category(self):
         self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
@@ -202,7 +204,7 @@ class TestMoneyData(TestCase):
         self.moneydata.merge_category(sourcecategory.name, targetcategory.name)
 
         for transaction in transactions:
-            self.assertEqual(transaction.category, targetcategory)
+            self.assertTrue(transaction.category.is_contained_in_subtree(targetcategory))
 
     def test_move_category(self):
         self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
@@ -216,13 +218,15 @@ class TestMoneyData(TestCase):
 
         self.assertEqual(summary["All"].amount, 0)
         self.assertEqual(summary["Category1"].amount, -10)
-        self.assertEqual(summary["Subcategory1"].amount, -20)
+        self.assertEqual(summary["Category1.Subcategory1"].amount, -20)
         self.assertEqual(summary["Category2"].amount, 30)
+        self.assertEqual(summary["Category2.Subcategory1"].amount, -35)
 
-        self.assertEqual(summary["All"].sum, 40)
+        self.assertEqual(summary["All"].sum, 5)
         self.assertEqual(summary["Category1"].sum, 10)
-        self.assertEqual(summary["Subcategory1"].sum, 20)
-        self.assertEqual(summary["Category2"].sum, 30)
+        self.assertEqual(summary["Category1.Subcategory1"].sum, 20)
+        self.assertEqual(summary["Category2"].sum, -5)
+        self.assertEqual(summary["Category2.Subcategory1"].sum, -35)
 
 
 class TestTreeNode(unittest.TestCase):

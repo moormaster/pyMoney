@@ -133,17 +133,17 @@ class MoneyData:
 		d_summary = {}
 
 		for c in self.categorytree:
-			d_summary[c.name] = NodeSummary()
+			d_summary[c.get_unique_name()] = NodeSummary()
 
 		for t in self.transactions:
 			if not transactionfilter(t):
 				continue
 
-			d_summary[t.category.name].amount += t.category.sign.value * t.amount
+			d_summary[t.category.get_unique_name()].amount += t.category.sign.value * t.amount
 
 			c = t.category
 			while not c is None:
-				d_summary[c.name].sum += t.category.get_absolute_sign().value * t.amount
+				d_summary[c.get_unique_name()].sum += t.category.get_absolute_sign().value * t.amount
 				c = c.parent
 
 		return d_summary
