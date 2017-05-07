@@ -167,7 +167,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 					raise Exception("diff_months value not supported: " + str(diff_months))
 				d_summary = self.moneydata.create_summary(transactionfilter)
 
-				print("{0:<10} {1:<55} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), category.name,
+				print("{0:<10} {1:<55} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), category.get_unique_name(),
 																	 d_summary[self.arguments_dict["category"]].amount,
 																	 d_summary[self.arguments_dict["category"]].sum))
 
@@ -187,7 +187,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				if not maxdate or transaction.date > maxdate:
 					maxdate = transaction.date
 
-			category = self.moneydata.categorytree.find_first_node(self.arguments_dict["category"])
+			category = self.moneydata.categorytree.find_first_node_by_relative_path(self.arguments_dict["category"])
 
 			if not category:
 				print("no such category: " + self.arguments_dict["category"], file=sys.stderr)
@@ -205,7 +205,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				if not maxdate or transaction.date > maxdate:
 					maxdate = transaction.date
 
-			category = self.moneydata.categorytree.find_first_node(self.arguments_dict["category"])
+			category = self.moneydata.categorytree.find_first_node_by_relative_path(self.arguments_dict["category"])
 
 			if not category:
 				print("no such category: " + self.arguments_dict["category"], file=sys.stderr)
