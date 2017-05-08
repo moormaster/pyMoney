@@ -14,16 +14,16 @@
       ERROR
       $ ./pyMoney.py transaction add Costs.Misc 25.00
       OK
-- [ ] refactor category add/rename/move - call find_first_node only within notfoundcategory  
+- [x] refactor category add/rename/move - replace find_first_node() with find_first_node_by_relative_pathname()  
 - [ ] transactions should always happen between a source and a target category
       this enables one to keep track of the amount of money stored within each bank
       account:
       
       All
        Internal     External.In.Wages   -> Giro.In              1500.00
-        Bar         Giro.Out            -> External.Out.Misc      25.00 DVD
+        Cash        Giro.Out            -> External.Out.Misc      25.00 DVD
          In         Giro.Out            -> Bar.In                400.00 EC Machine
-         Out        Bar.Out             -> External.Out.Life      70.00 Food
+         Out        Cash.Out            -> External.Out.Life      70.00 Food
         Giro    
          In
          Out

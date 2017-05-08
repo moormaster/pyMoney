@@ -61,10 +61,13 @@ class MoneyData:
 		return category.is_contained_in_subtree(notfoundcategory)
 
 	def add_category(self, parentname, name, str_sign):
-		category = self.categorytree.find_first_node(name)
+		notfoundcategory = self.get_notfound_category()
+		category = None
+		if not notfoundcategory is None:
+			category = notfoundcategory.find_first_node_by_relative_path(name)
 		parentcategory = self.get_category(parentname)
 
-		if category and self.category_is_contained_in_notfound_category(category):
+		if not category is None:
 			category.parent.remove_childnode_by_name(name)
 
 		newcategory = CategoryTreeNode(name, Sign.parse(str_sign))
@@ -85,12 +88,15 @@ class MoneyData:
 
 	def rename_category(self, name, newname):
 		category = self.get_category(name)
-		newcategory = self.categorytree.find_first_node(newname)
+		notfoundcategory = self.get_notfound_category()
+		newcategory = None
+		if not notfoundcategory is None:
+			newcategory = notfoundcategory.find_first_node_by_relative_path(newname)
 
 		if newname in category.parent.children:
-			raise DuplicateCategoryException(newcategory)
+			raise DuplicateCategoryException(newname)
 
-		if newcategory and self.category_is_contained_in_notfound_category(newcategory):
+		if not newcategory is None:
 			newcategory.parent.remove_childnode_by_name(newname)
 
 		category.rename(newname)
@@ -159,6 +165,9 @@ class TreeNode:
 		self.parent = None
 		self.name = name
 		self.children = {}
+
+		if "." in name:
+			raise Exception("name may not contain character .")
 
 	def __iter__(self):
 		return DFSIterator(self)
@@ -260,17 +269,6 @@ class TreeNode:
 			p = p.parent
 
 		return p
-
-	def find_first_node(self, name):
-		if name == self.name:
-			return self
-		else:
-			for c in self.children.values():
-				res = c.find_first_node(name)
-				if res:
-					return res
-
-		return None
 
 	def find_nodes(self, name):
 		l = []
@@ -385,10 +383,10 @@ class CategoryTreeNode(TreeNode):
 		root_node = self.get_root()
 
 		if node.name == root_node.name:
-			raise DuplicateCategoryException(node)
+			raise DuplicateCategoryException(node.name)
 
 		if node.name in self.children:
-			raise DuplicateCategoryException(node)
+			raise DuplicateCategoryException(node.name)
 
 		return TreeNode.append_childnode(self, node)
 
@@ -563,11 +561,10 @@ class AmbiguousCategoryNameException(Exception):
 
 
 class DuplicateCategoryException(Exception):
-	def __init__(self, category):
-		assert isinstance(category, CategoryTreeNode)
+	def __init__(self, name):
+		Exception.__init__(self, name)
 
-		Exception.__init__(self, category.name)
-		self.category = category
+		self.name = name
 
 
 class NoSuchCategoryException(NoSuchNodeException):

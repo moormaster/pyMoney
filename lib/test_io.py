@@ -88,7 +88,7 @@ class TestCategories(unittest.TestCase):
 		self.assertEqual(len(list(c)), len(list(self.moneydata.categorytree)))
 
 		for originalnode in self.moneydata.categorytree:
-			node = c.find_first_node(originalnode.name)
+			node = c.find_first_node_by_relative_path(originalnode.get_unique_name())
 
 			self.assertTrue(originalnode is not None)
 			self.assertEqual(node.name, originalnode.name)

@@ -76,7 +76,7 @@ class CategoriesTest(PymoneyTestBase):
 		read_app = self.get_app()
 		self.assertEqual(len(list(read_app.moneydata.categorytree)), 6)
 
-		category = read_app.moneydata.categorytree.find_first_node("NewCategory")
+		category = read_app.moneydata.categorytree.find_first_node_by_relative_path("NewCategory")
 		self.assertIsNotNone(category)
 		self.assertEqual(category.name, "NewCategory")
 		self.assertEqual(category.parent.name, "All")
@@ -96,7 +96,7 @@ class CategoriesTest(PymoneyTestBase):
 		read_app = self.get_app()
 
 		self.assertEqual(len(list(read_app.moneydata.categorytree)), 3)
-		category = read_app.moneydata.categorytree.find_first_node("Category1")
+		category = read_app.moneydata.categorytree.find_first_node_by_relative_path("Category1")
 		self.assertIsNone(category)
 
 	def test_category_merge(self):
@@ -105,9 +105,9 @@ class CategoriesTest(PymoneyTestBase):
 		read_app = self.get_app()
 		self.assertEqual(len(list(read_app.moneydata.categorytree)), 3)
 
-		category1 = read_app.moneydata.categorytree.find_first_node("Category1")
-		category2 = read_app.moneydata.categorytree.find_first_node("Category2")
-		subcategory1 = read_app.moneydata.categorytree.find_first_node("Subcategory1")
+		category1 = read_app.moneydata.categorytree.find_first_node_by_relative_path("Category1")
+		category2 = read_app.moneydata.categorytree.find_first_node_by_relative_path("Category2")
+		subcategory1 = read_app.moneydata.categorytree.find_first_node_by_relative_path("Subcategory1")
 
 		filter_func = lambda t: t.category.is_contained_in_subtree(category2)
 		self.assertEqual(len(list(read_app.moneydata.filter_transactions(filter_func))), 4)
@@ -126,7 +126,7 @@ class CategoriesTest(PymoneyTestBase):
 		PymoneyTestBase.pymoney_main(["category", "move", "Category2.Subcategory1", "All"])
 
 		read_app = self.get_app()
-		allcategory = read_app.moneydata.categorytree.find_first_node("All")
+		allcategory = read_app.moneydata.categorytree.find_first_node_by_relative_path("All")
 		subcategory1 = read_app.moneydata.categorytree.find_first_node_by_relative_path("All.Subcategory1")
 
 		self.assertEqual(subcategory1.parent.name, "All")
@@ -136,8 +136,8 @@ class CategoriesTest(PymoneyTestBase):
 		PymoneyTestBase.pymoney_main(["category", "rename", "Category1", "RenamedCategory"])
 
 		read_add = self.get_app()
-		category1 = read_add.moneydata.categorytree.find_first_node("Category1")
-		renamedcategory = read_add.moneydata.categorytree.find_first_node("RenamedCategory")
+		category1 = read_add.moneydata.categorytree.find_first_node_by_relative_path("Category1")
+		renamedcategory = read_add.moneydata.categorytree.find_first_node_by_relative_path("RenamedCategory")
 
 		self.assertIsNone(category1)
 		self.assertIsNotNone(renamedcategory)
@@ -148,7 +148,7 @@ class CategoriesTest(PymoneyTestBase):
 		PymoneyTestBase.pymoney_main(["category", "setsign", "Category1", "-"])
 
 		read_add = self.get_app()
-		category1 = read_add.moneydata.categorytree.find_first_node("Category1")
+		category1 = read_add.moneydata.categorytree.find_first_node_by_relative_path("Category1")
 		assert(isinstance(category1, data.CategoryTreeNode))
 
 		self.assertIsNotNone(category1)
