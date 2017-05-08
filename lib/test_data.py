@@ -406,6 +406,10 @@ class TestTreeNode(unittest.TestCase):
 class TestCategoryTreeNode(unittest.TestCase):
     def setUp(self):
         self.tree = data.CategoryTreeNode("All", 1)
+        self.negativechild1 = data.CategoryTreeNode("NegativeChild1", -1)
+        self.negativechild2 = data.CategoryTreeNode("NegativeChild2", -1)
+        self.tree.append_childnode(self.negativechild1)
+        self.negativechild1.append_childnode(self.negativechild2)
 
     def test_append_childnode(self):
         self.assertRaises(AssertionError, self.tree.append_childnode, data.TreeNode("TreeNode"))
@@ -415,6 +419,16 @@ class TestCategoryTreeNode(unittest.TestCase):
         node = self.tree.append_childnode(data.CategoryTreeNode("Child", 1))
 
         self.assertTrue(node is not None)
+
+    def test_get_absolute_sign(self):
+        self.assertEqual(self.tree.get_absolute_sign().value, 1)
+        self.assertEqual(self.negativechild1.get_absolute_sign().value, -1)
+        self.assertEqual(self.negativechild2.get_absolute_sign().value, 1)
+
+    def test_format(self):
+        self.assertEqual(self.tree.format(False), "+ All")
+        self.assertEqual(self.negativechild1.format(False), "\t- NegativeChild1")
+        self.assertEqual(self.negativechild2.format(False), "\t\t- NegativeChild2")
 
 
 class TestSign(unittest.TestCase):
@@ -433,60 +447,55 @@ class TestSign(unittest.TestCase):
 
 class TestFilter(unittest.TestCase):
     def setUp(self):
-        self.category1 = data.CategoryTreeNode("Category1", data.Sign(1))
-        self.category2 = data.CategoryTreeNode("Category1", data.Sign(0))
+        self.data = []
+        self.data.append("A1")
+        self.data.append("A2")
+        self.data.append("B1")
+        self.data.append("B2")
 
-        self.transaction1 = data.Transaction(datetime.date(2000, 1, 1), self.category1, 100.0, None)
-        self.transaction2 = data.Transaction(datetime.date(2000, 12, 1), self.category1, 100.0, None)
-        self.transaction3 = data.Transaction(datetime.date(2000, 1, 1), self.category2, 100.0, None)
-        self.transaction4 = data.Transaction(datetime.date(2000, 12, 1), self.category2, 100.0, None)
-
-        self.transactions = [self.transaction1, self.transaction2, self.transaction3, self.transaction4]
-
-        self.datefilter = data.Filter(lambda t: t.date.month > 8)
-        self.categoryfilter = data.Filter(lambda t: t.category == self.category1)
+        self.charAFilter = data.Filter(lambda v: v[0] == "A")
+        self.num1Filter = data.Filter(lambda v: v[1] == "1")
 
     def test_filters(self):
-        self.assertFalse(self.datefilter(self.transaction1))
-        self.assertTrue(self.datefilter(self.transaction2))
-        self.assertFalse(self.datefilter(self.transaction3))
-        self.assertTrue(self.datefilter(self.transaction4))
+        self.assertTrue(self.charAFilter(self.data[0]))
+        self.assertTrue(self.charAFilter(self.data[1]))
+        self.assertFalse(self.charAFilter(self.data[2]))
+        self.assertFalse(self.charAFilter(self.data[3]))
 
-        self.assertTrue(self.categoryfilter(self.transaction1))
-        self.assertTrue(self.categoryfilter(self.transaction2))
-        self.assertFalse(self.categoryfilter(self.transaction3))
-        self.assertFalse(self.categoryfilter(self.transaction4))
+        self.assertTrue(self.num1Filter(self.data[0]))
+        self.assertFalse(self.num1Filter(self.data[1]))
+        self.assertTrue(self.num1Filter(self.data[2]))
+        self.assertFalse(self.num1Filter(self.data[3]))
 
     def test_or_concat(self):
-        transactionfilter = [self.datefilter.or_concat(self.categoryfilter),
-                             self.categoryfilter.or_concat(self.datefilter)]
+        transactionfilter = [self.charAFilter.or_concat(self.num1Filter),
+                             self.num1Filter.or_concat(self.charAFilter)]
 
         for f in transactionfilter:
-            for t in self.transactions:
-                if self.datefilter(t) or self.categoryfilter(t):
-                    self.assertTrue(f(t))
+            for d in self.data:
+                if self.charAFilter(d) or self.num1Filter(d):
+                    self.assertTrue(f(d))
                 else:
-                    self.assertFalse(f(t))
+                    self.assertFalse(f(d))
 
     def test_and_concat(self):
-        transactionfilter = [self.datefilter.and_concat(self.categoryfilter),
-                             self.categoryfilter.and_concat(self.datefilter)]
+        transactionfilter = [self.charAFilter.and_concat(self.num1Filter),
+                             self.num1Filter.and_concat(self.charAFilter)]
 
         for f in transactionfilter:
-            for t in self.transactions:
-                if self.datefilter(t) and self.categoryfilter(t):
-                    self.assertTrue(f(t))
+            for d in self.data:
+                if self.charAFilter(d) and self.num1Filter(d):
+                    self.assertTrue(f(d))
                 else:
-                    self.assertFalse(f(t))
+                    self.assertFalse(f(d))
 
     def test_negate(self):
-        transactionfilter = [self.datefilter, self.categoryfilter]
-        transactions = [self.transaction1, self.transaction2, self.transaction3, self.transaction4]
+        transactionfilter = [self.charAFilter, self.num1Filter]
 
         for f in transactionfilter:
             nf = f.negate()
 
-            for t in transactions:
+            for t in self.data:
                 if not f(t):
                     self.assertTrue(nf(t))
                 else:
