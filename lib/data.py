@@ -3,7 +3,7 @@ from . import io
 
 class MoneyData:
 	def __init__(self):
-		self.categorytree = CategoryTreeNode("All", 1)
+		self.categorytree = CategoryTreeNode("All")
 		self.transactions = []
 
 		self.notfoundcategoryname = "NOTFOUND"
@@ -11,14 +11,15 @@ class MoneyData:
 	def filter_transactions(self, filter_func):
 		return FilterIterator(self.transactions.__iter__(), filter_func)
 
-	def add_transaction(self, str_date, str_category, str_amount, str_comment, force=False):
+	def add_transaction(self, str_date, str_fromcategory, str_tocategory, str_amount, str_comment, force=False):
 		try:
-			node = self.get_category(str_category)
+			fromnode = self.get_category(str_fromcategory)
+			tonode = self.get_category(str_tocategory)
 		except NoSuchCategoryException as e:
 			if not force:
 				raise e
 
-		newtransaction = self.parse_transaction(str_date, str_category, str_amount, str_comment, force)
+		newtransaction = self.parse_transaction(str_date, str_fromcategory, str_tocategory, str_amount, str_comment, force)
 		self.transactions.append(newtransaction)
 
 		return newtransaction
@@ -26,12 +27,12 @@ class MoneyData:
 	def delete_transaction(self, index):
 		del self.transactions[index]
 
-	def parse_transaction(	self, str_date, str_category, str_amount, str_comment,
+	def parse_transaction(	self, str_date, str_categoryin, str_categoryout, str_amount, str_comment,
 							autocreatenotfoundcategory=False, dateformat="%Y-%m-%d"):
 		parser = io.TransactionParser(self.categorytree, self.notfoundcategoryname, dateformat)
 		parser.autocreatenotfoundcategory = autocreatenotfoundcategory
 
-		return parser.parse(str_date, str_category, str_amount, str_comment)
+		return parser.parse(str_date, str_categoryin, str_categoryout, str_amount, str_comment)
 
 	def get_category(self, name):
 		nodes = self.categorytree.find_nodes_by_relative_path(name)
@@ -60,7 +61,7 @@ class MoneyData:
 
 		return category.is_contained_in_subtree(notfoundcategory)
 
-	def add_category(self, parentname, name, str_sign):
+	def add_category(self, parentname, name):
 		notfoundcategory = self.get_notfound_category()
 		category = None
 		if not notfoundcategory is None:
@@ -70,7 +71,7 @@ class MoneyData:
 		if not category is None:
 			category.parent.remove_childnode_by_name(name)
 
-		newcategory = CategoryTreeNode(name, Sign.parse(str_sign))
+		newcategory = CategoryTreeNode(name)
 		parentcategory.append_childnode(newcategory)
 
 		return newcategory
@@ -92,6 +93,8 @@ class MoneyData:
 		newcategory = None
 		if not notfoundcategory is None:
 			newcategory = notfoundcategory.find_first_node_by_relative_path(newname)
+			if not newcategory is None and not newcategory.parent is notfoundcategory:
+				newcategory = None
 
 		if newname in category.parent.children:
 			raise DuplicateCategoryException(newname)
@@ -100,11 +103,6 @@ class MoneyData:
 			newcategory.parent.remove_childnode_by_name(newname)
 
 		category.rename(newname)
-
-	def setsign_of_category(self, name, str_newsign):
-		category = self.get_category(name)
-
-		category.sign = Sign.parse(str_newsign)
 
 	def merge_category(self, name, targetname):
 		categories = []
@@ -124,8 +122,10 @@ class MoneyData:
 					targetcategories.append(targetcategory.children[child])
 
 			for t in self.transactions:
-				if t.category == category:
-					t.category = targetcategory
+				if t.fromcategory == category:
+					t.fromcategory = targetcategory
+				if t.tocategory == category:
+					t.tocategory = targetcategory
 
 			i = i+1
 
@@ -150,11 +150,22 @@ class MoneyData:
 			if not transactionfilter(t):
 				continue
 
-			d_summary[t.category.get_unique_name()].amount += t.category.sign.value * t.amount
+			d_summary[t.fromcategory.get_unique_name()].amountout -= t.amount
+			d_summary[t.fromcategory.get_unique_name()].amount -= t.amount
 
-			c = t.category
+			d_summary[t.tocategory.get_unique_name()].amountin += t.amount
+			d_summary[t.tocategory.get_unique_name()].amount += t.amount
+
+			c = t.fromcategory
 			while not c is None:
-				d_summary[c.get_unique_name()].sum += t.category.get_absolute_sign().value * t.amount
+				d_summary[c.get_unique_name()].sumout -= t.amount
+				d_summary[c.get_unique_name()].sum -= t.amount
+				c = c.parent
+
+			c = t.tocategory
+			while not c is None:
+				d_summary[c.get_unique_name()].sumin += t.amount
+				d_summary[c.get_unique_name()].sum += t.amount
 				c = c.parent
 
 		return d_summary
@@ -367,15 +378,8 @@ class TreeNode:
 
 
 class CategoryTreeNode(TreeNode):
-	def __init__(self, name, sign):
+	def __init__(self, name):
 		TreeNode.__init__(self, name)
-
-		if type(sign) == int:
-			self.sign = Sign(sign)
-		elif isinstance(sign, Sign):
-			self.sign = sign
-		else:
-			raise TypeError("Can't convert type " + str(type(sign)) + " to " + str(Sign) + " implicitly")
 
 	def append_childnode(self, node):
 		assert isinstance(node, CategoryTreeNode)
@@ -390,53 +394,15 @@ class CategoryTreeNode(TreeNode):
 
 		return TreeNode.append_childnode(self, node)
 
-	def get_absolute_sign(self, root_category=None):
-		node = self
-		value = node.sign.value
-		while not node.parent is None and (root_category is None or not node == root_category):
-			node = node.parent
-
-			value = value * node.sign.value
-
-		return Sign(value)
-
 	def format(self, fullname=False):
 		_depth = "\t"*self.get_depth()
-		_sym = str(self.sign) + " "
 
 		if fullname:
 			_name = self.get_full_name()
 		else:
 			_name = self.name
 
-		return _depth + _sym  + _name
-
-
-class Sign:
-	def __init__(self, value):
-		self.value = value
-
-	def __str__(self):
-		if self.value == -1:
-			return "-"
-		elif self.value == 0:
-			return "0"
-		elif self.value == 1:
-			return "+"
-		else:
-			raise InvalidSignException(self.value)
-
-	def parse(str_sign):
-		if str_sign == "+":
-			value = 1
-		elif str_sign == "-":
-			value = -1
-		elif str_sign == "0":
-			value = 0
-		else:
-			raise InvalidSignException(str_sign)
-
-		return Sign(value)
+		return _depth  + _name
 
 
 class DFSIterator:
@@ -458,23 +424,29 @@ class DFSIterator:
 
 
 class Transaction(object):
-	fields = ["date", "category", "amount", "comment"]
+	fields = ["date", "fromcategory", "tocategory", "amount", "comment"]
 	__slots__ = fields
 
-	def __init__(self, date, category, amount, comment):
-		assert(isinstance(category, CategoryTreeNode))
+	def __init__(self, date, fromcategory, tocategory, amount, comment):
+		assert(isinstance(fromcategory, CategoryTreeNode))
+		assert(isinstance(tocategory, CategoryTreeNode))
 
 		self.date = date
-		self.category = category
+		self.fromcategory = fromcategory
+		self.tocategory = tocategory
 		self.amount = amount
 		self.comment = comment
 
 
 class NodeSummary(object):
-	__slots__ = ["amount", "sum"]
+	__slots__ = ["amountin", "amountout", "amount", "sumin", "sumout", "sum"]
 	
 	def __init__(self):
+		self.amountin = 0
+		self.amountout = 0
 		self.amount = 0
+		self.sumin = 0
+		self.sumout = 0
 		self.sum = 0
 	
 		pass

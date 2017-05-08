@@ -13,15 +13,21 @@ class TestPyMoney(unittest.TestCase):
 
 		self.app = app.PyMoney()
 
-		self.app.moneydata.add_category("All", "Category1", "+")
-		self.app.moneydata.add_category("Category1", "Subcategory1", "+")
-		self.app.moneydata.add_category("All", "Category2", "+")
+		self.app.moneydata.add_category("All", "Cash")
+		self.app.moneydata.add_category("Cash", "In")
+		self.app.moneydata.add_category("Cash", "Out")
+		self.app.moneydata.add_category("All", "External")
+		self.app.moneydata.add_category("External", "In")
+		self.app.moneydata.add_category("External", "Out")
+		self.app.moneydata.add_category("External.In", "Category1")
+		self.app.moneydata.add_category("Category1", "Subcategory1")
+		self.app.moneydata.add_category("External.In", "Category2")
 
-		self.app.moneydata.add_transaction("2000-01-01", "Category1", 10.0, "A comment")
-		self.app.moneydata.add_transaction("2000-01-02", "Subcategory1", 20.0, "A comment")
-		self.app.moneydata.add_transaction("2000-01-03", "Category2", 30.0, "A comment")
+		self.app.moneydata.add_transaction("2000-01-01", "Cash.Out", "Category1", 10.0, "A comment")
+		self.app.moneydata.add_transaction("2000-01-02", "Cash.Out", "Subcategory1", 20.0, "A comment")
+		self.app.moneydata.add_transaction("2000-01-03", "Cash.Out", "Category2", 30.0, "A comment")
 
-		self.app.moneydata.add_transaction("2000-01-04", "UnknownCategory.UnknownSubCategory", 40.0, "A comment", True)
+		self.app.moneydata.add_transaction("2000-01-04", "Cash.Out", "UnknownCategory.UnknownSubCategory", 40.0, "A comment", True)
 
 	def tearDown(self):
 		if os.access("pymoney.transactions", os.F_OK):
@@ -62,7 +68,8 @@ class TestPyMoney(unittest.TestCase):
 			transaction = read_app.moneydata.transactions[i]
 
 			self.assertEqual(transaction.date, originaltransaction.date)
-			self.assertEqual(transaction.category.name, originaltransaction.category.name)
+			self.assertEqual(transaction.fromcategory.name, originaltransaction.fromcategory.name)
+			self.assertEqual(transaction.tocategory.name, originaltransaction.tocategory.name)
 			self.assertEqual(transaction.amount, originaltransaction.amount)
 			self.assertEqual(transaction.comment, originaltransaction.comment)
 

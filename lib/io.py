@@ -78,37 +78,27 @@ class CategoryParser:
 		self.nodestack = []
 
 	def parse(self, line):
-		match = re.match("^(\t*)([+-0]) (.*)$", line)
+		match = re.match("^(\t*)(.*)$", line)
 
 		if match is None:
 			raise IOError("Could not parse line: \"" + line + "\"")
 
 		groups = match.groups()
 
-		if not len(groups) == 3:
+		if not len(groups) == 2:
 			raise IOError("Could not parse line: \"" + line + "\"")
 
 		depth = match.group(1).count("	")
-		str_sign = match.group(2)
-		name = match.group(3).strip()
-
-		if str_sign == "+":
-			sign = 1
-		elif str_sign == "-":
-			sign = -1
-		elif str_sign == "0":
-			sign = 0
-		else:
-			raise data.InvalidSignException(str_sign)
+		name = match.group(2).strip()
 
 		while len(self.nodestack) > depth:
 			self.nodestack.pop()
 
 		if self.categorytree:
 			node = self.nodestack[len(self.nodestack) - 1]
-			node = node.append_childnode(data.CategoryTreeNode(name, sign))
+			node = node.append_childnode(data.CategoryTreeNode(name))
 		else:
-			self.categorytree = data.CategoryTreeNode(name, sign)
+			self.categorytree = data.CategoryTreeNode(name)
 			node = self.categorytree
 
 		self.nodestack.append(node)
@@ -124,7 +114,7 @@ class CategoryFormatter:
 	def format(category):
 		assert(isinstance(category, data.CategoryTreeNode))
 
-		return "	" * category.get_depth() + str(category.sign) + " " + category.name
+		return "	" * category.get_depth() + category.name
 
 
 class TransactionParser:
@@ -148,7 +138,7 @@ class TransactionParser:
 					if nodeNames[i] in newcategory.children:
 						newcategory = newcategory.children[nodeNames[i]]
 					else:
-						newcategory = newcategory.append_childnode(data.CategoryTreeNode(nodeNames[i], 1))
+						newcategory = newcategory.append_childnode(data.CategoryTreeNode(nodeNames[i]))
 				nodes = [newcategory]
 			else:
 				raise data.NoSuchCategoryException(name)
@@ -162,17 +152,18 @@ class TransactionParser:
 		category = self.categorytree.find_first_node_by_relative_path(self.categorytree.name + "." + self.notfoundcategoryname)
 
 		if category is None and autocreate:
-			category = self.categorytree.append_childnode(data.CategoryTreeNode(self.notfoundcategoryname, 1))
+			category = self.categorytree.append_childnode(data.CategoryTreeNode(self.notfoundcategoryname))
 
 		return category
 
-	def parse(self, date, category, amount, comment):
+	def parse(self, date, fromcategory, tocategory, amount, comment):
 		date = datetime.datetime.strptime(date, self.dateformat).date()
-		category = self.get_category(category)
+		fromcategory = self.get_category(fromcategory)
+		tocategory = self.get_category(tocategory)
 		amount = float(amount)
 		comment = comment
 
-		return data.Transaction(date, category, amount, comment)
+		return data.Transaction(date, fromcategory, tocategory, amount, comment)
 
 
 class TransactionFormatter:
@@ -181,13 +172,20 @@ class TransactionFormatter:
 
 	@staticmethod
 	def format(transaction, notfoundcategory):
-		if not notfoundcategory is None and transaction.category.is_contained_in_subtree(notfoundcategory):
-			str_category = transaction.category.get_relative_name_to(notfoundcategory)
-			str_category = str_category[len(notfoundcategory.name)+1:]
+		if not notfoundcategory is None and transaction.fromcategory.is_contained_in_subtree(notfoundcategory):
+			str_fromcategory = transaction.fromcategory.get_relative_name_to(notfoundcategory)
+			str_fromcategory = str_fromcategory[len(notfoundcategory.name)+1:]
 		else:
-			str_category = transaction.category.get_unique_name()
+			str_fromcategory = transaction.fromcategory.get_unique_name()
 
-		return {"date":		str(transaction.date),
-				"category":	str_category,
-				"amount":	str(transaction.amount),
-				"comment":	transaction.comment}
+		if not notfoundcategory is None and transaction.tocategory.is_contained_in_subtree(notfoundcategory):
+			str_tocategory = transaction.tocategory.get_relative_name_to(notfoundcategory)
+			str_tocategory = str_tocategory[len(notfoundcategory.name)+1:]
+		else:
+			str_tocategory = transaction.tocategory.get_unique_name()
+
+		return {"date":			str(transaction.date),
+				"fromcategory":	str_fromcategory,
+				"tocategory":	str_tocategory,
+				"amount":		str(transaction.amount),
+				"comment":		transaction.comment}

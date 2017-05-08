@@ -9,20 +9,28 @@ class TestMoneyData(TestCase):
     def setUp(self):
         self.moneydata = data.MoneyData()
 
-        self.moneydata.add_category("All", "Category1", "-")
-        self.moneydata.add_category("All", "Category2", "+")
+        self.moneydata.add_category("All", "Cash")
+        self.moneydata.add_category("Cash", "In")
+        self.moneydata.add_category("Cash", "Out")
 
-        self.moneydata.add_category("Category1", "Subcategory1", "-")
-        self.moneydata.add_category("Category2", "Subcategory1", "-")
+        self.moneydata.add_category("All", "External")
+        self.moneydata.add_category("External", "In")
+        self.moneydata.add_category("External", "Out")
 
-        self.moneydata.add_transaction("2000-01-01", "Category1", "10.0", "")
-        self.moneydata.add_transaction("2000-01-02", "Category1.Subcategory1", "20.0", "")
-        self.moneydata.add_transaction("2000-01-03", "Category2", "30.0", "")
-        self.moneydata.add_transaction("2000-01-04", "Category2.Subcategory1", "35.0", "")
+        self.moneydata.add_category("External.Out", "Category1")
+        self.moneydata.add_category("External.In", "Category2")
+
+        self.moneydata.add_category("Category1", "Subcategory1")
+        self.moneydata.add_category("Category2", "Subcategory1")
+
+        self.moneydata.add_transaction("2000-01-01", "Cash.Out", "Category1", "10.0", "")
+        self.moneydata.add_transaction("2000-01-02", "Cash.Out", "Category1.Subcategory1", "20.0", "")
+        self.moneydata.add_transaction("2000-01-03", "Category2", "Cash.In", "30.0", "")
+        self.moneydata.add_transaction("2000-01-04", "Category2.Subcategory1", "Cash.In", "35.0", "")
 
     def test_filter_transactions(self):
         category = self.moneydata.get_category("Category1")
-        filter_func = lambda t: t.category.is_contained_in_subtree(category)
+        filter_func = lambda t: t.fromcategory.is_contained_in_subtree(category) or t.tocategory.is_contained_in_subtree(category)
 
         l = list(self.moneydata.filter_transactions(filter_func))
 
@@ -30,25 +38,33 @@ class TestMoneyData(TestCase):
 
     def test_add_transaction(self):
         self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory1",
-                               self.moneydata.add_transaction, "2000-01-01", "UnknownCategory1", "60.0", "")
+                               self.moneydata.add_transaction, "2000-01-01", "Cash.Out", "UnknownCategory1", "60.0", "")
+        self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory1",
+                               self.moneydata.add_transaction, "2000-01-01", "UnknownCategory1", "Cash.In", "60.0", "")
 
         transactioncount = len(self.moneydata.transactions)
-        category = self.moneydata.get_category("Category1")
+        fromcategory = self.moneydata.get_category("Cash.Out")
+        tocategory = self.moneydata.get_category("Category1")
 
-        newtransaction = self.moneydata.add_transaction("2000-01-01", "Category1", "40.0", "")
+        newtransaction = self.moneydata.add_transaction("2000-01-01", "Cash.Out", "Category1", "40.0", "")
 
         self.assertEqual(len(self.moneydata.transactions), transactioncount + 1)
-        self.assertEqual(newtransaction.category, category)
+        self.assertEqual(newtransaction.fromcategory, fromcategory)
+        self.assertEqual(newtransaction.tocategory, tocategory)
 
-        newtransaction = self.moneydata.add_transaction("2000-01-01", "UnknownCategory2", "50.0", "", True)
-
+        newtransaction = self.moneydata.add_transaction("2000-01-01", "Cash.Out", "UnknownCategory2", "50.0", "", True)
         self.assertEqual(len(self.moneydata.transactions), transactioncount + 2)
-        self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.category))
+
+        newtransaction = self.moneydata.add_transaction("2000-01-01", "UnknownCategory3", "Cash.In", "50.0", "", True)
+        self.assertEqual(len(self.moneydata.transactions), transactioncount + 3)
+
+        newtransaction = self.moneydata.add_transaction("2000-01-01", "UnknownCategory4", "UnknownCategory5", "50.0", "", True)
+        self.assertEqual(len(self.moneydata.transactions), transactioncount + 4)
 
     def test_delete_transaction(self):
         transactioncount = len(self.moneydata.transactions)
 
-        # delete transaction in Subcategory1
+        # delete transaction to Subcategory1
         self.moneydata.delete_transaction(1)
 
         self.assertEqual(len(self.moneydata.transactions), transactioncount - 1)
@@ -56,26 +72,35 @@ class TestMoneyData(TestCase):
         category = self.moneydata.get_category("Category1")
         subcategory = self.moneydata.get_category("Category1.Subcategory1")
 
-        filter_func = lambda t: t.category == category
+        filter_func = lambda t: t.fromcategory == category or t.tocategory == category
         self.assertEqual(len(list(self.moneydata.filter_transactions(filter_func))), 1)
 
-        filter_func = lambda t: t.category == subcategory
+        filter_func = lambda t: t.fromcategory == subcategory or t.tocategory == subcategory
         self.assertEqual(len(list(self.moneydata.filter_transactions(filter_func))), 0)
 
     def test_parse_transaction(self):
         self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
-                               self.moneydata.parse_transaction, "2000-01-01", "UnknownCategory", "10.0", "A comment")
+                               self.moneydata.parse_transaction, "2000-01-01", "Cash.Out", "UnknownCategory", "10.0", "A comment")
+        self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
+                               self.moneydata.parse_transaction, "2000-01-01", "UnknownCategory", "Cash.In", "10.0", "A comment")
 
-        newtransaction = self.moneydata.parse_transaction("2000-01-01", "Category1", "10.0", "A comment")
+        newtransaction = self.moneydata.parse_transaction("2000-01-01", "Cash.Out", "Category1", "10.0", "A comment")
 
         self.assertEqual(newtransaction.date, datetime.date(2000, 1, 1))
-        self.assertEqual(newtransaction.category.name, "Category1")
+        self.assertEqual(newtransaction.fromcategory.name, "Out")
+        self.assertEqual(newtransaction.tocategory.name, "Category1")
         self.assertEqual(newtransaction.amount, 10.0)
         self.assertEqual(newtransaction.comment, "A comment")
 
-        newtransaction = self.moneydata.parse_transaction("2000-01-01", "UnknownCategory", "10.0", "A comment", True)
+        newtransaction = self.moneydata.parse_transaction("2000-01-01", "Cash.Out", "UnknownCategory1", "10.0", "A comment", True)
+        self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.tocategory))
 
-        self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.category))
+        newtransaction = self.moneydata.parse_transaction("2000-01-01", "UnknownCategory2", "Cash.In", "10.0", "A comment", True)
+        self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.fromcategory))
+
+        newtransaction = self.moneydata.parse_transaction("2000-01-01", "UnknownCategory3", "UnknownCategory4", "10.0", "A comment", True)
+        self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.fromcategory))
+        self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.tocategory))
 
     def test_get_category(self):
         self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
@@ -94,41 +119,41 @@ class TestMoneyData(TestCase):
             self.moneydata.category_is_contained_in_notfound_category(self.moneydata.get_category("Category2")))
 
         self.assertIsNone(self.moneydata.get_notfound_category())
-        self.moneydata.add_category("All", self.moneydata.notfoundcategoryname, "+")
+        self.moneydata.add_category("All", self.moneydata.notfoundcategoryname)
         self.assertIsNotNone(self.moneydata.get_notfound_category())
 
         self.assertTrue(
             self.moneydata.category_is_contained_in_notfound_category(self.moneydata.get_notfound_category()))
 
-        newcategory = self.moneydata.add_category(self.moneydata.notfoundcategoryname, "NewCategory1", "+")
+        newcategory = self.moneydata.add_category(self.moneydata.notfoundcategoryname, "NewCategory1")
         self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newcategory))
 
     def test_add_category(self):
         # duplicate category names are allowed if they dont share the same dad
-        self.moneydata.add_category("Category1", "SubCategory1", "+")
-        self.moneydata.add_category("Category2", "SubCategory1", "+")
+        self.moneydata.add_category("Category1", "SubCategory1")
+        self.moneydata.add_category("Category2", "SubCategory1")
 
         self.assertRaisesRegex(data.DuplicateCategoryException, "SubCategory1",
-                               self.moneydata.add_category, "Category2", "SubCategory1", "+")
+                               self.moneydata.add_category, "Category2", "SubCategory1")
         self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
-                               self.moneydata.add_category, "UnknownCategory", "NewCategory1", "+")
+                               self.moneydata.add_category, "UnknownCategory", "NewCategory1")
 
-        newcategory = self.moneydata.add_category("All", "NewCategory1", "+")
+        newcategory = self.moneydata.add_category("All", "NewCategory1")
         self.assertEqual(newcategory.name, "NewCategory1")
         self.assertEqual(newcategory.parent.name, "All")
 
-        newcategory = self.moneydata.add_category("Category1", "NewCategory2", "+")
+        newcategory = self.moneydata.add_category("Category1", "NewCategory2")
         self.assertEqual(newcategory.name, "NewCategory2")
         self.assertEqual(newcategory.parent.name, "Category1")
 
-        self.moneydata.add_category("All", self.moneydata.notfoundcategoryname, "+")
-        self.moneydata.add_category(self.moneydata.notfoundcategoryname, "NewCategory3", "+")
+        self.moneydata.add_category("All", self.moneydata.notfoundcategoryname)
+        self.moneydata.add_category(self.moneydata.notfoundcategoryname, "NewCategory3")
         newcategory3 = self.moneydata.get_category("NewCategory3")
         self.assertEqual(newcategory3.name, "NewCategory3")
         self.assertEqual(newcategory3.parent.name, self.moneydata.notfoundcategoryname)
         self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newcategory3))
 
-        newcategory = self.moneydata.add_category("All", "NewCategory3", "+")
+        newcategory = self.moneydata.add_category("All", "NewCategory3")
         self.assertFalse(self.moneydata.category_is_contained_in_notfound_category(newcategory3))
         self.assertFalse(self.moneydata.category_is_contained_in_notfound_category(newcategory))
         self.assertEqual(newcategory.name, "NewCategory3")
@@ -148,21 +173,54 @@ class TestMoneyData(TestCase):
     def test_rename_category(self):
         self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
                                self.moneydata.rename_category, "UnknownCategory", "RenamedUnknownCategory")
-        self.assertRaisesRegex(data.DuplicateCategoryException, "Category2",
-                               self.moneydata.rename_category, "Category1", "Category2")
+        self.assertRaisesRegex(data.DuplicateCategoryException, "In",
+                               self.moneydata.rename_category, "External.Out", "In")
 
-        filter_func = lambda t: t.category.name == "Category1"
-        transactions = self.moneydata.filter_transactions(filter_func)
+        # test renaming to a new category name
         category = self.moneydata.get_category("Category1")
+        filter_func_from = lambda t: t.fromcategory == category
+        filter_func_to = lambda t: t.tocategory == category
+        transactionsfrom = list(self.moneydata.filter_transactions(filter_func_from))
+        transactionsto = list(self.moneydata.filter_transactions(filter_func_to))
 
         self.moneydata.rename_category("Category1", "RenamedCategory")
 
         self.assertEqual(category.name, "RenamedCategory")
-        for transaction in transactions:
-            self.assertEqual(transaction.category, category)
+        category = self.moneydata.get_category("RenamedCategory")
+        for transaction in transactionsfrom:
+            self.assertEqual(transaction.fromcategory, category)
+        for transaction in transactionsto:
+            self.assertEqual(transaction.tocategory, category)
 
-        self.moneydata.add_category("All", self.moneydata.notfoundcategoryname, "+")
-        newcategory = self.moneydata.add_category(self.moneydata.notfoundcategoryname, "RenamedNewCategory", "+")
+        # test renaming to an existing unknown subcategory
+        self.moneydata.add_transaction("2000-01-05", "Cash.Out", "RenamedNewCategory.RenamedNewSubCategory", 1, "Unknown transaction", True)
+        category = self.moneydata.get_category("Category2.Subcategory1")
+        renamedsubcategory = self.moneydata.get_category("RenamedNewSubCategory")
+        filter_func_from = lambda t: t.fromcategory == renamedsubcategory
+        filter_func_to = lambda t: t.tocategory == renamedsubcategory
+        transactionsfrom = list(self.moneydata.filter_transactions(filter_func_from))
+        transactionsto = list(self.moneydata.filter_transactions(filter_func_to))
+
+        self.moneydata.rename_category("Category2.Subcategory1", "RenamedNewSubCategory")
+
+        
+        self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(renamedsubcategory))
+        unknownsubcategory = self.moneydata.get_category("RenamedNewCategory.RenamedNewSubCategory")
+        self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(unknownsubcategory))
+
+        for transaction in transactionsfrom:
+            self.assertEqual(transaction.fromcategory, unknownsubcategory)
+        for transaction in transactionsto:
+            self.assertEqual(transaction.tocategory, unknownsubcategory)
+
+        # test renaming to an existing unknown category
+        category = self.moneydata.get_category("Category2")
+        newcategory = self.moneydata.get_category("RenamedNewCategory")
+        renamedsubcategory = self.moneydata.get_category("RenamedNewCategory.RenamedNewSubCategory")
+        filter_func_from = lambda t: t.fromcategory == renamedsubcategory
+        filter_func_to = lambda t: t.tocategory == renamedsubcategory
+        transactionsfrom = list(self.moneydata.filter_transactions(filter_func_from))
+        transactionsto = list(self.moneydata.filter_transactions(filter_func_to))
 
         self.moneydata.rename_category("Category2", "RenamedNewCategory")
         self.assertFalse(self.moneydata.category_is_contained_in_notfound_category(newcategory))
@@ -172,22 +230,10 @@ class TestMoneyData(TestCase):
             )
         )
 
-    def test_setsign_of_category(self):
-        self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
-                               self.moneydata.setsign_of_category, "UnknownCategory", "-")
-        self.assertRaisesRegex(data.InvalidSignException, "-1",
-                               self.moneydata.setsign_of_category, "Category1", "-1")
-
-        category = self.moneydata.get_category("Category2")
-
-        self.moneydata.setsign_of_category("Category2", "-")
-        self.assertEqual(category.sign.value, -1)
-
-        self.moneydata.setsign_of_category("Category2", "+")
-        self.assertEqual(category.sign.value, 1)
-
-        self.moneydata.setsign_of_category("Category2", "0")
-        self.assertEqual(category.sign.value, 0)
+        for transaction in transactionsfrom:
+            self.assertEqual(transaction.fromcategory, renamedsubcategory)
+        for transaction in transactionsto:
+            self.assertEqual(transaction.tocategory, renamedsubcategory)
 
     def test_merge_category(self):
         self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
@@ -198,13 +244,13 @@ class TestMoneyData(TestCase):
         sourcecategory = self.moneydata.get_category("Category1")
         targetcategory = self.moneydata.get_category("Category2")
 
-        filter_func = lambda t: t.category.is_contained_in_subtree(targetcategory)
+        filter_func = lambda t: t.fromcategory.is_contained_in_subtree(targetcategory) or t.tocategory.is_contained_in_subtree(targetcategory)
         transactions = list(self.moneydata.filter_transactions(filter_func))
 
         self.moneydata.merge_category(sourcecategory.name, targetcategory.name)
 
         for transaction in transactions:
-            self.assertTrue(transaction.category.is_contained_in_subtree(targetcategory))
+            self.assertTrue(filter_func(transaction))
 
     def test_move_category(self):
         self.assertRaisesRegex(data.NoSuchCategoryException, "UnknownCategory",
@@ -216,18 +262,57 @@ class TestMoneyData(TestCase):
         filter_func = lambda t: True
         summary = self.moneydata.create_summary(filter_func)
 
-        self.assertEqual(summary["All"].amount, 0)
-        self.assertEqual(summary["Category1"].amount, -10)
-        self.assertEqual(summary["Category1.Subcategory1"].amount, -20)
-        self.assertEqual(summary["Category2"].amount, 30)
-        self.assertEqual(summary["Category2.Subcategory1"].amount, -35)
+        self.assertEqual(summary["All"].amountin, 0)
+        self.assertEqual(summary["Cash"].amountin, 0)
+        self.assertEqual(summary["Cash.In"].amountin, 65)
+        self.assertEqual(summary["Cash.Out"].amountin, 0)
+        self.assertEqual(summary["External"].amountin, 0)
+        self.assertEqual(summary["External.In"].amountin, 0)
+        self.assertEqual(summary["Category2"].amountin, 0)
+        self.assertEqual(summary["Category2.Subcategory1"].amountin, 0)
+        self.assertEqual(summary["External.Out"].amountin, 0)
+        self.assertEqual(summary["Category1"].amountin, 10)
+        self.assertEqual(summary["Category1.Subcategory1"].amountin, 20)
 
-        self.assertEqual(summary["All"].sum, 5)
-        self.assertEqual(summary["Category1"].sum, 10)
-        self.assertEqual(summary["Category1.Subcategory1"].sum, 20)
-        self.assertEqual(summary["Category2"].sum, -5)
-        self.assertEqual(summary["Category2.Subcategory1"].sum, -35)
+        self.assertEqual(summary["All"].amountout, 0)
+        self.assertEqual(summary["Cash"].amountout, 0)
+        self.assertEqual(summary["Cash.In"].amountout, 0)
+        self.assertEqual(summary["Cash.Out"].amountout, -30)
+        self.assertEqual(summary["External"].amountout, 0)
+        self.assertEqual(summary["External.In"].amountout, 0)
+        self.assertEqual(summary["Category2"].amountout, -30)
+        self.assertEqual(summary["Category2.Subcategory1"].amountout, -35)
+        self.assertEqual(summary["External.Out"].amountout, 0)
+        self.assertEqual(summary["Category1"].amountout, 0)
+        self.assertEqual(summary["Category1.Subcategory1"].amountout, 0)
 
+        self.assertEqual(summary["All"].sumin, 95)
+        self.assertEqual(summary["Cash"].sumin, 65)
+        self.assertEqual(summary["Cash.In"].sumin, 65)
+        self.assertEqual(summary["Cash.Out"].sumin, 0)
+        self.assertEqual(summary["External"].sumin, 30)
+        self.assertEqual(summary["External.In"].sumin, 0)
+        self.assertEqual(summary["Category2"].sumin, 0)
+        self.assertEqual(summary["Category2.Subcategory1"].sumin, 0)
+        self.assertEqual(summary["External.Out"].sumin, 30)
+        self.assertEqual(summary["Category1"].sumin, 30)
+        self.assertEqual(summary["Category1.Subcategory1"].sumin, 20)
+
+        self.assertEqual(summary["All"].sumout, -95)
+        self.assertEqual(summary["Cash"].sumout, -30)
+        self.assertEqual(summary["Cash.In"].sumout, 0)
+        self.assertEqual(summary["Cash.Out"].sumout, -30)
+        self.assertEqual(summary["External"].sumout, -65)
+        self.assertEqual(summary["External.In"].sumout, -65)
+        self.assertEqual(summary["Category2"].sumout, -65)
+        self.assertEqual(summary["Category2.Subcategory1"].sumout, -35)
+        self.assertEqual(summary["External.Out"].sumout, 0)
+        self.assertEqual(summary["Category1"].sumout, 0)
+        self.assertEqual(summary["Category1.Subcategory1"].sumout, 0)
+
+        for categoryname in summary:
+            self.assertEqual(summary[categoryname].amount, summary[categoryname].amountin + summary[categoryname].amountout)
+            self.assertEqual(summary[categoryname].sum, summary[categoryname].sumin + summary[categoryname].sumout)
 
 class TestTreeNode(unittest.TestCase):
     def setUp(self):
@@ -405,44 +490,19 @@ class TestTreeNode(unittest.TestCase):
 
 class TestCategoryTreeNode(unittest.TestCase):
     def setUp(self):
-        self.tree = data.CategoryTreeNode("All", 1)
-        self.negativechild1 = data.CategoryTreeNode("NegativeChild1", -1)
-        self.negativechild2 = data.CategoryTreeNode("NegativeChild2", -1)
-        self.tree.append_childnode(self.negativechild1)
-        self.negativechild1.append_childnode(self.negativechild2)
+        self.tree = data.CategoryTreeNode("All")
 
     def test_append_childnode(self):
         self.assertRaises(AssertionError, self.tree.append_childnode, data.TreeNode("TreeNode"))
         self.assertRaisesRegex(data.DuplicateCategoryException, "All",
-                               self.tree.append_childnode, data.CategoryTreeNode("All", 1))
+                               self.tree.append_childnode, data.CategoryTreeNode("All"))
 
-        node = self.tree.append_childnode(data.CategoryTreeNode("Child", 1))
+        node = self.tree.append_childnode(data.CategoryTreeNode("Child"))
 
         self.assertTrue(node is not None)
 
-    def test_get_absolute_sign(self):
-        self.assertEqual(self.tree.get_absolute_sign().value, 1)
-        self.assertEqual(self.negativechild1.get_absolute_sign().value, -1)
-        self.assertEqual(self.negativechild2.get_absolute_sign().value, 1)
-
     def test_format(self):
-        self.assertEqual(self.tree.format(False), "+ All")
-        self.assertEqual(self.negativechild1.format(False), "\t- NegativeChild1")
-        self.assertEqual(self.negativechild2.format(False), "\t\t- NegativeChild2")
-
-
-class TestSign(unittest.TestCase):
-    def test_parse(self):
-        self.assertRaisesRegex(data.InvalidSignException, "-1",
-                               data.Sign.parse, "-1")
-
-        pos = data.Sign.parse("+")
-        neg = data.Sign.parse("-")
-        zero = data.Sign.parse("0")
-
-        self.assertEqual(pos.value, 1)
-        self.assertEqual(neg.value, -1)
-        self.assertEqual(zero.value, 0)
+        self.assertEqual(self.tree.format(False), "All")
 
 
 class TestFilter(unittest.TestCase):

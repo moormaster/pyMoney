@@ -28,16 +28,22 @@ class PymoneyTestBase(unittest.TestCase):
 		pymoneyconsole.main()
 
 	def setUp_categories(self):
-		PymoneyTestBase.pymoney_main(["category", "add", "All", "+", "Category1"])
-		PymoneyTestBase.pymoney_main(["category", "add", "Category1", "+", "Subcategory1"])
-		PymoneyTestBase.pymoney_main(["category", "add", "All", "+", "Category2"])
-		PymoneyTestBase.pymoney_main(["category", "add", "Category2", "+", "Subcategory1"])
+		PymoneyTestBase.pymoney_main(["category", "add",  "All", "Cash"])
+		PymoneyTestBase.pymoney_main(["category", "add",  "Cash", "In"])
+		PymoneyTestBase.pymoney_main(["category", "add",  "Cash", "Out"])
+		PymoneyTestBase.pymoney_main(["category", "add",  "All", "External"])
+		PymoneyTestBase.pymoney_main(["category", "add",  "External", "In"])
+		PymoneyTestBase.pymoney_main(["category", "add",  "External", "Out"])
+		PymoneyTestBase.pymoney_main(["category", "add",  "External.In", "Category1"])
+		PymoneyTestBase.pymoney_main(["category", "add",  "Category1", "Subcategory1"])
+		PymoneyTestBase.pymoney_main(["category", "add",  "External.In", "Category2"])
+		PymoneyTestBase.pymoney_main(["category", "add",  "Category2", "Subcategory1"])
 
 	def setUp_transactions(self):
-		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category1", "10.0", "A comment"])
-		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category1.Subcategory1", "20.0", "A comment"])
-		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category2", "30.0", "A comment"])
-		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Category2.Subcategory1", "40.0", "A comment"])
+		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Cash.Out", "Category1", "10.0", "A comment"])
+		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Cash.Out", "Category1.Subcategory1", "20.0", "A comment"])
+		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Cash.Out", "Category2", "30.0", "A comment"])
+		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Cash.Out", "Category2.Subcategory1", "40.0", "A comment"])
 
 	def get_app(self):
 		read_app = app.PyMoney()
@@ -49,14 +55,14 @@ class PymoneyTestBase(unittest.TestCase):
 class TransactionsTest(PymoneyTestBase):
 	def test_transaction_add(self):
 		read_app = self.get_app()
-		self.assertEqual(len(list(read_app.moneydata.categorytree)), 5)
+		self.assertEqual(len(list(read_app.moneydata.categorytree)), 11)
 		self.assertEqual(len(read_app.moneydata.transactions), 4)
 
 	def test_transaction_delete(self):
 		PymoneyTestBase.pymoney_main(["transaction", "delete", "2"])
 
 		read_app = self.get_app()
-		filter_func = lambda t: t.category.name == "Category2"
+		filter_func = lambda t: t.fromcategory.name == "Category2" or t.tocategory.name == "Category2"
 		self.assertEqual(len(list(read_app.moneydata.filter_transactions(filter_func))), 0)
 		self.assertEqual(len(read_app.moneydata.transactions), 3)
 
@@ -71,10 +77,10 @@ class TransactionsTest(PymoneyTestBase):
 
 class CategoriesTest(PymoneyTestBase):
 	def test_category_add(self):
-		PymoneyTestBase.pymoney_main(["category", "add", "All", "+", "NewCategory"])
+		PymoneyTestBase.pymoney_main(["category", "add", "All", "NewCategory"])
 
 		read_app = self.get_app()
-		self.assertEqual(len(list(read_app.moneydata.categorytree)), 6)
+		self.assertEqual(len(list(read_app.moneydata.categorytree)), 12)
 
 		category = read_app.moneydata.categorytree.find_first_node_by_relative_path("NewCategory")
 		self.assertIsNotNone(category)
@@ -95,7 +101,7 @@ class CategoriesTest(PymoneyTestBase):
 
 		read_app = self.get_app()
 
-		self.assertEqual(len(list(read_app.moneydata.categorytree)), 3)
+		self.assertEqual(len(list(read_app.moneydata.categorytree)), 9)
 		category = read_app.moneydata.categorytree.find_first_node_by_relative_path("Category1")
 		self.assertIsNone(category)
 
@@ -103,23 +109,23 @@ class CategoriesTest(PymoneyTestBase):
 		PymoneyTestBase.pymoney_main(["category", "merge", "Category1", "Category2"])
 
 		read_app = self.get_app()
-		self.assertEqual(len(list(read_app.moneydata.categorytree)), 3)
+		self.assertEqual(len(list(read_app.moneydata.categorytree)), 9)
 
 		category1 = read_app.moneydata.categorytree.find_first_node_by_relative_path("Category1")
 		category2 = read_app.moneydata.categorytree.find_first_node_by_relative_path("Category2")
 		subcategory1 = read_app.moneydata.categorytree.find_first_node_by_relative_path("Subcategory1")
 
-		filter_func = lambda t: t.category.is_contained_in_subtree(category2)
+		filter_func = lambda t: t.fromcategory.is_contained_in_subtree(category2) or t.tocategory.is_contained_in_subtree(category2)
 		self.assertEqual(len(list(read_app.moneydata.filter_transactions(filter_func))), 4)
 
-		filter_func = lambda t: t.category.is_contained_in_subtree(subcategory1)
+		filter_func = lambda t: t.fromcategory.is_contained_in_subtree(subcategory1) or t.tocategory.is_contained_in_subtree(subcategory1)
 		self.assertEqual(len(list(read_app.moneydata.filter_transactions(filter_func))), 2)
 
 		self.assertIsNone(category1)
 		self.assertIsNotNone(category2)
 		self.assertIsNotNone(subcategory1)
 
-		self.assertEqual(category2.parent.name, "All")
+		self.assertEqual(category2.parent.name, "In")
 		self.assertEqual(subcategory1.parent.name, "Category2")
 
 	def test_category_move(self):
@@ -142,17 +148,7 @@ class CategoriesTest(PymoneyTestBase):
 		self.assertIsNone(category1)
 		self.assertIsNotNone(renamedcategory)
 		self.assertEqual(renamedcategory.name, "RenamedCategory")
-		self.assertEqual(renamedcategory.parent.name, "All")
-
-	def test_category_setsign(self):
-		PymoneyTestBase.pymoney_main(["category", "setsign", "Category1", "-"])
-
-		read_add = self.get_app()
-		category1 = read_add.moneydata.categorytree.find_first_node_by_relative_path("Category1")
-		assert(isinstance(category1, data.CategoryTreeNode))
-
-		self.assertIsNotNone(category1)
-		self.assertEqual(category1.sign.value, -1)
+		self.assertEqual(renamedcategory.parent.name, "In")
 
 	def test_category_list(self):
 		PymoneyTestBase.pymoney_main(["category", "list"])

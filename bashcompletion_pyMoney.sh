@@ -13,15 +13,20 @@ _pymoney_transaction()
 					;;
 
 				$(( $_ARGINDEX + 2 )) )
-					# category
+					# fromcategory
 					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				$(( $_ARGINDEX + 3 )) )
-					# amount
+					# tocategory
+					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				$(( $_ARGINDEX + 4 )) )
+					# amount
+					;;
+
+				$(( $_ARGINDEX + 5 )) )
 					# comment
 			esac
 			;;
