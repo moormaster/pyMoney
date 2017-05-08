@@ -14,7 +14,7 @@
       ERROR
       $ ./pyMoney.py transaction add Costs.Misc 25.00
       OK
-
+- [ ] refactor category add/rename/move - call find_first_node only within notfoundcategory  
 - [ ] transactions should always happen between a source and a target category
       this enables one to keep track of the amount of money stored within each bank
       account:
