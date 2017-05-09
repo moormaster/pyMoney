@@ -150,22 +150,27 @@ class MoneyData:
 			if not transactionfilter(t):
 				continue
 
-			d_summary[t.fromcategory.get_unique_name()].amountout -= t.amount
-			d_summary[t.fromcategory.get_unique_name()].amount -= t.amount
+			fromkey = t.fromcategory.get_unique_name()
+			tokey = t.tocategory.get_unique_name()
 
-			d_summary[t.tocategory.get_unique_name()].amountin += t.amount
-			d_summary[t.tocategory.get_unique_name()].amount += t.amount
+			d_summary[fromkey].amountout -= t.amount
+			d_summary[fromkey].amount -= t.amount
+
+			d_summary[tokey].amountin += t.amount
+			d_summary[tokey].amount += t.amount
 
 			c = t.fromcategory
 			while not c is None:
-				d_summary[c.get_unique_name()].sumout -= t.amount
-				d_summary[c.get_unique_name()].sum -= t.amount
+				key = c.get_unique_name()
+				d_summary[key].sumout -= t.amount
+				d_summary[key].sum -= t.amount
 				c = c.parent
 
 			c = t.tocategory
 			while not c is None:
-				d_summary[c.get_unique_name()].sumin += t.amount
-				d_summary[c.get_unique_name()].sum += t.amount
+				key = c.get_unique_name()
+				d_summary[key].sumin += t.amount
+				d_summary[key].sum += t.amount
 				c = c.parent
 
 		return d_summary

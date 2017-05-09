@@ -147,8 +147,9 @@ class PyMoneyConsole(lib.app.PyMoney):
 			print("{0:<55} {1:>10} {2:>10}".format("node", "amount", "sum"))
 			print()
 			for c in self.moneydata.categorytree:
+				key = c.get_unique_name()
 				print("{0:<55} {1:>10.2f} {2:>10.2f}".format("    " * c.get_depth() + c.name,
-																d_summary[c.get_unique_name()].amount, d_summary[c.get_unique_name()].sum))
+																d_summary[key].amount, d_summary[key].sum))
 
 		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate):
 			year = start_year
@@ -166,9 +167,10 @@ class PyMoneyConsole(lib.app.PyMoney):
 					raise Exception("diff_months value not supported: " + str(diff_months))
 				d_summary = self.moneydata.create_summary(transactionfilter)
 
-				print("{0:<10} {1:<55} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), category.get_unique_name(),
-																	 d_summary[category.get_unique_name()].amount,
-																	 d_summary[category.get_unique_name()].sum))
+				key = category.get_unique_name()
+				print("{0:<10} {1:<55} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), key,
+																	 d_summary[key].amount,
+																	 d_summary[key].sum))
 
 				month += diff_months
 
@@ -186,7 +188,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				if not maxdate or transaction.date > maxdate:
 					maxdate = transaction.date
 
-			category = self.moneydata.categorytree.find_first_node_by_relative_path(self.arguments_dict["category"])
+			category = self.moneydata.get_category(self.arguments_dict["category"])
 
 			if not category:
 				print("no such category: " + self.arguments_dict["category"], file=sys.stderr)
@@ -204,7 +206,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				if not maxdate or transaction.date > maxdate:
 					maxdate = transaction.date
 
-			category = self.moneydata.categorytree.find_first_node_by_relative_path(self.arguments_dict["category"])
+			category = self.moneydata.get_category(self.arguments_dict["category"])
 
 			if not category:
 				print("no such category: " + self.arguments_dict["category"], file=sys.stderr)
