@@ -15,7 +15,7 @@
       $ ./pyMoney.py transaction add Costs.Misc 25.00
       OK
 - [x] refactor category add/rename/move - replace find_first_node() with find_first_node_by_relative_pathname()  
-- [ ] transactions should always happen between a source and a target category
+- [x] transactions should always happen between a source and a target category
       this enables one to keep track of the amount of money stored within each bank
       account:
       
