@@ -70,7 +70,6 @@ class TransactionsTest(PymoneyTestBase):
 		PymoneyTestBase.pymoney_main(["transaction", "list"])
 		PymoneyTestBase.pymoney_main(["transaction", "list", "2000"])
 		PymoneyTestBase.pymoney_main(["transaction", "list", "2000", "01"])
-		PymoneyTestBase.pymoney_main(["transaction", "list", "2000", "01"])
 		PymoneyTestBase.pymoney_main(["transaction", "list", "2000", "01", "--category=Category1"])
 		PymoneyTestBase.pymoney_main(["transaction", "--fullnamecategories", "list", "2000", "01"])
 

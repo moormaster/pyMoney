@@ -44,9 +44,10 @@ class PyMoneyConsole(lib.app.PyMoney):
 					return
 
 				transactionfilter = transactionfilter.and_concat(
-					lambda t: t.category == filter_category or t.category.is_contained_in_subtree(filter_category))
+					lambda t: t.fromcategory == filter_category or t.fromcategory.is_contained_in_subtree(filter_category)
+							or t.tocategory == filter_category or t.tocategory.is_contained_in_subtree(filter_category))
 
-			print("{0:>10} {1:<10} {2:<55} {3:>10} {4:<20}".format("Index", "Date", "Category", "Amount", "Comment"))
+			print("{0:>10} {1:<10} {2:<20} {3:<40} {4:>10} {5:<20}".format("Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"))
 
 			iterator = self.moneydata.filter_transactions(transactionfilter)
 			for d in iterator:
@@ -54,15 +55,18 @@ class PyMoneyConsole(lib.app.PyMoney):
 				_date = str(d.date)
 
 				if self.arguments_dict["fullnamecategories"]:
-					_category = d.category.get_full_name()
+					_fromcategory = d.fromcategory.get_full_name()
+					_tocategory = d.tocategory.get_full_name()
 				else:
-					_category = d.category.get_unique_name()
+					_fromcategory = d.fromcategory.get_unique_name()
+					_tocategory = d.tocategory.get_unique_name()
 
-				assert isinstance(d.category, lib.data.CategoryTreeNode)
-				_amount = d.category.get_absolute_sign().value * d.amount
+				assert isinstance(d.fromcategory, lib.data.CategoryTreeNode)
+				assert isinstance(d.tocategory, lib.data.CategoryTreeNode)
+				_amount = d.amount
 				_comment = d.comment
 
-				print("{0:>10} {1:>10} {2:<55} {3:>10.2f} {4:<20}".format(_index, _date, _category, _amount, _comment))
+				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format(_index, _date, _fromcategory, _tocategory, _amount, _comment))
 
 		def cmd_delete():
 			self.moneydata.delete_transaction(self.arguments_dict["index"])
@@ -143,7 +147,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			print("{0:<55} {1:>10} {2:>10}".format("node", "amount", "sum"))
 			print()
 			for c in self.moneydata.categorytree:
-				print("{0:<55} {1:>10.2f} {2:>10.2f}".format("    " * c.get_depth() + " " + str(c.sign) + " " + c.name,
+				print("{0:<55} {1:>10.2f} {2:>10.2f}".format("    " * c.get_depth() + c.name,
 																d_summary[c.get_unique_name()].amount, d_summary[c.get_unique_name()].sum))
 
 		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate):

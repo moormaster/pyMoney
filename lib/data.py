@@ -550,10 +550,3 @@ class CategoryIsTopCategoryException(Exception):
 
 		Exception.__init__(self, category.name)
 		self.category = category
-
-
-class InvalidSignException(Exception):
-	def __init__(self, str_sign):
-		Exception.__init__(self, str_sign)
-
-		self.str_sign = str_sign
