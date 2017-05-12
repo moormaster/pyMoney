@@ -114,7 +114,7 @@ class CategoryFormatter:
 	def format(category):
 		assert(isinstance(category, data.CategoryTreeNode))
 
-		return "	" * category.get_depth() + category.name
+		return "\t" * category.get_depth() + category.name
 
 
 class TransactionParser:

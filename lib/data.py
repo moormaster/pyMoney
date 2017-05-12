@@ -400,7 +400,7 @@ class CategoryTreeNode(TreeNode):
 		return TreeNode.append_childnode(self, node)
 
 	def format(self, fullname=False):
-		_depth = "\t"*self.get_depth()
+		_depth = "  "*self.get_depth()
 
 		if fullname:
 			_name = self.get_full_name()
