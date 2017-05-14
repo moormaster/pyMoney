@@ -18,6 +18,61 @@ class PyMoneyConsole(lib.app.PyMoney):
 		lib.app.PyMoney.__init__(self, self.arguments_dict["fileprefix"])
 		self.read()
 
+	def appendDateTransactionfilter(self, transactionfilter, filter_year, filter_month, filter_day):
+		if filter_year:
+			if filter_year[0:2] == ">=":
+				year = int(filter_year[2:])
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year >= year)
+			elif filter_year[0:2] == "<=":
+				year = int(filter_year[2:])
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year <= year)
+			elif filter_year[0:1] == ">":
+				year = int(filter_year[1:])
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year)
+			elif filter_year[0:1] == "<":
+				year = int(filter_year[1:])
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year)
+			else:
+				year = int(filter_year)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year == year)
+
+		if filter_month:
+			if filter_year and filter_year[0:2] == ">=":
+				month = int(filter_month)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.year == year and t.date.month >= month)
+			elif filter_year and filter_year[0:2] == "<=":
+				month = int(filter_month)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.year == year and t.date.month <= month)
+			elif filter_year and filter_year[0:1] == ">":
+				month = int(filter_month)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.year == year and t.date.month > month)
+			elif filter_year and filter_year[0:1] == "<":
+				month = int(filter_month)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.year == year and t.date.month < month)
+			else:
+				month = int(filter_month)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.month == month)
+
+		if filter_day:
+			if filter_year and filter_year[0:2] == ">=":
+				day = int(filter_day)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.month != month or t.date.year == year and t.date.month == month and t.date.day >= day)
+			elif filter_year and filter_year[0:2] == "<=":
+				day = int(filter_day)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.month != month or t.date.year == year and t.date.month == month and t.date.day <= day)
+			elif filter_year and filter_year[0:1] == ">":
+				day = int(filter_day)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.month != month or t.date.year == year and t.date.month == month and t.date.day > day)
+			elif filter_year and filter_year[0:1] == "<":
+				day = int(filter_day)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.month != month or t.date.year == year and t.date.month == month and t.date.day < day)
+			else:
+				day = int(filter_day)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.day == day)
+
+		return transactionfilter
+
+
 	def cmdgroup_transaction(self, parser):
 		def cmd_add():
 			self.moneydata.add_transaction(	self.arguments_dict["date"], self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"], self.arguments_dict["amount"],
@@ -28,13 +83,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			transactionfilter = lib.data.Filter(lambda t: True)
 			filter_year = filter_month = filter_category = None
 
-			if self.arguments_dict["year"]:
-				filter_year = int(self.arguments_dict["year"])
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year == filter_year)
-
-			if self.arguments_dict["month"]:
-				filter_month = int(self.arguments_dict["month"])
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.month == filter_month)
+			transactionfilter = self.appendDateTransactionfilter(transactionfilter, self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
 
 			if self.arguments_dict["category"]:
 				filter_category = self.moneydata.get_category(self.arguments_dict["category"])
@@ -136,11 +185,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		def cmd_categories():
 			transactionfilter = lib.data.Filter(lambda t: True)
 
-			if self.arguments_dict["year"] is not None:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year == int(self.arguments_dict["year"]))
-
-			if self.arguments_dict["month"] is not None:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.month == int(self.arguments_dict["month"]))
+			transactionfilter = self.appendDateTransactionfilter(transactionfilter, self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
 
 			d_summary = self.moneydata.create_summary(transactionfilter)
 
@@ -252,8 +297,9 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 		p_transaction_list = sp_transaction.add_parser("list")
 		p_transaction_list.set_defaults(command="list")
-		p_transaction_list.add_argument("year", type=int, nargs='?')
+		p_transaction_list.add_argument("year", nargs='?')
 		p_transaction_list.add_argument("month", type=int, nargs='?')
+		p_transaction_list.add_argument("day", type=int, nargs='?')
 		p_transaction_list.add_argument("--category")
 
 		### categories
@@ -301,8 +347,9 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 		p_summary_categories = sp_summary.add_parser("categories")
 		p_summary_categories.set_defaults(command="categories")
-		p_summary_categories.add_argument("year", type=int, nargs='?')
+		p_summary_categories.add_argument("year", nargs='?')
 		p_summary_categories.add_argument("month", type=int, nargs='?')
+		p_summary_categories.add_argument("day", type=int, nargs='?')
 
 		p_summary_monthly = sp_summary.add_parser("monthly")
 		p_summary_monthly.set_defaults(command="monthly")

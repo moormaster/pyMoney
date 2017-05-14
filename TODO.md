@@ -52,3 +52,10 @@
         Out                                          0.00      95.00
          Life                                       70.00      70.00
          Misc                                       25.00      25.00
+
+- [x] allow date filter from or until
+    $ ./pyMoney.py transaction list ">=2010" 01
+    -- print all transactions beginning from 2010 01
+    
+    $ ./pyMoney.py summary categories "<=2010" 02
+    -- print category sums of all transactions until 2010 02 --
