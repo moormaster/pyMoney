@@ -193,6 +193,10 @@ class PyMoneyConsole(lib.app.PyMoney):
 			print()
 			for c in self.moneydata.categorytree:
 				key = c.get_unique_name()
+				if self.arguments_dict["maxlevel"] and c.get_depth() > self.arguments_dict["maxlevel"]:
+					continue
+				if not self.arguments_dict["showempty"] and d_summary[key].sumcount == 0:
+					continue
 				print("{0:<55} {1:>10.2f} {2:>10.2f}".format(c.format(),
 																d_summary[key].amount, d_summary[key].sum))
 
@@ -347,6 +351,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 		p_summary_categories = sp_summary.add_parser("categories")
 		p_summary_categories.set_defaults(command="categories")
+		p_summary_categories.add_argument("--maxlevel", type=int, nargs='?')
+		p_summary_categories.add_argument("--showempty", action='store_true')
 		p_summary_categories.add_argument("year", nargs='?')
 		p_summary_categories.add_argument("month", type=int, nargs='?')
 		p_summary_categories.add_argument("day", type=int, nargs='?')

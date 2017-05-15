@@ -59,3 +59,7 @@
     
     $ ./pyMoney.py summary categories "<=2010" 02
     -- print category sums of all transactions until 2010 02 --
+    
+- [x] summary categories: add --maxlevel parameter to hide detailed categories
+- [x] summary categories: hide categories with 0 transaction count
+                          add --showempty parameter to display all 

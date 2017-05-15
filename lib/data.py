@@ -162,6 +162,8 @@ class MoneyData:
 			c = t.fromcategory
 			while not c is None:
 				key = c.get_unique_name()
+				d_summary[key].sumcountout = d_summary[key].sumcountout+1
+				d_summary[key].sumcount = d_summary[key].sumcount+1
 				d_summary[key].sumout -= t.amount
 				d_summary[key].sum -= t.amount
 				c = c.parent
@@ -169,6 +171,8 @@ class MoneyData:
 			c = t.tocategory
 			while not c is None:
 				key = c.get_unique_name()
+				d_summary[key].sumcountin = d_summary[key].sumcountin+1
+				d_summary[key].sumcount = d_summary[key].sumcount+1
 				d_summary[key].sumin += t.amount
 				d_summary[key].sum += t.amount
 				c = c.parent
@@ -444,12 +448,17 @@ class Transaction(object):
 
 
 class NodeSummary(object):
-	__slots__ = ["amountin", "amountout", "amount", "sumin", "sumout", "sum"]
+	__slots__ = ["amountin", "amountout", "amount", "sumcountin", "sumcountout", "sumcount", "sumin", "sumout", "sum"]
 	
 	def __init__(self):
 		self.amountin = 0
 		self.amountout = 0
 		self.amount = 0
+
+		self.sumcountin = 0
+		self.sumcountout = 0
+		self.sumcount = 0
+
 		self.sumin = 0
 		self.sumout = 0
 		self.sum = 0

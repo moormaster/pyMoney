@@ -286,6 +286,30 @@ class TestMoneyData(TestCase):
         self.assertEqual(summary["Category1"].amountout, 0)
         self.assertEqual(summary["Category1.Subcategory1"].amountout, 0)
 
+        self.assertEqual(summary["All"].sumcountin, 4)
+        self.assertEqual(summary["Cash"].sumcountin, 2)
+        self.assertEqual(summary["Cash.In"].sumcountin, 2)
+        self.assertEqual(summary["Cash.Out"].sumcountin, 0)
+        self.assertEqual(summary["External"].sumcountin, 2)
+        self.assertEqual(summary["External.In"].sumcountin, 0)
+        self.assertEqual(summary["Category2"].sumcountin, 0)
+        self.assertEqual(summary["Category2.Subcategory1"].sumcountin, 0)
+        self.assertEqual(summary["External.Out"].sumcountin, 2)
+        self.assertEqual(summary["Category1"].sumcountin, 2)
+        self.assertEqual(summary["Category1.Subcategory1"].sumcountin, 1)
+
+        self.assertEqual(summary["All"].sumcountout, 4)
+        self.assertEqual(summary["Cash"].sumcountout, 2)
+        self.assertEqual(summary["Cash.In"].sumcountout, 0)
+        self.assertEqual(summary["Cash.Out"].sumcountout, 2)
+        self.assertEqual(summary["External"].sumcountout, 2)
+        self.assertEqual(summary["External.In"].sumcountout, 2)
+        self.assertEqual(summary["Category2"].sumcountout, 2)
+        self.assertEqual(summary["Category2.Subcategory1"].sumcountout, 1)
+        self.assertEqual(summary["External.Out"].sumcountout, 0)
+        self.assertEqual(summary["Category1"].sumcountout, 0)
+        self.assertEqual(summary["Category1.Subcategory1"].sumcountout, 0)
+
         self.assertEqual(summary["All"].sumin, 95)
         self.assertEqual(summary["Cash"].sumin, 65)
         self.assertEqual(summary["Cash.In"].sumin, 65)
@@ -312,6 +336,7 @@ class TestMoneyData(TestCase):
 
         for categoryname in summary:
             self.assertEqual(summary[categoryname].amount, summary[categoryname].amountin + summary[categoryname].amountout)
+            self.assertEqual(summary[categoryname].sumcount, summary[categoryname].sumcountin + summary[categoryname].sumcountout)
             self.assertEqual(summary[categoryname].sum, summary[categoryname].sumin + summary[categoryname].sumout)
 
 class TestTreeNode(unittest.TestCase):

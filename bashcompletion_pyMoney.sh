@@ -101,6 +101,7 @@ _pymoney_summary()
 	_ARGINDEX=$1
 	case ${COMP_WORDS[2]} in
 		categories)
+		    COMPREPLY=( $( compgen -W "--showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 
 		monthly)
