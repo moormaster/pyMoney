@@ -98,17 +98,28 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			print("{0:>10} {1:<10} {2:<20} {3:<40} {4:>10} {5:<20}".format("Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"))
 
+			d_name = {}
 			iterator = self.moneydata.filter_transactions(transactionfilter)
 			for d in iterator:
 				_index = iterator.index
 				_date = str(d.date)
 
 				if self.arguments_dict["fullnamecategories"]:
-					_fromcategory = d.fromcategory.get_full_name()
-					_tocategory = d.tocategory.get_full_name()
+					if not id(d.fromcategory) in d_name:
+						d_name[id(d.fromcategory)] = d.fromcategory.get_full_name()
+					if not id(d.tocategory) in d_name:
+						d_name[id(d.tocategory)] = d.tocategory.get_full_name()
+
+					_fromcategory = d_name[id(d.fromcategory)]
+					_tocategory = d_name[id(d.tocategory)]
 				else:
-					_fromcategory = d.fromcategory.get_unique_name()
-					_tocategory = d.tocategory.get_unique_name()
+					if not id(d.fromcategory) in d_name:
+						d_name[id(d.fromcategory)] = d.fromcategory.get_unique_name()
+					if not id(d.tocategory) in d_name:
+						d_name[id(d.tocategory)] = d.tocategory.get_unique_name()
+
+					_fromcategory = d_name[id(d.fromcategory)]
+					_tocategory = d_name[id(d.tocategory)]
 
 				assert isinstance(d.fromcategory, lib.data.CategoryTreeNode)
 				assert isinstance(d.tocategory, lib.data.CategoryTreeNode)

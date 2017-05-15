@@ -141,17 +141,20 @@ class MoneyData:
 		newparent.move_node(node)
 
 	def create_summary(self, transactionfilter):
-		d_summary = {}
+		d_summary = {}		# resulting map unqique category name -> NodeSummary() object
+		d_unique_name = {}	# cached category.get_unique_name() results
 
 		for c in self.categorytree:
-			d_summary[c.get_unique_name()] = NodeSummary()
+			unique_name = c.get_unique_name()
+			d_unique_name[id(c)] = unique_name
+			d_summary[unique_name] = NodeSummary()
 
 		for t in self.transactions:
 			if not transactionfilter(t):
 				continue
 
-			fromkey = t.fromcategory.get_unique_name()
-			tokey = t.tocategory.get_unique_name()
+			fromkey = d_unique_name[id(t.fromcategory)]
+			tokey = d_unique_name[id(t.tocategory)]
 
 			d_summary[fromkey].amountout -= t.amount
 			d_summary[fromkey].amount -= t.amount
@@ -161,7 +164,7 @@ class MoneyData:
 
 			c = t.fromcategory
 			while not c is None:
-				key = c.get_unique_name()
+				key = d_unique_name[id(c)]
 				d_summary[key].sumcountout = d_summary[key].sumcountout+1
 				d_summary[key].sumcount = d_summary[key].sumcount+1
 				d_summary[key].sumout -= t.amount
@@ -170,7 +173,7 @@ class MoneyData:
 
 			c = t.tocategory
 			while not c is None:
-				key = c.get_unique_name()
+				key = d_unique_name[id(c)]
 				d_summary[key].sumcountin = d_summary[key].sumcountin+1
 				d_summary[key].sumcount = d_summary[key].sumcount+1
 				d_summary[key].sumin += t.amount
