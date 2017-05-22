@@ -28,10 +28,16 @@ class PyMoneyConsole(lib.app.PyMoney):
 				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year <= year)
 			elif filter_year[0:1] == ">":
 				year = int(filter_year[1:])
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year)
+				if filter_month or filter_day:
+					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year >= year)
+				else:
+					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year)
 			elif filter_year[0:1] == "<":
 				year = int(filter_year[1:])
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year)
+				if filter_month or filter_day:
+					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year <= year)
+				else:
+					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year)
 			else:
 				year = int(filter_year)
 				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year == year)
@@ -39,16 +45,22 @@ class PyMoneyConsole(lib.app.PyMoney):
 		if filter_month:
 			if filter_year and filter_year[0:2] == ">=":
 				month = int(filter_month)
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.year == year and t.date.month >= month)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month >= month)
 			elif filter_year and filter_year[0:2] == "<=":
 				month = int(filter_month)
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.year == year and t.date.month <= month)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month <= month)
 			elif filter_year and filter_year[0:1] == ">":
 				month = int(filter_month)
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.year == year and t.date.month > month)
+				if filter_day:
+					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month >= month)
+				else:
+					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month > month)
 			elif filter_year and filter_year[0:1] == "<":
 				month = int(filter_month)
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.year == year and t.date.month < month)
+				if filter_day:
+					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month <= month)
+				else:
+					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month < month)
 			else:
 				month = int(filter_month)
 				transactionfilter = transactionfilter.and_concat(lambda t: t.date.month == month)
@@ -56,16 +68,16 @@ class PyMoneyConsole(lib.app.PyMoney):
 		if filter_day:
 			if filter_year and filter_year[0:2] == ">=":
 				day = int(filter_day)
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.month != month or t.date.year == year and t.date.month == month and t.date.day >= day)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month > month or t.date.year == year and t.date.month == month and t.date.day >= day)
 			elif filter_year and filter_year[0:2] == "<=":
 				day = int(filter_day)
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.month != month or t.date.year == year and t.date.month == month and t.date.day <= day)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month < month or t.date.year == year and t.date.month == month and t.date.day <= day)
 			elif filter_year and filter_year[0:1] == ">":
 				day = int(filter_day)
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.month != month or t.date.year == year and t.date.month == month and t.date.day > day)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month > month or t.date.year == year and t.date.month == month and t.date.day > day)
 			elif filter_year and filter_year[0:1] == "<":
 				day = int(filter_day)
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year != year or t.date.month != month or t.date.year == year and t.date.month == month and t.date.day < day)
+				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month < month or t.date.year == year and t.date.month == month and t.date.day < day)
 			else:
 				day = int(filter_day)
 				transactionfilter = transactionfilter.and_concat(lambda t: t.date.day == day)
