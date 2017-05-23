@@ -108,6 +108,28 @@ class PyMoneyConsole(lib.app.PyMoney):
 					lambda t: t.fromcategory == filter_category or t.fromcategory.is_contained_in_subtree(filter_category)
 							or t.tocategory == filter_category or t.tocategory.is_contained_in_subtree(filter_category))
 
+			if self.arguments_dict["fromcategory"]:
+				filter_fromcategory = self.moneydata.get_category(self.arguments_dict["fromcategory"])
+
+				if not filter_fromcategory:
+					print("category not found: " + self.arguments_dict["fromcategory"], file=sys.stderr)
+					return
+
+				transactionfilter = transactionfilter.and_concat(
+					lambda t: t.fromcategory == filter_fromcategory or t.fromcategory.is_contained_in_subtree(filter_fromcategory)
+				)
+
+			if self.arguments_dict["tocategory"]:
+				filter_tocategory = self.moneydata.get_category(self.arguments_dict["tocategory"])
+
+				if not filter_tocategory:
+					print("category not found: " + self.arguments_dict["tocategory"], file=sys.stderr)
+					return
+
+				transactionfilter = transactionfilter.and_concat(
+					lambda t: t.tocategory == filter_tocategory or t.tocategory.is_contained_in_subtree(filter_tocategory)
+				)
+
 			print("{0:>10} {1:<10} {2:<20} {3:<40} {4:>10} {5:<20}".format("Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"))
 
 			d_name = {}
@@ -328,6 +350,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 		p_transaction_list.add_argument("month", type=int, nargs='?')
 		p_transaction_list.add_argument("day", type=int, nargs='?')
 		p_transaction_list.add_argument("--category")
+		p_transaction_list.add_argument("--fromcategory")
+		p_transaction_list.add_argument("--tocategory")
 
 		### categories
 		p_category = sp_main.add_parser("category")

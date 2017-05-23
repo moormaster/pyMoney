@@ -36,12 +36,12 @@ _pymoney_transaction()
 
 		list)
 			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
-				--category)
+				--category | --fromcategory | --tocategory)
 					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--category" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--category --fromcategory --tocategory" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;
