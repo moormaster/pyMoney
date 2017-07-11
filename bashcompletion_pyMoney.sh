@@ -1,22 +1,14 @@
 _pymoney_category_list()
 {
 	pymoneycmd="$*"
-	cachefile=pymoney.completioncache.category
+	cachefile=pymoney.completioncache.categories
 
-	now=$( date +%s )
-	cachetimestamp=""
-
-	if [ -e $cachefile ]
+	if ! [ -e "$cachefile" ] || [ "$cachefile" -ot "pymoney.categories" ]
 	then
-		cachetimestamp=$( head -n 1 $cachefile )
+		"$pymoneycmd" category list > $cachefile
 	fi
 
-	if [ "$cachetimestamp" == "" ] || [ $(( $now - $cachetimestamp )) -ge 30 ]
-	then
-		( date +%s; "$pymoneycmd" category list ) > $cachefile
-	fi
-
-	tail -n +2 $cachefile
+	cat $cachefile
 }
 
 _pymoney_transaction()
