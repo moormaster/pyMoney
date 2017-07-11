@@ -1,3 +1,24 @@
+_pymoney_category_list()
+{
+	pymoneycmd="$*"
+	cachefile=pymoney.completioncache.category
+
+	now=$( date +%s )
+	cachetimestamp=""
+
+	if [ -e $cachefile ]
+	then
+		cachetimestamp=$( head -n 1 $cachefile )
+	fi
+
+	if [ "$cachetimestamp" == "" ] || [ $(( $now - $cachetimestamp )) -ge 30 ]
+	then
+		( date +%s; "$pymoneycmd" category list ) > $cachefile
+	fi
+
+	tail +1 $cachefile
+}
+
 _pymoney_transaction()
 {
 	_ARGINDEX=$1
@@ -14,12 +35,12 @@ _pymoney_transaction()
 
 				$(( $_ARGINDEX + 2 )) )
 					# fromcategory
-					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				$(( $_ARGINDEX + 3 )) )
 					# tocategory
-					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				$(( $_ARGINDEX + 4 )) )
@@ -37,7 +58,7 @@ _pymoney_transaction()
 		list)
 			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
 				--category | --fromcategory | --tocategory)
-					COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				*)
@@ -64,7 +85,7 @@ _pymoney_category()
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
 				# parent category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
@@ -73,7 +94,7 @@ _pymoney_category()
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
 				# category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
@@ -82,7 +103,7 @@ _pymoney_category()
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) | $(( $_ARGINDEX + 2 )) )
 				# parent category / category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
@@ -108,7 +129,7 @@ _pymoney_summary()
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
 				# category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
@@ -117,7 +138,7 @@ _pymoney_summary()
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
 				# category
-				COMPREPLY=( $( compgen -W "$( ${COMP_WORDS[0]} category list )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+				COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 				;;
 			esac
 			;;
