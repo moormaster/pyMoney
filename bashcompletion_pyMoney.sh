@@ -16,7 +16,7 @@ _pymoney_category_list()
 		( date +%s; "$pymoneycmd" category list ) > $cachefile
 	fi
 
-	tail +1 $cachefile
+	tail -n +2 $cachefile
 }
 
 _pymoney_transaction()
