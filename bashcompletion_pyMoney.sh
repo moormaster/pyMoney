@@ -122,7 +122,15 @@ _pymoney_summary()
 	_ARGINDEX=$1
 	case ${COMP_WORDS[2]} in
 		categories)
-		    COMPREPLY=( $( compgen -W "--showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
+				--cashflowcategory)
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				*)
+					COMPREPLY=( $( compgen -W "--cashflowcategory --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+			esac
 			;;
 
 		monthly)

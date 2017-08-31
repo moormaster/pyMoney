@@ -232,6 +232,17 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			transactionfilter = self.appendDateTransactionfilter(transactionfilter, self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
 
+			if self.arguments_dict["cashflowcategory"]:
+				filter_cashflowcategory = self.moneydata.get_category(self.arguments_dict["cashflowcategory"])
+
+				if not filter_cashflowcategory:
+					print("category not found: " + self.arguments_dict["cashflowcategory"], file=sys.stderr)
+					return
+
+				transactionfilter = transactionfilter.and_concat(
+					lambda t: t.fromcategory == filter_cashflowcategory or t.fromcategory.is_contained_in_subtree(filter_cashflowcategory)
+							  or t.tocategory == filter_cashflowcategory or t.tocategory.is_contained_in_subtree(filter_cashflowcategory))
+
 			d_summary = self.moneydata.create_summary(transactionfilter)
 
 			print("{0:<55} {1:>10} {2:>10}".format("node", "amount", "sum"))
@@ -400,6 +411,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		p_summary_categories.set_defaults(command="categories")
 		p_summary_categories.add_argument("--maxlevel", type=int, nargs='?')
 		p_summary_categories.add_argument("--showempty", action='store_true')
+		p_summary_categories.add_argument("--cashflowcategory")
 		p_summary_categories.add_argument("year", nargs='?')
 		p_summary_categories.add_argument("month", type=int, nargs='?')
 		p_summary_categories.add_argument("day", type=int, nargs='?')
