@@ -138,6 +138,29 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 		return transactionfilter
 
+	def createMaxLevelCategoryFilter(self, maxlevel):
+		categoryfilter = lib.data.Filter(lambda c: True)
+
+		if maxlevel:
+			categoryfilter = categoryfilter.and_concat(lambda c: c.get_depth() <= maxlevel)
+
+		return categoryfilter
+
+
+	def createSubTreeCategoryFilter(self, filter_rootcategory):
+		categoryfilter = lib.data.Filter(lambda c: True)
+
+		rootcategory = self.moneydata.get_category(filter_rootcategory)
+
+		if not rootcategory:
+			raise lib.data.NoSuchCategoryException(filter_rootcategory)
+
+		categoryfilter = categoryfilter.and_concat(
+			lambda c: c == rootcategory or c.is_contained_in_subtree(rootcategory)
+		)
+
+		return categoryfilter
+
 
 	def cmdgroup_transaction(self, parser):
 		def cmd_add():
@@ -277,14 +300,19 @@ class PyMoneyConsole(lib.app.PyMoney):
 					print("category not found: " + e.name, file=sys.stderr)
 					return
 
+			categoryfilter = lib.data.Filter(lambda c: True)
+			if self.arguments_dict["maxlevel"]:
+				categoryfilter = categoryfilter.and_concat(self.createMaxLevelCategoryFilter(self.arguments_dict["maxlevel"]))
+
+			if self.arguments_dict["category"]:
+				categoryfilter = categoryfilter.and_concat(self.createSubTreeCategoryFilter(self.arguments_dict["category"]))
+
 			d_summary = self.moneydata.create_summary(transactionfilter)
 
 			print("{0:<55} {1:>10} {2:>10}".format("node", "amount", "sum"))
 			print()
-			for c in self.moneydata.categorytree:
+			for c in lib.data.FilterIterator(self.moneydata.categorytree.__iter__(), categoryfilter):
 				key = c.get_unique_name()
-				if self.arguments_dict["maxlevel"] and c.get_depth() > self.arguments_dict["maxlevel"]:
-					continue
 				if not self.arguments_dict["showempty"] and d_summary[key].sumcount == 0:
 					continue
 				print("{0:<55} {1:>10.2f} {2:>10.2f}".format(c.format(),
@@ -446,6 +474,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		p_summary_categories.add_argument("--maxlevel", type=int, nargs='?')
 		p_summary_categories.add_argument("--showempty", action='store_true')
 		p_summary_categories.add_argument("--cashflowcategory")
+		p_summary_categories.add_argument("--category")
 		p_summary_categories.add_argument("year", nargs='?')
 		p_summary_categories.add_argument("month", type=int, nargs='?')
 		p_summary_categories.add_argument("day", type=int, nargs='?')

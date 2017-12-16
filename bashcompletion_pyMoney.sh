@@ -123,12 +123,12 @@ _pymoney_summary()
 	case ${COMP_WORDS[2]} in
 		categories)
 			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
-				--cashflowcategory)
+				--category | --cashflowcategory)
 					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--cashflowcategory --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--category --cashflowcategory --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;
