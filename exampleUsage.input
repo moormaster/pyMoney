@@ -1,0 +1,31 @@
+./pyMoney.py category tree
+./pyMoney.py category add All Accounts
+./pyMoney.py category add Accounts Bank
+./pyMoney.py category add Accounts Cash
+./pyMoney.py category add All External
+./pyMoney.py category add External Misc
+./pyMoney.py category add External Life
+./pyMoney.py category add External Wages
+
+./pyMoney.py category tree
+
+./pyMoney.py transaction add 2016-01-01 Wages Bank 1500 "Wages"
+./pyMoney.py transaction add 2016-01-01 Bank Cash 100 "EC Money"
+./pyMoney.py transaction add 2016-01-05 Cash Life 30 "Food"
+./pyMoney.py transaction add 2016-01-10 Bank Misc 14.99 "Favorite DVD"
+
+./pyMoney.py summary categories 2016 01
+
+./pyMoney.py transaction list 2016 01
+
+./pyMoney.py transaction list 2016 01 --category Cash
+
+./pyMoney.py summary categories --category Accounts
+
+./pyMoney.py transaction delete 0
+./pyMoney.py transaction delete 0
+./pyMoney.py transaction delete 0
+./pyMoney.py transaction delete 0
+
+./pyMoney.py category delete Accounts
+./pyMoney.py category delete External
