@@ -173,12 +173,14 @@ class PyMoneyConsole(lib.app.PyMoney):
 			filter_year = filter_month = filter_category = None
 
 			transactionfilter = self.createAndDateTransactionFilter(self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
+			summarycategory = None
 
 			if self.arguments_dict["category"]:
 				try:
 					transactionfilter = transactionfilter.and_concat(
 						self.createOrCategoryTransactionFilter(self.arguments_dict["category"], self.arguments_dict["category"])
 					)
+					summarycategory = self.moneydata.get_category(self.arguments_dict["category"])
 				except lib.data.NoSuchCategoryException as e:
 					print("category not found: " + e.name, file=sys.stderr)
 					return
@@ -188,6 +190,11 @@ class PyMoneyConsole(lib.app.PyMoney):
 					transactionfilter = transactionfilter.and_concat(
 						self.createAndCategoryTransactionFilter(self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"])
 					)
+
+					if self.arguments_dict["fromcategory"]:
+						summarycategory = self.moneydata.get_category(self.arguments_dict["fromcategory"])
+					if self.arguments_dict["tocategory"]:
+						summarycategory = self.moneydata.get_category(self.arguments_dict["tocategory"])
 				except lib.data.NoSuchCategoryException as e:
 					print("category not found: " + e.name, file=sys.stderr)
 					return
@@ -223,6 +230,25 @@ class PyMoneyConsole(lib.app.PyMoney):
 				_comment = d.comment
 
 				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format(_index, _date, _fromcategory, _tocategory, _amount, _comment))
+
+			d_summary = self.moneydata.create_summary(transactionfilter)
+
+			if summarycategory:
+				if self.arguments_dict["fullnamecategories"]:
+					if not id(summarycategory) in d_name:
+						d_name[id(summarycategory)] = summarycategory.get_full_name()
+					_tocategory = d_name[id(summarycategory)]
+				else:
+					if not id(summarycategory) in d_name:
+						d_name[id(summarycategory)] = summarycategory.get_unique_name()
+					_tocategory = d_name[id(summarycategory)]
+
+				key = summarycategory.get_unique_name()
+
+				print("")
+				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "+ " + _tocategory, d_summary[key].sumin, ""))
+				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "- " + _tocategory, d_summary[key].sumout, ""))
+				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "sum " + _tocategory, d_summary[key].sum, ""))
 
 		def cmd_delete():
 			self.moneydata.delete_transaction(self.arguments_dict["index"])
