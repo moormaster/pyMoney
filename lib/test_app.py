@@ -1,5 +1,5 @@
 from lib import app
-from lib import data
+from lib.data import moneydata
 
 import unittest
 import os
@@ -8,8 +8,8 @@ import os
 
 class TestCategoryNameFormatter(unittest.TestCase):
 	def setUp(self):
-		self.category = data.CategoryTreeNode("Root")
-		self.childcategory = data.CategoryTreeNode("Child")
+		self.category = moneydata.CategoryTreeNode("Root")
+		self.childcategory = moneydata.CategoryTreeNode("Child")
 
 		self.category.append_childnode(self.childcategory)
 

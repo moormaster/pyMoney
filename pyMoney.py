@@ -19,7 +19,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		self.read()
 
 	def createAndDateTransactionFilter(self, filter_year, filter_month, filter_day):
-		transactionfilter = lib.data.Filter(lambda t: True)
+		transactionfilter = lib.data.filter.Filter(lambda t: True)
 
 		if filter_year:
 			if filter_year[0:2] == ">=":
@@ -88,13 +88,13 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 
 	def createOrCategoryTransactionFilter(self, filter_from_category, filter_to_category):
-		transactionfilter = lib.data.Filter(lambda t: False)
+		transactionfilter = lib.data.filter.Filter(lambda t: False)
 
 		if filter_from_category:
 			fromcategory = self.moneydata.get_category(filter_from_category)
 
 			if not fromcategory:
-				raise lib.data.NoSuchCategoryException(filter_from_category)
+				raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
 
 			transactionfilter = transactionfilter.or_concat(
 				lambda t: t.fromcategory == fromcategory or t.fromcategory.is_contained_in_subtree(fromcategory)
@@ -104,7 +104,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			tocategory = self.moneydata.get_category(filter_to_category)
 
 			if not tocategory:
-				raise lib.data.NoSuchCategoryException(filter_to_category)
+				raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
 
 			transactionfilter = transactionfilter.or_concat(
 				lambda t: t.tocategory == tocategory or t.tocategory.is_contained_in_subtree(tocategory)
@@ -114,13 +114,13 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 
 	def createAndCategoryTransactionFilter(self, filter_from_category, filter_to_category):
-		transactionfilter = lib.data.Filter(lambda t: True)
+		transactionfilter = lib.data.filter.Filter(lambda t: True)
 
 		if filter_from_category:
 			fromcategory = self.moneydata.get_category(filter_from_category)
 
 			if not fromcategory:
-				raise lib.data.NoSuchCategoryException(filter_from_category)
+				raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
 
 			transactionfilter = transactionfilter.and_concat(
 				lambda t: t.fromcategory == fromcategory or t.fromcategory.is_contained_in_subtree(fromcategory)
@@ -130,7 +130,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			tocategory = self.moneydata.get_category(filter_to_category)
 
 			if not tocategory:
-				raise lib.data.NoSuchCategoryException(filter_to_category)
+				raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
 
 			transactionfilter = transactionfilter.and_concat(
 				lambda t: t.tocategory == tocategory or t.tocategory.is_contained_in_subtree(tocategory)
@@ -140,7 +140,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 
 	def createMaxLevelCategoryFilter(self, maxlevel):
-		categoryfilter = lib.data.Filter(lambda c: True)
+		categoryfilter = lib.data.filter.Filter(lambda c: True)
 
 		if maxlevel:
 			categoryfilter = categoryfilter.and_concat(lambda c: c.get_depth() <= maxlevel)
@@ -149,12 +149,12 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 
 	def createSubTreeCategoryFilter(self, filter_rootcategory):
-		categoryfilter = lib.data.Filter(lambda c: True)
+		categoryfilter = lib.data.filter.Filter(lambda c: True)
 
 		rootcategory = self.moneydata.get_category(filter_rootcategory)
 
 		if not rootcategory:
-			raise lib.data.NoSuchCategoryException(filter_rootcategory)
+			raise lib.data.moneydata.NoSuchCategoryException(filter_rootcategory)
 
 		categoryfilter = categoryfilter.and_concat(
 			lambda c: c == rootcategory or c.is_contained_in_subtree(rootcategory)
@@ -181,7 +181,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 						self.createOrCategoryTransactionFilter(self.arguments_dict["category"], self.arguments_dict["category"])
 					)
 					summarycategory = self.moneydata.get_category(self.arguments_dict["category"])
-				except lib.data.NoSuchCategoryException as e:
+				except lib.data.moneydata.NoSuchCategoryException as e:
 					print("category not found: " + e.name, file=sys.stderr)
 					return
 
@@ -195,7 +195,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 						summarycategory = self.moneydata.get_category(self.arguments_dict["fromcategory"])
 					if self.arguments_dict["tocategory"]:
 						summarycategory = self.moneydata.get_category(self.arguments_dict["tocategory"])
-				except lib.data.NoSuchCategoryException as e:
+				except lib.data.moneydata.NoSuchCategoryException as e:
 					print("category not found: " + e.name, file=sys.stderr)
 					return
 
@@ -207,8 +207,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			iterator = self.moneydata.filter_transactions(transactionfilter)
 			for d in iterator:
-				assert isinstance(d.fromcategory, lib.data.CategoryTreeNode)
-				assert isinstance(d.tocategory, lib.data.CategoryTreeNode)
+				assert isinstance(d.fromcategory, lib.data.moneydata.CategoryTreeNode)
+				assert isinstance(d.tocategory, lib.data.moneydata.CategoryTreeNode)
 
 				_index = iterator.index
 				_date = str(d.date)
@@ -305,11 +305,11 @@ class PyMoneyConsole(lib.app.PyMoney):
 					transactionfilter = transactionfilter.and_concat(
 						self.createOrCategoryTransactionFilter(self.arguments_dict["cashflowcategory"], self.arguments_dict["cashflowcategory"])
 					)
-				except lib.data.NoSuchCategoryException as e:
+				except lib.data.moneydata.NoSuchCategoryException as e:
 					print("category not found: " + e.name, file=sys.stderr)
 					return
 
-			categoryfilter = lib.data.Filter(lambda c: True)
+			categoryfilter = lib.data.filter.Filter(lambda c: True)
 			if self.arguments_dict["maxlevel"]:
 				categoryfilter = categoryfilter.and_concat(self.createMaxLevelCategoryFilter(self.arguments_dict["maxlevel"]))
 
@@ -320,7 +320,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			print("{0:<55} {1:>10} {2:>10} {3:>10} {4:>10}".format("node", "amount", "sum +", "sum -", "sum"))
 			print()
-			for c in lib.data.FilterIterator(self.moneydata.categorytree.__iter__(), categoryfilter):
+			for c in lib.data.filter.FilterIterator(self.moneydata.categorytree.__iter__(), categoryfilter):
 				key = c.get_unique_name()
 				if not self.arguments_dict["showempty"] and d_summary[key].sumcount == 0:
 					continue
