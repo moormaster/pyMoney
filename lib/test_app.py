@@ -1,7 +1,26 @@
 from lib import app
+from lib import data
 
 import unittest
 import os
+
+
+
+class TestCategoryNameFormatter(unittest.TestCase):
+	def setUp(self):
+		self.category = data.CategoryTreeNode("Root")
+		self.childcategory = data.CategoryTreeNode("Child")
+
+		self.category.append_childnode(self.childcategory)
+
+		self.categorynameformatter = app.CategoryNameFormatter()
+
+	def test_format(self):
+		self.assertEqual(self.categorynameformatter.format(self.childcategory), "Child")
+
+	def test_format_fullname(self):
+		self.categorynameformatter.setFullName(True)
+		self.assertEqual(self.categorynameformatter.format(self.childcategory), "Root.Child")
 
 
 class TestPyMoney(unittest.TestCase):

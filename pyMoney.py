@@ -201,31 +201,21 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			print("{0:>10} {1:<10} {2:<20} {3:<40} {4:>10} {5:<20}".format("Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"))
 
-			d_name = {}
+			categoryNameFormatter = lib.app.CategoryNameFormatter()
+			if self.arguments_dict["fullnamecategories"]:
+				categoryNameFormatter.setFullName(True)
+
 			iterator = self.moneydata.filter_transactions(transactionfilter)
 			for d in iterator:
+				assert isinstance(d.fromcategory, lib.data.CategoryTreeNode)
+				assert isinstance(d.tocategory, lib.data.CategoryTreeNode)
+
 				_index = iterator.index
 				_date = str(d.date)
 
-				if self.arguments_dict["fullnamecategories"]:
-					if not id(d.fromcategory) in d_name:
-						d_name[id(d.fromcategory)] = d.fromcategory.get_full_name()
-					if not id(d.tocategory) in d_name:
-						d_name[id(d.tocategory)] = d.tocategory.get_full_name()
+				_fromcategory = categoryNameFormatter.format(d.fromcategory)
+				_tocategory = categoryNameFormatter.format(d.tocategory)
 
-					_fromcategory = d_name[id(d.fromcategory)]
-					_tocategory = d_name[id(d.tocategory)]
-				else:
-					if not id(d.fromcategory) in d_name:
-						d_name[id(d.fromcategory)] = d.fromcategory.get_unique_name()
-					if not id(d.tocategory) in d_name:
-						d_name[id(d.tocategory)] = d.tocategory.get_unique_name()
-
-					_fromcategory = d_name[id(d.fromcategory)]
-					_tocategory = d_name[id(d.tocategory)]
-
-				assert isinstance(d.fromcategory, lib.data.CategoryTreeNode)
-				assert isinstance(d.tocategory, lib.data.CategoryTreeNode)
 				_amount = d.amount
 				_comment = d.comment
 
@@ -234,21 +224,13 @@ class PyMoneyConsole(lib.app.PyMoney):
 			d_summary = self.moneydata.create_summary(transactionfilter)
 
 			if summarycategory:
-				if self.arguments_dict["fullnamecategories"]:
-					if not id(summarycategory) in d_name:
-						d_name[id(summarycategory)] = summarycategory.get_full_name()
-					_tocategory = d_name[id(summarycategory)]
-				else:
-					if not id(summarycategory) in d_name:
-						d_name[id(summarycategory)] = summarycategory.get_unique_name()
-					_tocategory = d_name[id(summarycategory)]
-
+				_summarycategory = categoryNameFormatter.format(summarycategory)
 				key = summarycategory.get_unique_name()
 
 				print("")
-				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "+ " + _tocategory, d_summary[key].sumin, ""))
-				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "- " + _tocategory, d_summary[key].sumout, ""))
-				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "sum " + _tocategory, d_summary[key].sum, ""))
+				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "+ " + _summarycategory, d_summary[key].sumin, ""))
+				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "- " + _summarycategory, d_summary[key].sumout, ""))
+				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "sum " + _summarycategory, d_summary[key].sum, ""))
 
 		def cmd_delete():
 			self.moneydata.delete_transaction(self.arguments_dict["index"])
@@ -270,12 +252,12 @@ class PyMoneyConsole(lib.app.PyMoney):
 			print(self.moneydata.categorytree.__str__(fullname=self.arguments_dict["fullnamecategories"]))
 
 		def cmd_list():
-			for category in self.moneydata.categorytree:
-				if self.arguments_dict["fullnamecategories"]:
-					_category = category.get_full_name()
-				else:
-					_category = category.get_unique_name()
+			categoryNameFormatter = lib.app.CategoryNameFormatter()
+			if self.arguments_dict["fullnamecategories"]:
+				categoryNameFormatter.setFullName(True)
 
+			for category in self.moneydata.categorytree:
+				_category = categoryNameFormatter.format(category)
 				print(_category)
 			print("")
 

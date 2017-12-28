@@ -3,6 +3,34 @@ import lib.io
 import os
 
 
+class CategoryNameFormatter:
+	def __init__(self):
+		self.d_namecache = {}
+		self.isFullName = False
+
+		pass
+
+	def setFullName(self, flag):
+		if (not not flag) != self.isFullName:
+			self.d_namecache = {}
+
+		if not flag:
+			self.isFullName = False
+		else:
+			self.isFullName = True
+
+	def format(self, category):
+		assert isinstance(category, data.CategoryTreeNode)
+
+		if not id(category) in self.d_namecache:
+			if self.isFullName:
+				self.d_namecache[id(category)] = category.get_full_name()
+			else:
+				self.d_namecache[id(category)] = category.get_unique_name()
+
+		return self.d_namecache[id(category)]
+
+
 class PyMoney:
 	def __init__(self, fileprefix="pymoney"):
 		self.fileprefix = ""
