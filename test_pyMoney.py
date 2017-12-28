@@ -1,6 +1,5 @@
 import pyMoney
 from lib import app
-from lib import data
 
 import unittest
 import os

@@ -19,7 +19,7 @@ class TestCategoryNameFormatter(unittest.TestCase):
 		self.assertEqual(self.categorynameformatter.format(self.childcategory), "Child")
 
 	def test_format_fullname(self):
-		self.categorynameformatter.setFullName(True)
+		self.categorynameformatter.set_fullname(True)
 		self.assertEqual(self.categorynameformatter.format(self.childcategory), "Root.Child")
 
 

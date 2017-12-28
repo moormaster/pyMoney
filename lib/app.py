@@ -1,7 +1,10 @@
-from . import data
+import lib.data
+import lib.data.moneydata
 import lib.io
+import lib.io.parser
 import lib.io.Categories
 import lib.io.Transactions
+
 import os
 
 
@@ -12,7 +15,7 @@ class CategoryNameFormatter:
 
 		pass
 
-	def setFullName(self, flag):
+	def set_fullname(self, flag):
 		if (not not flag) != self.isFullName:
 			self.d_namecache = {}
 
@@ -22,7 +25,7 @@ class CategoryNameFormatter:
 			self.isFullName = True
 
 	def format(self, category):
-		assert isinstance(category, data.moneydata.CategoryTreeNode)
+		assert isinstance(category, lib.data.moneydata.CategoryTreeNode)
 
 		if not id(category) in self.d_namecache:
 			if self.isFullName:
@@ -40,7 +43,7 @@ class PyMoney:
 
 		self.set_fileprefix(fileprefix)
 
-		self.moneydata = data.moneydata.MoneyData()
+		self.moneydata = lib.data.moneydata.MoneyData()
 
 	def set_fileprefix(self, fileprefix):
 		self.fileprefix = fileprefix
@@ -51,7 +54,7 @@ class PyMoney:
 		}
 
 	def read(self):
-		moneydata = data.moneydata.MoneyData()
+		moneydata = lib.data.moneydata.MoneyData()
 
 		if os.access(self.filenames["categories"], os.F_OK):
 			moneydata.categorytree = lib.io.Categories.read(self.filenames["categories"])

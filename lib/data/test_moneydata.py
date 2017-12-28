@@ -69,13 +69,13 @@ class TestMoneyData(unittest.TestCase):
         self.assertEqual(newtransaction.fromcategory, fromcategory)
         self.assertEqual(newtransaction.tocategory, tocategory)
 
-        newtransaction = self.moneydata.add_transaction("2000-01-01", "Cash.Out", "UnknownCategory2", "50.0", "", True)
+        self.moneydata.add_transaction("2000-01-01", "Cash.Out", "UnknownCategory2", "50.0", "", True)
         self.assertEqual(len(self.moneydata.transactions), transactioncount + 2)
 
-        newtransaction = self.moneydata.add_transaction("2000-01-01", "UnknownCategory3", "Cash.In", "50.0", "", True)
+        self.moneydata.add_transaction("2000-01-01", "UnknownCategory3", "Cash.In", "50.0", "", True)
         self.assertEqual(len(self.moneydata.transactions), transactioncount + 3)
 
-        newtransaction = self.moneydata.add_transaction("2000-01-01", "UnknownCategory4", "UnknownCategory5", "50.0", "", True)
+        self.moneydata.add_transaction("2000-01-01", "UnknownCategory4", "UnknownCategory5", "50.0", "", True)
         self.assertEqual(len(self.moneydata.transactions), transactioncount + 4)
 
     def test_delete_transaction(self):

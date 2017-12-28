@@ -1,7 +1,6 @@
 from lib.data import filter
 
 import unittest
-import datetime
 
 
 class TestFilter(unittest.TestCase):

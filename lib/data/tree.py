@@ -168,7 +168,7 @@ class TreeNode:
 		root_node = self.get_root()
 
 		matching_nodes = root_node.find_nodes(self.name)
-		namestart_nodes = matching_nodes.copy()
+		namestart_nodes = list(matching_nodes)
 
 		namestart_node = self
 		has_duplicates = len(matching_nodes) > 1

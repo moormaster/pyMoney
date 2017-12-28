@@ -14,8 +14,8 @@ class  MoneyData:
 
 	def add_transaction(self, str_date, str_fromcategory, str_tocategory, str_amount, str_comment, force=False):
 		try:
-			fromnode = self.get_category(str_fromcategory)
-			tonode = self.get_category(str_tocategory)
+			self.get_category(str_fromcategory)
+			self.get_category(str_tocategory)
 		except NoSuchCategoryException as e:
 			if not force:
 				raise e
@@ -50,7 +50,7 @@ class  MoneyData:
 	def get_notfound_category(self):
 		try:
 			category = self.get_category(self.categorytree.name + "." + self.notfoundcategoryname)
-		except NoSuchCategoryException as e:
+		except NoSuchCategoryException:
 			return None
 
 		return category
@@ -58,7 +58,7 @@ class  MoneyData:
 	def category_is_contained_in_notfound_category(self, category):
 		try:
 			notfoundcategory = self.get_notfound_category()
-		except NoSuchCategoryException as e:
+		except NoSuchCategoryException:
 			return False
 
 		return category.is_contained_in_subtree(notfoundcategory)

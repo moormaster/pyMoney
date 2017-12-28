@@ -1,5 +1,9 @@
-from lib import data
-from lib import io
+import lib.data
+import lib.data.moneydata
+import lib.io
+import lib.io.parser
+import lib.io.Transactions
+import lib.io.Categories
 
 import os
 import unittest
@@ -11,7 +15,7 @@ class MoneyDataFactory:
 
 	@staticmethod
 	def create():
-		moneydata = data.moneydata.MoneyData()
+		moneydata = lib.data.moneydata.MoneyData()
 
 		moneydata.add_category("All", "Cash")
 		moneydata.add_category("Cash", "In")
@@ -43,15 +47,15 @@ class TestTransactions(unittest.TestCase):
 			os.remove("pymoney.transactions")
 
 	def test_read(self):
-		io.Transactions.write("pymoney.transactions", self.moneydata.transactions, self.moneydata.get_notfound_category(), False)
+		lib.io.Transactions.write("pymoney.transactions", self.moneydata.transactions, self.moneydata.get_notfound_category(), False)
 
 		categorycount = len(list(self.moneydata.categorytree))
 		self.moneydata.delete_category("AnotherCategory")
 
 		self.assertEqual(categorycount-1, len(list(self.moneydata.categorytree)))
 
-		transactionparser = io.parser.TransactionParser(self.moneydata.categorytree, self.moneydata.notfoundcategoryname)
-		t = io.Transactions.read("pymoney.transactions", transactionparser)
+		transactionparser = lib.io.parser.TransactionParser(self.moneydata.categorytree, self.moneydata.notfoundcategoryname)
+		t = lib.io.Transactions.read("pymoney.transactions", transactionparser)
 
 		foreigncategory = self.moneydata.get_category("AnotherCategory")
 		self.assertTrue(foreigncategory is not None)
@@ -86,9 +90,9 @@ class TestCategories(unittest.TestCase):
 			os.remove("pymoney.categories")
 
 	def test_read(self):
-		io.Categories.write("pymoney.categories", self.moneydata.categorytree, self.moneydata.get_notfound_category())
+		lib.io.Categories.write("pymoney.categories", self.moneydata.categorytree, self.moneydata.get_notfound_category())
 
-		c = io.Categories.read("pymoney.categories")
+		c = lib.io.Categories.read("pymoney.categories")
 
 		self.assertEqual(len(list(c)), len(list(self.moneydata.categorytree)))
 
