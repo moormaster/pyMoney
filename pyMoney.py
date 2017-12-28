@@ -349,7 +349,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			year = start_year
 			month = start_month
 
-			print("{0:<10} {1:<55} {2:>10} {3:>10}".format("date", "node", "amount", "sum"))
+			print("{0:<10} {1:<55} {2:>10} {3:>10} {4:>10} {5:>10}".format("date", "node", "amount", "sum +", "sum -", "sum"))
 			print()
 
 			while datetime.date(year, month, 1) <= maxdate:
@@ -362,8 +362,10 @@ class PyMoneyConsole(lib.app.PyMoney):
 				d_summary = self.moneydata.create_summary(transactionfilter)
 
 				key = category.get_unique_name()
-				print("{0:<10} {1:<55} {2:>10.2f} {3:>10.2f}".format(str(datetime.date(year, month, 1)), key,
+				print("{0:<10} {1:<55} {2:>10.2f} {3:>10.2f} {4:>10.2f} {5:>10.2f}".format(str(datetime.date(year, month, 1)), key,
 																	 d_summary[key].amount,
+																	 d_summary[key].sumin,
+																	 d_summary[key].sumout,
 																	 d_summary[key].sum))
 
 				month += diff_months
