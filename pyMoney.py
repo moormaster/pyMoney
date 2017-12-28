@@ -138,6 +138,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 		return transactionfilter
 
+
 	def createMaxLevelCategoryFilter(self, maxlevel):
 		categoryfilter = lib.data.Filter(lambda c: True)
 
@@ -309,14 +310,14 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			d_summary = self.moneydata.create_summary(transactionfilter)
 
-			print("{0:<55} {1:>10} {2:>10}".format("node", "amount", "sum"))
+			print("{0:<55} {1:>10} {2:>10} {3:>10} {4:>10}".format("node", "amount", "sum +", "sum -", "sum"))
 			print()
 			for c in lib.data.FilterIterator(self.moneydata.categorytree.__iter__(), categoryfilter):
 				key = c.get_unique_name()
 				if not self.arguments_dict["showempty"] and d_summary[key].sumcount == 0:
 					continue
-				print("{0:<55} {1:>10.2f} {2:>10.2f}".format(c.format(),
-																d_summary[key].amount, d_summary[key].sum))
+				print("{0:<55} {1:>10.2f} {2:>10.2f} {3:>10.2f} {4:>10.2f}".format(c.format(),
+																d_summary[key].amount, d_summary[key].sumin, d_summary[key].sumout, d_summary[key].sum))
 
 		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate):
 			year = start_year
