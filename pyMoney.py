@@ -201,9 +201,14 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			print("{0:>10} {1:<10} {2:<20} {3:<40} {4:>10} {5:<20}".format("Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"))
 
-			category_name_formatter = lib.app.CategoryNameFormatter()
+			fromcategory_name_formatter = lib.app.CategoryNameFormatter()
+			tocategory_name_formatter = lib.app.CategoryNameFormatter()
 			if self.arguments_dict["fullnamecategories"]:
-				category_name_formatter.set_fullname(True)
+				fromcategory_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_FULL_NAME)
+				tocategory_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_FULL_NAME)
+
+			fromcategory_name_formatter.set_maxlength(20)
+			tocategory_name_formatter.set_maxlength(40)
 
 			iterator = self.moneydata.filter_transactions(transactionfilter)
 			for d in iterator:
@@ -213,8 +218,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 				_index = iterator.index
 				_date = str(d.date)
 
-				_fromcategory = category_name_formatter.format(d.fromcategory)
-				_tocategory = category_name_formatter.format(d.tocategory)
+				_fromcategory = fromcategory_name_formatter.format(d.fromcategory)
+				_tocategory = tocategory_name_formatter.format(d.tocategory)
 
 				_amount = d.amount
 				_comment = d.comment
@@ -224,7 +229,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			d_summary = self.moneydata.create_summary(transactionfilter)
 
 			if summarycategory:
-				_summarycategory = category_name_formatter.format(summarycategory)
+				_summarycategory = tocategory_name_formatter.format(summarycategory)
 				key = summarycategory.get_unique_name()
 
 				print("")
@@ -249,12 +254,21 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 	def cmdgroup_category(self, parser):
 		def cmd_tree():
-			print(self.moneydata.categorytree.__str__(fullname=self.arguments_dict["fullnamecategories"]))
+			category_name_formatter = lib.app.CategoryNameFormatter()
+			category_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_NAME)
+			category_name_formatter.set_indent_with_tree_level(True)
+
+			if self.arguments_dict["fullnamecategories"]:
+				category_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_FULL_NAME)
+				category_name_formatter.set_indent_with_tree_level(False)
+
+			for c in self.moneydata.categorytree:
+				print(category_name_formatter.format(c))
 
 		def cmd_list():
 			category_name_formatter = lib.app.CategoryNameFormatter()
 			if self.arguments_dict["fullnamecategories"]:
-				category_name_formatter.set_fullname(True)
+				category_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_FULL_NAME)
 
 			for category in self.moneydata.categorytree:
 				_category = category_name_formatter.format(category)
@@ -317,23 +331,35 @@ class PyMoneyConsole(lib.app.PyMoney):
 				categoryfilter = categoryfilter.and_concat(self.create_subtree_category_transactionfilter(self.arguments_dict["category"]))
 
 			d_summary = self.moneydata.create_summary(transactionfilter)
+			category_name_formatter = lib.app.CategoryNameFormatter()
+			category_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_NAME)
+			category_name_formatter.set_maxlength(55)
+			category_name_formatter.set_indent_with_tree_level(True)
 
 			print("{0:<55} {1:>10} {2:>10} {3:>10} {4:>10}".format("node", "amount", "sum +", "sum -", "sum"))
 			print()
 			for c in lib.data.filter.FilterIterator(self.moneydata.categorytree.__iter__(), categoryfilter):
 				key = c.get_unique_name()
+				name = category_name_formatter.format(c)
 				if not self.arguments_dict["showempty"] and d_summary[key].sumcount == 0:
 					continue
-				print("{0:<55} {1:>10.2f} {2:>10.2f} {3:>10.2f} {4:>10.2f}".format(c.format(),
+				print("{0:<55} {1:>10.2f} {2:>10.2f} {3:>10.2f} {4:>10.2f}".format(name,
 																d_summary[key].amount, d_summary[key].sumin, d_summary[key].sumout, d_summary[key].sum))
 
 		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate):
+			assert isinstance(category, lib.data.moneydata.CategoryTreeNode)
+
+			category_name_formatter = lib.app.CategoryNameFormatter()
+
 			year = start_year
 			month = start_month
 
+			category_name_formatter.set_maxlength(55)
 			print("{0:<10} {1:<55} {2:>10} {3:>10} {4:>10} {5:>10}".format("date", "node", "amount", "sum +", "sum -", "sum"))
 			print()
 
+			key = category.get_unique_name()
+			name = category_name_formatter.format(category)
 			while datetime.date(year, month, 1) <= maxdate:
 				if diff_months == 1:
 					transactionfilter = self.create_and_date_transactionfilter(str(year), str(month), None)
@@ -343,8 +369,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 					raise Exception("diff_months value not supported: " + str(diff_months))
 				d_summary = self.moneydata.create_summary(transactionfilter)
 
-				key = category.get_unique_name()
-				print("{0:<10} {1:<55} {2:>10.2f} {3:>10.2f} {4:>10.2f} {5:>10.2f}".format(str(datetime.date(year, month, 1)), key,
+				print("{0:<10} {1:<55} {2:>10.2f} {3:>10.2f} {4:>10.2f} {5:>10.2f}".format(str(datetime.date(year, month, 1)), name,
 																	 d_summary[key].amount,
 																	 d_summary[key].sumin,
 																	 d_summary[key].sumout,
