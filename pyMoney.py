@@ -99,7 +99,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
 
 			transactionfilter = transactionfilter.or_concat(
-				lambda t: t.fromcategory == fromcategory or t.fromcategory.is_contained_in_subtree(fromcategory)
+				lambda t: t.fromcategory is fromcategory or t.fromcategory.is_contained_in_subtree(fromcategory)
 			)
 
 		if filter_to_category:
@@ -109,7 +109,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
 
 			transactionfilter = transactionfilter.or_concat(
-				lambda t: t.tocategory == tocategory or t.tocategory.is_contained_in_subtree(tocategory)
+				lambda t: t.tocategory is tocategory or t.tocategory.is_contained_in_subtree(tocategory)
 			)
 
 		return transactionfilter
@@ -125,7 +125,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
 
 			transactionfilter = transactionfilter.and_concat(
-				lambda t: t.fromcategory == fromcategory or t.fromcategory.is_contained_in_subtree(fromcategory)
+				lambda t: t.fromcategory is fromcategory or t.fromcategory.is_contained_in_subtree(fromcategory)
 			)
 
 		if filter_to_category:
@@ -135,7 +135,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
 
 			transactionfilter = transactionfilter.and_concat(
-				lambda t: t.tocategory == tocategory or t.tocategory.is_contained_in_subtree(tocategory)
+				lambda t: t.tocategory is tocategory or t.tocategory.is_contained_in_subtree(tocategory)
 			)
 
 		return transactionfilter
@@ -159,7 +159,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			raise lib.data.moneydata.NoSuchCategoryException(filter_rootcategory)
 
 		categoryfilter = categoryfilter.and_concat(
-			lambda c: c == rootcategory or c.is_contained_in_subtree(rootcategory)
+			lambda c: c is rootcategory or c.is_contained_in_subtree(rootcategory)
 		)
 
 		return categoryfilter
