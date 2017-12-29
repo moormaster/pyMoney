@@ -338,9 +338,9 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			print("{0:<55} {1:>10} {2:>10} {3:>10} {4:>10}".format("node", "amount", "sum +", "sum -", "sum"))
 			print()
-			for c in lib.data.filter.FilterIterator(self.moneydata.categorytree.__iter__(), categoryfilter):
-				key = c.get_unique_name()
-				name = category_name_formatter.format(c)
+			for category in lib.data.filter.FilterIterator(self.moneydata.categorytree.__iter__(), categoryfilter):
+				key = category.get_unique_name()
+				name = category_name_formatter.format(category)
 				if not self.arguments_dict["showempty"] and d_summary[key].sumcount == 0:
 					continue
 				print("{0:<55} {1:>10.2f} {2:>10.2f} {3:>10.2f} {4:>10.2f}".format(name,

@@ -80,7 +80,7 @@ class CategoryNameFormatter:
 class PyMoney:
 	def __init__(self, fileprefix="pymoney"):
 		self.fileprefix = ""
-		self.filenames = []
+		self.filenames = {}
 
 		self.set_fileprefix(fileprefix)
 
