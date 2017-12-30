@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import lib.app
+import lib.formatter
 import lib.data
 import lib.data.filter
 import lib.data.moneydata
@@ -201,11 +202,11 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			print("{0:>10} {1:<10} {2:<20} {3:<40} {4:>10} {5:<20}".format("Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"))
 
-			fromcategory_name_formatter = lib.app.CategoryNameFormatter()
-			tocategory_name_formatter = lib.app.CategoryNameFormatter()
+			fromcategory_name_formatter = lib.formatter.CategoryNameFormatter()
+			tocategory_name_formatter = lib.formatter.CategoryNameFormatter()
 			if self.arguments_dict["fullnamecategories"]:
-				fromcategory_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_FULL_NAME)
-				tocategory_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_FULL_NAME)
+				fromcategory_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
+				tocategory_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 
 			fromcategory_name_formatter.set_maxlength(20)
 			tocategory_name_formatter.set_maxlength(40)
@@ -254,21 +255,21 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 	def cmdgroup_category(self, parser):
 		def cmd_tree():
-			category_name_formatter = lib.app.CategoryNameFormatter()
-			category_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_NAME)
+			category_name_formatter = lib.formatter.CategoryNameFormatter()
+			category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
 			category_name_formatter.set_indent_with_tree_level(True)
 
 			if self.arguments_dict["fullnamecategories"]:
-				category_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_FULL_NAME)
+				category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 				category_name_formatter.set_indent_with_tree_level(False)
 
 			for c in self.moneydata.categorytree:
 				print(category_name_formatter.format(c))
 
 		def cmd_list():
-			category_name_formatter = lib.app.CategoryNameFormatter()
+			category_name_formatter = lib.formatter.CategoryNameFormatter()
 			if self.arguments_dict["fullnamecategories"]:
-				category_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_FULL_NAME)
+				category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 
 			for category in self.moneydata.categorytree:
 				_category = category_name_formatter.format(category)
@@ -331,8 +332,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 				categoryfilter = categoryfilter.and_concat(self.create_subtree_category_transactionfilter(self.arguments_dict["category"]))
 
 			d_summary = self.moneydata.create_summary(transactionfilter)
-			category_name_formatter = lib.app.CategoryNameFormatter()
-			category_name_formatter.set_strategy(lib.app.CategoryNameFormatter.STRATEGY_NAME)
+			category_name_formatter = lib.formatter.CategoryNameFormatter()
+			category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
 			category_name_formatter.set_maxlength(55)
 			category_name_formatter.set_indent_with_tree_level(True)
 
@@ -349,7 +350,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate):
 			assert isinstance(category, lib.data.moneydata.CategoryTreeNode)
 
-			category_name_formatter = lib.app.CategoryNameFormatter()
+			category_name_formatter = lib.formatter.CategoryNameFormatter()
 
 			year = start_year
 			month = start_month
