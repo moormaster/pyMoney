@@ -200,16 +200,14 @@ class PyMoneyConsole(lib.app.PyMoney):
 					print("category not found: " + e.name, file=sys.stderr)
 					return
 
-			print("{0:>10} {1:<10} {2:<20} {3:<40} {4:>10} {5:<20}".format("Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"))
+			headerdata = ["Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"]
+			tabledata = []
 
 			fromcategory_name_formatter = lib.formatter.CategoryNameFormatter()
 			tocategory_name_formatter = lib.formatter.CategoryNameFormatter()
 			if self.arguments_dict["fullnamecategories"]:
 				fromcategory_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 				tocategory_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
-
-			fromcategory_name_formatter.set_maxlength(20)
-			tocategory_name_formatter.set_maxlength(40)
 
 			iterator = self.moneydata.filter_transactions(transactionfilter)
 			for d in iterator:
@@ -225,7 +223,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				_amount = d.amount
 				_comment = d.comment
 
-				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format(_index, _date, _fromcategory, _tocategory, _amount, _comment))
+				tabledata.append([_index, _date, _fromcategory, _tocategory, _amount, _comment])
 
 			d_summary = self.moneydata.create_summary(transactionfilter)
 
@@ -233,10 +231,34 @@ class PyMoneyConsole(lib.app.PyMoney):
 				_summarycategory = tocategory_name_formatter.format(summarycategory)
 				key = summarycategory.get_unique_name()
 
-				print("")
-				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "+ " + _summarycategory, d_summary[key].sumin, ""))
-				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "- " + _summarycategory, d_summary[key].sumout, ""))
-				print("{0:>10} {1:>10} {2:<20} {3:<40} {4:>10.2f} {5:<20}".format("", "", "", "sum " + _summarycategory, d_summary[key].sum, ""))
+				tabledata.append(["", "", "", "", None, ""])
+				tabledata.append(["", "", "", "+ " + _summarycategory, d_summary[key].sumin, ""])
+				tabledata.append(["", "", "", "- " + _summarycategory, d_summary[key].sumout, ""])
+				tabledata.append(["", "", "", "sum " + _summarycategory, d_summary[key].sum, ""])
+
+			tableformatter = lib.formatter.TableFormatter()
+			column = tableformatter.add_column(0)
+			column.set_alignment(">")
+			column = tableformatter.add_column(1)
+			column.set_alignment(">")
+			tableformatter.add_column(2)
+			tableformatter.add_column(3)
+			column = tableformatter.add_column(4)
+			column.set_alignment(">")
+			column.set_precision(2)
+			column.set_type("f")
+			tableformatter.add_column(5)
+
+			lines = tableformatter.get_formatted_lines(headerdata, tabledata)
+
+			is_first_line = True
+			for line in lines:
+				print(line)
+				if is_first_line:
+					print("")
+
+				is_first_line = False
+
 
 		def cmd_delete():
 			self.moneydata.delete_transaction(self.arguments_dict["index"])
@@ -334,18 +356,47 @@ class PyMoneyConsole(lib.app.PyMoney):
 			d_summary = self.moneydata.create_summary(transactionfilter)
 			category_name_formatter = lib.formatter.CategoryNameFormatter()
 			category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
-			category_name_formatter.set_maxlength(55)
 			category_name_formatter.set_indent_with_tree_level(True)
 
-			print("{0:<55} {1:>10} {2:>10} {3:>10} {4:>10}".format("node", "amount", "sum +", "sum -", "sum"))
-			print()
+			headerdata = ["node", "amount", "sum +", "sum -", "sum"]
+			tabledata = []
+
 			for category in lib.data.filter.FilterIterator(self.moneydata.categorytree.__iter__(), categoryfilter):
 				key = category.get_unique_name()
 				name = category_name_formatter.format(category)
 				if not self.arguments_dict["showempty"] and d_summary[key].sumcount == 0:
 					continue
-				print("{0:<55} {1:>10.2f} {2:>10.2f} {3:>10.2f} {4:>10.2f}".format(name,
-																d_summary[key].amount, d_summary[key].sumin, d_summary[key].sumout, d_summary[key].sum))
+
+				tabledata.append([name, d_summary[key].amount, d_summary[key].sumin, d_summary[key].sumout, d_summary[key].sum])
+
+			tableformatter = lib.formatter.TableFormatter()
+			tableformatter.add_column(0)
+			column = tableformatter.add_column(1)
+			column.set_alignment(">")
+			column.set_precision(2)
+			column.set_type("f")
+			column = tableformatter.add_column(2)
+			column.set_alignment(">")
+			column.set_precision(2)
+			column.set_type("f")
+			column = tableformatter.add_column(3)
+			column.set_alignment(">")
+			column.set_precision(2)
+			column.set_type("f")
+			column = tableformatter.add_column(4)
+			column.set_alignment(">")
+			column.set_precision(2)
+			column.set_type("f")
+
+			lines = tableformatter.get_formatted_lines(headerdata, tabledata)
+
+			is_first_line = True
+			for line in lines:
+				print(line)
+				if is_first_line:
+					print("")
+
+				is_first_line = False
 
 		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate):
 			assert isinstance(category, lib.data.moneydata.CategoryTreeNode)
@@ -355,9 +406,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 			year = start_year
 			month = start_month
 
-			category_name_formatter.set_maxlength(55)
-			print("{0:<10} {1:<55} {2:>10} {3:>10} {4:>10} {5:>10}".format("date", "node", "amount", "sum +", "sum -", "sum"))
-			print()
+			headerdata = ["date", "node", "amount", "sum +", "sum -", "sum"]
+			tabledata = []
 
 			key = category.get_unique_name()
 			name = category_name_formatter.format(category)
@@ -370,17 +420,47 @@ class PyMoneyConsole(lib.app.PyMoney):
 					raise Exception("diff_months value not supported: " + str(diff_months))
 				d_summary = self.moneydata.create_summary(transactionfilter)
 
-				print("{0:<10} {1:<55} {2:>10.2f} {3:>10.2f} {4:>10.2f} {5:>10.2f}".format(str(datetime.date(year, month, 1)), name,
-																	 d_summary[key].amount,
-																	 d_summary[key].sumin,
-																	 d_summary[key].sumout,
-																	 d_summary[key].sum))
+				tabledata.append([str(datetime.date(year, month, 1)), name,
+								  d_summary[key].amount,
+								  d_summary[key].sumin,
+								  d_summary[key].sumout,
+								  d_summary[key].sum])
 
 				month += diff_months
 
 				if month > 12:
 					year += int(month / 12)
 					month %= 12
+
+			tableformatter = lib.formatter.TableFormatter()
+			tableformatter.add_column(0)
+			tableformatter.add_column(1)
+			column = tableformatter.add_column(2)
+			column.set_alignment(">")
+			column.set_precision(2)
+			column.set_type("f")
+			column = tableformatter.add_column(3)
+			column.set_alignment(">")
+			column.set_precision(2)
+			column.set_type("f")
+			column = tableformatter.add_column(4)
+			column.set_alignment(">")
+			column.set_precision(2)
+			column.set_type("f")
+			column = tableformatter.add_column(5)
+			column.set_alignment(">")
+			column.set_precision(2)
+			column.set_type("f")
+
+			lines = tableformatter.get_formatted_lines(headerdata, tabledata)
+
+			is_first_line = True
+			for line in lines:
+				print(line)
+				if is_first_line:
+					print("")
+
+				is_first_line = False
 
 		def cmd_monthly():
 			mindate = None
