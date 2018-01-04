@@ -44,7 +44,7 @@
 # list all transactions that affected the Cash account from january 2016
 ./pyMoney.py transaction list 2016 01 --category Cash
 
-# sum up all transactions to show all asset and liability balances
+# sum up all transactions to show current asset and liability balances
 ./pyMoney.py summary categories --category Assets
 ./pyMoney.py summary categories --category Liabilities
 

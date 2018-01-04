@@ -103,7 +103,7 @@ Index       Date FromCategory ToCategory Amount Comment
                               - Cash     -30.00 
                               sum Cash    70.00 
 
-# sum up all transactions to show all asset and liability balances
+# sum up all transactions to show current asset and liability balances
 $ ./pyMoney.py summary categories --category Assets
 node      amount   sum +   sum -     sum
 
