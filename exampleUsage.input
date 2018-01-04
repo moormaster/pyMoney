@@ -19,9 +19,9 @@
 ./pyMoney.py category tree
 
 # set up initial balance for assets and liabilities
-./pyMoney.py transaction add 2016-01-01 OpeningBalance Bank 2000.00
-./pyMoney.py transaction add 2016-01-01 OpeningBalance Cash 120.00
-./pyMoney.py transaction add 2016-01-01 VISA OpeningBalance 34.40
+./pyMoney.py transaction add 2015-12-31 OpeningBalance Bank 2000.00
+./pyMoney.py transaction add 2015-12-31 OpeningBalance Cash 120.00
+./pyMoney.py transaction add 2015-12-31 VISA OpeningBalance 34.40
 
 # sum up all transations to show current asset and liability balance
 ./pyMoney.py summary categories --category Assets
