@@ -1,31 +1,65 @@
 ./pyMoney.py category tree
-./pyMoney.py category add All Accounts
-./pyMoney.py category add Accounts Bank
-./pyMoney.py category add Accounts Cash
-./pyMoney.py category add All External
-./pyMoney.py category add External Misc
-./pyMoney.py category add External Life
-./pyMoney.py category add External Wages
 
+# set up accounts
+./pyMoney.py category add All Expenses
+./pyMoney.py category add Expenses Misc
+./pyMoney.py category add Expenses GoingOut
+./pyMoney.py category add Expenses DailyLife
+./pyMoney.py category add All Assets
+./pyMoney.py category add Assets Bank
+./pyMoney.py category add Assets Cash
+./pyMoney.py category add All Income
+./pyMoney.py category add Income Wages
+./pyMoney.py category add All Liabilities
+./pyMoney.py category add Liabilities VISA
+./pyMoney.py category add All Equity
+./pyMoney.py category add Equity OpeningBalance
+
+# print the category tree
 ./pyMoney.py category tree
 
+# set up initial balance for assets and liabilities
+./pyMoney.py transaction add 2016-01-01 OpeningBalance Bank 2000.00
+./pyMoney.py transaction add 2016-01-01 OpeningBalance Cash 120.00
+./pyMoney.py transaction add 2016-01-01 VISA OpeningBalance 34.40
+
+# sum up all transations to show current asset and liability balance
+./pyMoney.py summary categories --category Assets
+./pyMoney.py summary categories --category Liabilities
+
+# add some transactions
 ./pyMoney.py transaction add 2016-01-01 Wages Bank 1500 "Wages"
 ./pyMoney.py transaction add 2016-01-01 Bank Cash 100 "EC Money"
-./pyMoney.py transaction add 2016-01-05 Cash Life 30 "Food"
+./pyMoney.py transaction add 2016-01-03 Bank VISA 34.40 "Pay credit card debts"
+./pyMoney.py transaction add 2016-01-05 Cash DailyLife 30 "Food"
 ./pyMoney.py transaction add 2016-01-10 Bank Misc 14.99 "Favorite DVD"
+./pyMoney.py transaction add 2016-01-10 VISA GoingOut 45.00 "Visiting concert of favorite band"
 
+# for each category list the sum of transactions that happened during january 2016
 ./pyMoney.py summary categories 2016 01
 
+# list all transactions from january 2016
 ./pyMoney.py transaction list 2016 01
 
+# list all transactions that affected the Cash account from january 2016
 ./pyMoney.py transaction list 2016 01 --category Cash
 
-./pyMoney.py summary categories --category Accounts
+# sum up all transactions to show all asset and liability balances
+./pyMoney.py summary categories --category Assets
+./pyMoney.py summary categories --category Liabilities
 
 ./pyMoney.py transaction delete 0
 ./pyMoney.py transaction delete 0
 ./pyMoney.py transaction delete 0
 ./pyMoney.py transaction delete 0
+./pyMoney.py transaction delete 0
+./pyMoney.py transaction delete 0
+./pyMoney.py transaction delete 0
+./pyMoney.py transaction delete 0
+./pyMoney.py transaction delete 0
 
-./pyMoney.py category delete Accounts
-./pyMoney.py category delete External
+./pyMoney.py category delete Expenses
+./pyMoney.py category delete Assets
+./pyMoney.py category delete Income
+./pyMoney.py category delete Liabilities
+./pyMoney.py category delete Equity

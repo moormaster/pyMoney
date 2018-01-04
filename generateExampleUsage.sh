@@ -30,7 +30,12 @@ do
 	cmd=( $line )
 
 	# print input command
-	echo "$ $line"
+	if [ "${line::1}" != "#" ]
+	then
+		echo "$ $line"
+	else
+		echo "$line"
+	fi
 	# execute and print results
 	bash -c "$line"
 done
