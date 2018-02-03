@@ -38,6 +38,12 @@
 # for each category list the sum of transactions that happened during january 2016
 ./pyMoney.py summary categories 2016 01
 
+# show monthly difference of the Bank account
+./pyMoney.py summary monthly Bank
+
+# show monthly balance of the Bank account
+./pyMoney.py summary monthly Bank --balance
+
 # list all transactions from january 2016
 ./pyMoney.py transaction list 2016 01
 

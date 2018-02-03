@@ -81,6 +81,20 @@ All               0.00 1724.39 -1724.39     0.00
   Liabilities     0.00   34.40   -45.00   -10.60
     VISA        -10.60   34.40   -45.00   -10.60
 
+# show monthly difference of the Bank account
+$ ./pyMoney.py summary monthly Bank
+date       node  amount   sum +   sum -     sum
+
+2015-12-31 Bank 2000.00 2000.00    0.00 2000.00
+2016-01-31 Bank 1350.61 1500.00 -149.39 1350.61
+
+# show monthly balance of the Bank account
+$ ./pyMoney.py summary monthly Bank --balance
+date       node  amount   sum +   sum -     sum
+
+2015-12-31 Bank 2000.00 2000.00    0.00 2000.00
+2016-01-31 Bank 3350.61 3500.00 -149.39 3350.61
+
 # list all transactions from january 2016
 $ ./pyMoney.py transaction list 2016 01
 Index       Date FromCategory ToCategory  Amount Comment

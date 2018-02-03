@@ -145,14 +145,16 @@ class  MoneyData:
 
 		newparent.move_node(node)
 
-	def create_summary(self, transactionfilter):
-		d_summary = {}		# resulting map unqique category name -> NodeSummary() object
-		d_unique_name = {}	# cached category.get_unique_name() results
+	def create_summary(self, transactionfilter, d_summary = None):
+		if d_summary is None:
+			d_summary = {}		# resulting map unqique category name -> NodeSummary() object
+		d_unique_name = {}		# cached category.get_unique_name() results
 
 		for c in self.categorytree:
 			unique_name = c.get_unique_name()
 			d_unique_name[id(c)] = unique_name
-			d_summary[unique_name] = NodeSummary()
+			if not unique_name in d_summary:
+				d_summary[unique_name] = NodeSummary()
 
 		for t in self.transactions:
 			if not transactionfilter(t):

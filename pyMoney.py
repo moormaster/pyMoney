@@ -8,6 +8,7 @@ import lib.data.moneydata
 import lib.io
 
 import argparse
+import calendar
 import datetime
 import sys
 
@@ -253,7 +254,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 				is_first_line = False
 
-		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate):
+		def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate, calculate_balance):
 			assert isinstance(category, lib.data.moneydata.CategoryTreeNode)
 
 			category_name_formatter = lib.formatter.CategoryNameFormatter()
@@ -266,6 +267,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			key = category.get_unique_name()
 			name = category_name_formatter.format(category)
+			d_summary = None
 			while datetime.date(year, month, 1) <= maxdate:
 				if diff_months == 1:
 					transactionfilter = self.filterFactory.create_and_date_transactionfilter(str(year), str(month), None)
@@ -273,9 +275,14 @@ class PyMoneyConsole(lib.app.PyMoney):
 					transactionfilter = self.filterFactory.create_and_date_transactionfilter(str(year), None, None)
 				else:
 					raise Exception("diff_months value not supported: " + str(diff_months))
-				d_summary = self.moneydata.create_summary(transactionfilter)
 
-				tabledata.append([str(datetime.date(year, month, 1)), name,
+				if calculate_balance:
+					d_summary = self.moneydata.create_summary(transactionfilter, d_summary)
+				else:
+					d_summary = self.moneydata.create_summary(transactionfilter, None)
+
+				lastday = calendar.monthrange(year, month)[1]
+				tabledata.append([str(datetime.date(year, month, lastday)), name,
 								  d_summary[key].amount,
 								  d_summary[key].sumin,
 								  d_summary[key].sumout,
@@ -333,7 +340,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				print("no such category: " + self.arguments_dict["category"], file=sys.stderr)
 				return
 
-			sub_time_interval_summary(category, mindate.year, mindate.month, 1, maxdate)
+			sub_time_interval_summary(category, mindate.year, mindate.month, 1, maxdate, self.arguments_dict["balance"])
 
 		def cmd_yearly():
 			mindate = None
@@ -351,7 +358,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				print("no such category: " + self.arguments_dict["category"], file=sys.stderr)
 				return
 
-			sub_time_interval_summary(category, mindate.year, 1, 12, maxdate)
+			sub_time_interval_summary(category, mindate.year, 1, 12, maxdate, self.arguments_dict["balance"])
 
 		d_commands = {
 			"categories": cmd_categories,
@@ -453,10 +460,12 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 		p_summary_monthly = sp_summary.add_parser("monthly")
 		p_summary_monthly.set_defaults(command="monthly")
+		p_summary_monthly.add_argument("--balance", action='store_true')
 		p_summary_monthly.add_argument("category")
 
 		p_summary_yearly = sp_summary.add_parser("yearly")
 		p_summary_yearly.set_defaults(command="yearly")
+		p_summary_yearly.add_argument("--balance", action='store_true')
 		p_summary_yearly.add_argument("category")
 
 		return p_main

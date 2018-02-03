@@ -136,18 +136,26 @@ _pymoney_summary()
 		monthly)
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
-				# category
-				COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
-				;;
+					# category
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				*)
+					COMPREPLY=( $( compgen -W "--balance" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
 			esac
 			;;
 
 		yearly)
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
-				# category
-				COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
-				;;
+					# category
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				*)
+					COMPREPLY=( $( compgen -W "--balance" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
 			esac
 			;;
 
