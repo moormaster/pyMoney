@@ -136,6 +136,7 @@ class TableFormatter:
 		datawidth = self.get_data_column_width(headerdata, data)
 
 		index = 0
+		column = None
 		for column in self.columns:
 			assert isinstance(column, TableFormatterColumn)
 
@@ -145,7 +146,7 @@ class TableFormatter:
 			index = index+1
 
 		# last column does not have a minimum width (if left aligned and string)
-		if column.get_alignment() == "<":
+		if not column is None and column.get_alignment() == "<":
 			column.set_width(None)
 
 		lines = []

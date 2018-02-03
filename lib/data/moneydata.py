@@ -36,6 +36,9 @@ class  MoneyData:
 
 		return parser.parse(str_date, str_categoryin, str_categoryout, str_amount, str_comment)
 
+	def filter_categories(self, filter_func):
+		return filter.FilterIterator(self.categorytree.__iter__(), filter_func)
+
 	def get_category(self, name):
 		nodes = self.categorytree.find_nodes_by_relative_path(name)
 
@@ -202,6 +205,8 @@ class Transaction(object):
 		self.amount = amount
 		self.comment = comment
 
+	def __str__(self):
+		return str(self.date) + " " + self.fromcategory.get_unique_name() + " " + self.tocategory.get_unique_name() + " " + str(self.amount) + " " + self.comment
 
 class NodeSummary(object):
 	__slots__ = ["amountin", "amountout", "amount", "sumcountin", "sumcountout", "sumcount", "sumin", "sumout", "sum"]

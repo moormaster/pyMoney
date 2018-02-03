@@ -21,168 +21,6 @@ class PyMoneyConsole(lib.app.PyMoney):
 		lib.app.PyMoney.__init__(self, self.arguments_dict["fileprefix"])
 		self.read()
 
-	def create_and_date_transactionfilter(self, filter_year, filter_month, filter_day):
-		transactionfilter = lib.data.filter.Filter(lambda t: True)
-
-		greater_or_equal = False
-		greater = False
-		equal = True
-		lower = False
-		lower_or_equal = False
-
-		if filter_year:
-			equal = False
-
-			if filter_year[0:2] == ">=":
-				year = int(filter_year[2:])
-				greater_or_equal = True
-			elif filter_year[0:2] == "<=":
-				year = int(filter_year[2:])
-				lower_or_equal = True
-			elif filter_year[0:1] == ">":
-				year = int(filter_year[1:])
-				greater = True
-			elif filter_year[0:1] == "<":
-				year = int(filter_year[1:])
-				lower = True
-			else:
-				equal = True
-
-			if greater_or_equal:
-				year = int(filter_year[2:])
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year >= year)
-			if lower_or_equal:
-				year = int(filter_year[2:])
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year <= year)
-			if greater:
-				year = int(filter_year[1:])
-				if filter_month or filter_day:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year >= year)
-				else:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year)
-			if lower:
-				year = int(filter_year[1:])
-				if filter_month or filter_day:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year <= year)
-				else:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year)
-			if equal:
-				year = int(filter_year)
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year == year)
-
-		if filter_month:
-			month = int(filter_month)
-
-			if greater_or_equal:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month >= month)
-			if lower_or_equal:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month <= month)
-			if greater:
-				if filter_day:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month >= month)
-				else:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month > month)
-			if lower:
-				if filter_day:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month <= month)
-				else:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month < month)
-			if equal:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.month == month)
-
-		if filter_day:
-			day = int(filter_day)
-
-			if greater_or_equal:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month > month or t.date.year == year and t.date.month == month and t.date.day >= day)
-			if lower_or_equal:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month < month or t.date.year == year and t.date.month == month and t.date.day <= day)
-			if greater:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month > month or t.date.year == year and t.date.month == month and t.date.day > day)
-			if lower:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month < month or t.date.year == year and t.date.month == month and t.date.day < day)
-			if equal:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.day == day)
-
-		return transactionfilter
-
-
-	def create_or_category_transactionfilter(self, filter_from_category, filter_to_category):
-		transactionfilter = lib.data.filter.Filter(lambda t: False)
-
-		if filter_from_category:
-			fromcategory = self.moneydata.get_category(filter_from_category)
-
-			if not fromcategory:
-				raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
-
-			transactionfilter = transactionfilter.or_concat(
-				lambda t: t.fromcategory is fromcategory or t.fromcategory.is_contained_in_subtree(fromcategory)
-			)
-
-		if filter_to_category:
-			tocategory = self.moneydata.get_category(filter_to_category)
-
-			if not tocategory:
-				raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
-
-			transactionfilter = transactionfilter.or_concat(
-				lambda t: t.tocategory is tocategory or t.tocategory.is_contained_in_subtree(tocategory)
-			)
-
-		return transactionfilter
-
-
-	def create_and_category_transactionfilter(self, filter_from_category, filter_to_category):
-		transactionfilter = lib.data.filter.Filter(lambda t: True)
-
-		if filter_from_category:
-			fromcategory = self.moneydata.get_category(filter_from_category)
-
-			if not fromcategory:
-				raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
-
-			transactionfilter = transactionfilter.and_concat(
-				lambda t: t.fromcategory is fromcategory or t.fromcategory.is_contained_in_subtree(fromcategory)
-			)
-
-		if filter_to_category:
-			tocategory = self.moneydata.get_category(filter_to_category)
-
-			if not tocategory:
-				raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
-
-			transactionfilter = transactionfilter.and_concat(
-				lambda t: t.tocategory is tocategory or t.tocategory.is_contained_in_subtree(tocategory)
-			)
-
-		return transactionfilter
-
-
-	def create_maxlevel_category_transactionfilter(self, maxlevel):
-		categoryfilter = lib.data.filter.Filter(lambda c: True)
-
-		if maxlevel:
-			categoryfilter = categoryfilter.and_concat(lambda c: c.get_depth() <= maxlevel)
-
-		return categoryfilter
-
-
-	def create_subtree_category_transactionfilter(self, filter_rootcategory):
-		categoryfilter = lib.data.filter.Filter(lambda c: True)
-
-		rootcategory = self.moneydata.get_category(filter_rootcategory)
-
-		if not rootcategory:
-			raise lib.data.moneydata.NoSuchCategoryException(filter_rootcategory)
-
-		categoryfilter = categoryfilter.and_concat(
-			lambda c: c is rootcategory or c.is_contained_in_subtree(rootcategory)
-		)
-
-		return categoryfilter
-
-
 	def cmdgroup_transaction(self, parser):
 		def cmd_add():
 			self.moneydata.add_transaction(	self.arguments_dict["date"], self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"], self.arguments_dict["amount"],
@@ -190,13 +28,13 @@ class PyMoneyConsole(lib.app.PyMoney):
 			self.write()
 
 		def cmd_list():
-			transactionfilter = self.create_and_date_transactionfilter(self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
+			transactionfilter = self.filterFactory.create_and_date_transactionfilter(self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
 			summarycategory = None
 
 			if self.arguments_dict["category"]:
 				try:
 					transactionfilter = transactionfilter.and_concat(
-						self.create_or_category_transactionfilter(self.arguments_dict["category"], self.arguments_dict["category"])
+						self.filterFactory.create_or_category_transactionfilter(self.arguments_dict["category"], self.arguments_dict["category"])
 					)
 					summarycategory = self.moneydata.get_category(self.arguments_dict["category"])
 				except lib.data.moneydata.NoSuchCategoryException as e:
@@ -206,7 +44,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			if self.arguments_dict["fromcategory"] or self.arguments_dict["tocategory"]:
 				try:
 					transactionfilter = transactionfilter.and_concat(
-						self.create_and_category_transactionfilter(self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"])
+						self.filterFactory.create_and_category_transactionfilter(self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"])
 					)
 
 					if self.arguments_dict["fromcategory"]:
@@ -352,12 +190,12 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 	def cmdgroup_summary(self, parser):
 		def cmd_categories():
-			transactionfilter = self.create_and_date_transactionfilter(self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
+			transactionfilter = self.filterFactory.create_and_date_transactionfilter(self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
 
 			if self.arguments_dict["cashflowcategory"]:
 				try:
 					transactionfilter = transactionfilter.and_concat(
-						self.create_or_category_transactionfilter(self.arguments_dict["cashflowcategory"], self.arguments_dict["cashflowcategory"])
+						self.filterFactory.create_or_category_transactionfilter(self.arguments_dict["cashflowcategory"], self.arguments_dict["cashflowcategory"])
 					)
 				except lib.data.moneydata.NoSuchCategoryException as e:
 					print("category not found: " + e.name, file=sys.stderr)
@@ -365,10 +203,10 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			categoryfilter = lib.data.filter.Filter(lambda c: True)
 			if self.arguments_dict["maxlevel"]:
-				categoryfilter = categoryfilter.and_concat(self.create_maxlevel_category_transactionfilter(self.arguments_dict["maxlevel"]))
+				categoryfilter = categoryfilter.and_concat(self.filterFactory.create_maxlevel_categoryfilter(self.arguments_dict["maxlevel"]))
 
 			if self.arguments_dict["category"]:
-				categoryfilter = categoryfilter.and_concat(self.create_subtree_category_transactionfilter(self.arguments_dict["category"]))
+				categoryfilter = categoryfilter.and_concat(self.filterFactory.create_subtree_categoryfilter(self.arguments_dict["category"]))
 
 			d_summary = self.moneydata.create_summary(transactionfilter)
 			category_name_formatter = lib.formatter.CategoryNameFormatter()
@@ -430,9 +268,9 @@ class PyMoneyConsole(lib.app.PyMoney):
 			name = category_name_formatter.format(category)
 			while datetime.date(year, month, 1) <= maxdate:
 				if diff_months == 1:
-					transactionfilter = self.create_and_date_transactionfilter(str(year), str(month), None)
+					transactionfilter = self.filterFactory.create_and_date_transactionfilter(str(year), str(month), None)
 				elif diff_months == 12:
-					transactionfilter = self.create_and_date_transactionfilter(str(year), None, None)
+					transactionfilter = self.filterFactory.create_and_date_transactionfilter(str(year), None, None)
 				else:
 					raise Exception("diff_months value not supported: " + str(diff_months))
 				d_summary = self.moneydata.create_summary(transactionfilter)
