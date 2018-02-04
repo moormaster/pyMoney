@@ -119,9 +119,9 @@ class FilterFactory:
 					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month > month)
 			if lower:
 				if filter_day:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month <= month)
+					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month <= month)
 				else:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month < month)
+					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month < month)
 			if equal:
 				transactionfilter = transactionfilter.and_concat(lambda t: t.date.month == month)
 

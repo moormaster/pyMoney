@@ -47,6 +47,7 @@ class MoneyDataTestCaseBase(unittest.TestCase):
 
 		self.transactions_year_2001 = []
 		self.transactions_year_2001_month_jan = []
+		self.transactions_year_2001_month_feb = []
 
 		self.transactions_category_category1 = []
 		self.transactions_category_category2 = []
@@ -94,10 +95,23 @@ class MoneyDataTestCaseBase(unittest.TestCase):
 		self.transactions_all.extend(newtransactions)
 
 		newtransactions = []
-		newtransactions.append(self.app.moneydata.add_transaction("2001-01-04", "Cash.Out", "UnknownCategory.UnknownSubCategory", 40.0, "A comment", True))
+		newtransactions.append(self.app.moneydata.add_transaction("2001-02-01", "Cash.Out", "Category1", 70.0, "A comment"))
+		newtransactions.append(self.app.moneydata.add_transaction("2001-02-02", "Cash.Out", "Subcategory1", 80.0, "A comment"))
+		newtransactions.append(self.app.moneydata.add_transaction("2001-02-03", "Cash.Out", "Category2", 90.0, "A comment"))
 
 		self.transactions_year_2001.extend(newtransactions)
-		self.transactions_year_2001_month_jan.extend(newtransactions)
+		self.transactions_year_2001_month_feb.extend(newtransactions)
+		self.transactions_category_category1.append(newtransactions[0])
+		self.transactions_category_category1.append(newtransactions[1])
+		self.transactions_category_subcategory1.append(newtransactions[1])
+		self.transactions_category_category2.append(newtransactions[2])
+		self.transactions_all.extend(newtransactions)
+
+		newtransactions = []
+		newtransactions.append(self.app.moneydata.add_transaction("2001-02-04", "Cash.Out", "UnknownCategory.UnknownSubCategory", 40.0, "A comment", True))
+
+		self.transactions_year_2001.extend(newtransactions)
+		self.transactions_year_2001_month_feb.extend(newtransactions)
 		self.transactions_all.extend(newtransactions)
 
 		self.categories_all.append(self.app.moneydata.get_category("NOTFOUND"))
@@ -204,17 +218,17 @@ class TestFilterFactory(MoneyDataTestCaseBase):
 		self.assertEqual(self.transactions_year_2001, transactions)
 
 	def test_create_and_date_transactionfilter_year_month(self):
-		filter = self.filterFactory.create_and_date_transactionfilter("2000", "01", None)
+		filter = self.filterFactory.create_and_date_transactionfilter("2001", "01", None)
 		transactions = list(self.app.moneydata.filter_transactions(filter))
-		self.assertEqual(self.transactions_year_2000_month_jan, transactions)
+		self.assertEqual(self.transactions_year_2001_month_jan, transactions)
 
-		filter = self.filterFactory.create_and_date_transactionfilter("<2000", "02", None)
+		filter = self.filterFactory.create_and_date_transactionfilter("<2001", "02", None)
 		transactions = list(self.app.moneydata.filter_transactions(filter))
-		self.assertEqual(self.transactions_year_2000_month_jan, transactions)
+		self.assertEqual(self.transactions_year_2000 + self.transactions_year_2001_month_jan, transactions)
 
-		filter = self.filterFactory.create_and_date_transactionfilter("<=2000", "01", None)
+		filter = self.filterFactory.create_and_date_transactionfilter("<=2001", "01", None)
 		transactions = list(self.app.moneydata.filter_transactions(filter))
-		self.assertEqual(self.transactions_year_2000_month_jan, transactions)
+		self.assertEqual(self.transactions_year_2000 + self.transactions_year_2001_month_jan, transactions)
 
 		filter = self.filterFactory.create_and_date_transactionfilter(">2000", "01", None)
 		transactions = list(self.app.moneydata.filter_transactions(filter))
