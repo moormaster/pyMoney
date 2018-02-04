@@ -281,8 +281,13 @@ class PyMoneyConsole(lib.app.PyMoney):
 				else:
 					d_summary = self.moneydata.create_summary(transactionfilter, None)
 
-				lastday = calendar.monthrange(year, month)[1]
-				tabledata.append([str(datetime.date(year, month, lastday)), name,
+				displayday = calendar.monthrange(year, month)[1]
+				if diff_months != 12:
+					displaymonth = month
+				else:
+					displaymonth = 12
+				
+				tabledata.append([str(datetime.date(year, displaymonth, displayday)), name,
 								  d_summary[key].amount,
 								  d_summary[key].sumin,
 								  d_summary[key].sumout,
