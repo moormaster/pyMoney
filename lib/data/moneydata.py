@@ -46,7 +46,7 @@ class  MoneyData:
 			raise NoSuchCategoryException(name)
 
 		if len(nodes) > 1:
-			raise AmbiguousCategoryNameException(name)
+			raise AmbiguousCategoryNameException(name, list(map(lambda c: c.get_unique_name(), nodes)))
 
 		return nodes[0]
 
@@ -257,10 +257,11 @@ class CategoryTreeNode(tree.TreeNode):
 
 
 class AmbiguousCategoryNameException(Exception):
-	def __init__(self, name):
-		Exception.__init__(self, name)
+	def __init__(self, name, matching_categories):
+		Exception.__init__(self, name, matching_categories)
 
 		self.name = name
+		self.matching_categories = matching_categories
 
 
 class DuplicateCategoryException(Exception):
