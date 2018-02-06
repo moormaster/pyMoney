@@ -46,7 +46,7 @@ class  MoneyData:
 			raise NoSuchCategoryException(name)
 
 		if len(nodes) > 1:
-			raise AmbiguousCategoryNameException(name, list(map(lambda c: c.get_unique_name(), nodes)))
+			raise AmbiguousCategoryNameException(name, nodes)
 
 		return nodes[0]
 
@@ -101,8 +101,8 @@ class  MoneyData:
 			if not newcategory is None and not newcategory.parent is notfoundcategory:
 				newcategory = None
 
-		if newname in category.parent.children:
-			raise DuplicateCategoryException(newname)
+		if not category.parent is None and newname in category.parent.children:
+			raise DuplicateCategoryException(category.parent.children[newname])
 
 		if not newcategory is None:
 			newcategory.parent.remove_childnode_by_name(newname)
@@ -238,10 +238,10 @@ class CategoryTreeNode(tree.TreeNode):
 		root_node = self.get_root()
 
 		if node.name == root_node.name:
-			raise DuplicateCategoryException(node.name)
+			raise DuplicateCategoryException(root_node)
 
 		if node.name in self.children:
-			raise DuplicateCategoryException(node.name)
+			raise DuplicateCategoryException(self.children[node.name])
 
 		return tree.TreeNode.append_childnode(self, node)
 
@@ -258,6 +258,9 @@ class CategoryTreeNode(tree.TreeNode):
 
 class AmbiguousCategoryNameException(Exception):
 	def __init__(self, name, matching_categories):
+		for c in matching_categories:
+			assert isinstance(c, CategoryTreeNode)
+
 		Exception.__init__(self, name, matching_categories)
 
 		self.name = name
@@ -265,10 +268,12 @@ class AmbiguousCategoryNameException(Exception):
 
 
 class DuplicateCategoryException(Exception):
-	def __init__(self, name):
-		Exception.__init__(self, name)
+	def __init__(self, category):
+		assert isinstance(category, CategoryTreeNode)
 
-		self.name = name
+		Exception.__init__(self, category.get_unique_name())
+
+		self.category = category
 
 
 class NoSuchCategoryException(tree.NoSuchNodeException):
@@ -280,5 +285,5 @@ class CategoryIsTopCategoryException(Exception):
 	def __init__(self, category):
 		assert isinstance(category, CategoryTreeNode)
 
-		Exception.__init__(self, category.name)
+		Exception.__init__(self, category.get_unique_name())
 		self.category = category

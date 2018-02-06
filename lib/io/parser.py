@@ -67,7 +67,7 @@ class TransactionParser:
 				raise NoSuchCategoryException(name)
 
 		if len(nodes) > 1:
-			raise AmbiguousCategoryNameException(name, list(map(lambda c: c.get_unique_name(), nodes)))
+			raise AmbiguousCategoryNameException(name, nodes)
 
 		return nodes[0]
 

@@ -22,11 +22,33 @@ class PyMoneyConsole(lib.app.PyMoney):
 		lib.app.PyMoney.__init__(self, self.arguments_dict["fileprefix"])
 		self.read()
 
+	def print_error(self, error):
+		value = None
+
+		if isinstance(error, lib.data.moneydata.NoSuchCategoryException):
+			value = "category not found: " + error.name
+		elif isinstance(error, lib.data.moneydata.DuplicateCategoryException):
+			value = "category already exists: " + error.category.get_unique_name()
+		elif isinstance(error, lib.data.moneydata.CategoryIsTopCategoryException):
+			value = "top category may not be deleted: " + error.category.get_unique_name()
+		elif isinstance(error, lib.data.moneydata.AmbiguousCategoryNameException):
+		    value = "category name " + error.name + " is ambiguous: " + str(list(map(lambda c: c.get_unique_name(), error.matching_categories)))
+		elif isinstance(error, lib.data.tree.TargetNodeIsPartOfSourceNodeSubTreeException):
+			value = "cannot move source node into its own subtree: " + str(error.sourcenode.get_unique_name())
+		else:
+			value = "unhandled exception: " + error.__class__.__module__ + "." + error.__class__.__name__ + ": " + str(error)
+
+		if not value is None:
+			print(value, file=sys.stderr)
+
 	def cmdgroup_transaction(self, parser):
 		def cmd_add():
-			self.moneydata.add_transaction(	self.arguments_dict["date"], self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"], self.arguments_dict["amount"],
-													self.arguments_dict["comment"], self.arguments_dict["force"])
-			self.write()
+			try:
+				self.moneydata.add_transaction(	self.arguments_dict["date"], self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"], self.arguments_dict["amount"],
+								self.arguments_dict["comment"], self.arguments_dict["force"])
+				self.write()
+			except Exception as e:
+				self.print_error(e)
 
 		def cmd_list():
 			transactionfilter = self.filterFactory.create_and_date_transactionfilter(self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
@@ -38,8 +60,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 						self.filterFactory.create_or_category_transactionfilter(self.arguments_dict["category"], self.arguments_dict["category"])
 					)
 					summarycategory = self.moneydata.get_category(self.arguments_dict["category"])
-				except lib.data.moneydata.NoSuchCategoryException as e:
-					print("category not found: " + e.name, file=sys.stderr)
+				except Exception as e:
+					self.print_error(e)
 					return
 
 			if self.arguments_dict["fromcategory"] or self.arguments_dict["tocategory"]:
@@ -52,8 +74,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 						summarycategory = self.moneydata.get_category(self.arguments_dict["fromcategory"])
 					if self.arguments_dict["tocategory"]:
 						summarycategory = self.moneydata.get_category(self.arguments_dict["tocategory"])
-				except lib.data.moneydata.NoSuchCategoryException as e:
-					print("category not found: " + e.name, file=sys.stderr)
+				except Exception as e:
+					self.print_error(e)
 					return
 
 			headerdata = ["Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"]
@@ -155,24 +177,39 @@ class PyMoneyConsole(lib.app.PyMoney):
 			print("")
 
 		def cmd_add():
-			self.moneydata.add_category(self.arguments_dict["parentname"], self.arguments_dict["name"])
-			self.write()
+			try:
+				self.moneydata.add_category(self.arguments_dict["parentname"], self.arguments_dict["name"])
+				self.write()
+			except Exception as e:
+				self.print_error(e)
 
 		def cmd_delete():
-			self.moneydata.delete_category(self.arguments_dict["name"])
-			self.write()
+			try:
+				self.moneydata.delete_category(self.arguments_dict["name"])
+				self.write()
+			except Exception as e:
+				self.print_error(e)
 
 		def cmd_move():
-			self.moneydata.move_category(self.arguments_dict["name"], self.arguments_dict["newparentname"])
-			self.write()
+			try:
+				self.moneydata.move_category(self.arguments_dict["name"], self.arguments_dict["newparentname"])
+				self.write()
+			except Exception as e:
+				self.print_error(e)
 
 		def cmd_rename():
-			self.moneydata.rename_category(self.arguments_dict["name"], self.arguments_dict["newname"])
-			self.write()
+			try:
+				self.moneydata.rename_category(self.arguments_dict["name"], self.arguments_dict["newname"])
+				self.write()
+			except Exception as e:
+				self.print_error(e)
 
 		def cmd_merge():
-			self.moneydata.merge_category(self.arguments_dict["name"], self.arguments_dict["targetname"])
-			self.write()
+			try:
+				self.moneydata.merge_category(self.arguments_dict["name"], self.arguments_dict["targetname"])
+				self.write()
+			except Exception as e:
+				self.print_error(e)
 
 		d_commands = {
 			"add": cmd_add,
@@ -198,8 +235,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 					transactionfilter = transactionfilter.and_concat(
 						self.filterFactory.create_or_category_transactionfilter(self.arguments_dict["cashflowcategory"], self.arguments_dict["cashflowcategory"])
 					)
-				except lib.data.moneydata.NoSuchCategoryException as e:
-					print("category not found: " + e.name, file=sys.stderr)
+				except Exception as e:
+					self.print_error(e)
 					return
 
 			categoryfilter = lib.data.filter.Filter(lambda c: True)
@@ -339,11 +376,11 @@ class PyMoneyConsole(lib.app.PyMoney):
 				if not maxdate or transaction.date > maxdate:
 					maxdate = transaction.date
 
-			category = self.moneydata.get_category(self.arguments_dict["category"])
-
-			if not category:
-				print("no such category: " + self.arguments_dict["category"], file=sys.stderr)
-				return
+			try:
+				category = self.moneydata.get_category(self.arguments_dict["category"])
+			except Exception as e:
+			    self.print_error(e)
+			    return
 
 			sub_time_interval_summary(category, mindate.year, mindate.month, 1, maxdate, self.arguments_dict["balance"])
 
@@ -357,11 +394,11 @@ class PyMoneyConsole(lib.app.PyMoney):
 				if not maxdate or transaction.date > maxdate:
 					maxdate = transaction.date
 
-			category = self.moneydata.get_category(self.arguments_dict["category"])
-
-			if not category:
-				print("no such category: " + self.arguments_dict["category"], file=sys.stderr)
-				return
+			try:
+				category = self.moneydata.get_category(self.arguments_dict["category"])
+			except Exception as e:
+			    self.print_error(e)
+			    return
 
 			sub_time_interval_summary(category, mindate.year, 1, 12, maxdate, self.arguments_dict["balance"])
 
