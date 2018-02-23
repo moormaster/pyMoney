@@ -190,13 +190,13 @@ class TreeNode:
 		return self.get_relative_name_to(namestart_node)
 
 	def is_contained_in_subtree(self, node):
-		if node == self:
+		if node is self:
 			return True
 
 		p = self
 		while not p.parent is None:
 			p = p.parent
-			if node == p:
+			if node is p:
 				return True
 		return False
 

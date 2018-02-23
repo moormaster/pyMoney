@@ -304,24 +304,24 @@ class TestFilterFactory(MoneyDataTestCaseBase):
 	def test_create_maxlevel_categoryfilter(self):
 		filter = self.filterFactory.create_maxlevel_categoryfilter(4)
 		categories = list(self.app.moneydata.filter_categories(filter))
-		self.assertEqual(self.categories_all, categories)
+		self.assertSetEqual(set(self.categories_all), set(categories))
 
 		filter = self.filterFactory.create_maxlevel_categoryfilter(1)
 		categories = list(self.app.moneydata.filter_categories(filter))
-		self.assertEqual(self.categories_maxlevel_1, categories)
+		self.assertSetEqual(set(self.categories_maxlevel_1), set(categories))
 
 	def test_create_subtree_categoryfilter(self):
 		filter = self.filterFactory.create_subtree_categoryfilter("All")
 		categories = list(self.app.moneydata.filter_categories(filter))
-		self.assertEqual(self.categories_all, categories)
+		self.assertSetEqual(set(self.categories_all), set(categories))
 
 		filter = self.filterFactory.create_subtree_categoryfilter("Category1")
 		categories = list(self.app.moneydata.filter_categories(filter))
-		self.assertEqual(self.categories_category1, categories)
+		self.assertSetEqual(set(self.categories_category1), set(categories))
 
 		filter = self.filterFactory.create_subtree_categoryfilter("Category2")
 		categories = list(self.app.moneydata.filter_categories(filter))
-		self.assertEqual(self.categories_category2, categories)
+		self.assertSetEqual(set(self.categories_category2), set(categories))
 
 
 if __name__ == "__main__":

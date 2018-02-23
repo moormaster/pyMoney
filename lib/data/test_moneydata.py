@@ -89,10 +89,10 @@ class TestMoneyData(unittest.TestCase):
         category = self.moneydata.get_category("Category1")
         subcategory = self.moneydata.get_category("Category1.Subcategory1")
 
-        filter_func = lambda t: t.fromcategory == category or t.tocategory == category
+        filter_func = lambda t: t.fromcategory is category or t.tocategory is category
         self.assertEqual(len(list(self.moneydata.filter_transactions(filter_func))), 1)
 
-        filter_func = lambda t: t.fromcategory == subcategory or t.tocategory == subcategory
+        filter_func = lambda t: t.fromcategory is subcategory or t.tocategory is subcategory
         self.assertEqual(len(list(self.moneydata.filter_transactions(filter_func))), 0)
 
     def test_parse_transaction(self):
@@ -195,8 +195,8 @@ class TestMoneyData(unittest.TestCase):
 
         # test renaming to a new category name
         category = self.moneydata.get_category("Category1")
-        filter_func_from = lambda t: t.fromcategory == category
-        filter_func_to = lambda t: t.tocategory == category
+        filter_func_from = lambda t: t.fromcategory is category
+        filter_func_to = lambda t: t.tocategory is category
         transactionsfrom = list(self.moneydata.filter_transactions(filter_func_from))
         transactionsto = list(self.moneydata.filter_transactions(filter_func_to))
 
@@ -213,8 +213,8 @@ class TestMoneyData(unittest.TestCase):
         self.moneydata.add_transaction("2000-01-05", "Cash.Out", "RenamedNewCategory.RenamedNewSubCategory", 1, "Unknown transaction", True)
         category = self.moneydata.get_category("Category2.Subcategory1")
         renamedsubcategory = self.moneydata.get_category("RenamedNewSubCategory")
-        filter_func_from = lambda t: t.fromcategory == renamedsubcategory
-        filter_func_to = lambda t: t.tocategory == renamedsubcategory
+        filter_func_from = lambda t: t.fromcategory is renamedsubcategory
+        filter_func_to = lambda t: t.tocategory is renamedsubcategory
         transactionsfrom = list(self.moneydata.filter_transactions(filter_func_from))
         transactionsto = list(self.moneydata.filter_transactions(filter_func_to))
 
@@ -234,8 +234,8 @@ class TestMoneyData(unittest.TestCase):
         category = self.moneydata.get_category("Category2")
         newcategory = self.moneydata.get_category("RenamedNewCategory")
         renamedsubcategory = self.moneydata.get_category("RenamedNewCategory.RenamedNewSubCategory")
-        filter_func_from = lambda t: t.fromcategory == renamedsubcategory
-        filter_func_to = lambda t: t.tocategory == renamedsubcategory
+        filter_func_from = lambda t: t.fromcategory is renamedsubcategory
+        filter_func_to = lambda t: t.tocategory is renamedsubcategory
         transactionsfrom = list(self.moneydata.filter_transactions(filter_func_from))
         transactionsto = list(self.moneydata.filter_transactions(filter_func_to))
 

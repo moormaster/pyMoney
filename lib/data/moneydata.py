@@ -127,9 +127,9 @@ class  MoneyData:
 					targetcategories.append(targetcategory.children[child])
 
 			for t in self.transactions:
-				if t.fromcategory == category:
+				if t.fromcategory is category:
 					t.fromcategory = targetcategory
-				if t.tocategory == category:
+				if t.tocategory is category:
 					t.tocategory = targetcategory
 
 			i = i+1
