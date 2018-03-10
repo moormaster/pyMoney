@@ -206,7 +206,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 		def cmd_merge():
 			try:
-				self.moneydata.merge_category(self.arguments_dict["name"], self.arguments_dict["targetname"])
+				self.moneydata.merge_to_category(self.arguments_dict["name"], self.arguments_dict["targetname"])
 				self.write()
 			except Exception as e:
 				self.print_error(e)

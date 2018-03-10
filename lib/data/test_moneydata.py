@@ -254,9 +254,9 @@ class TestMoneyData(unittest.TestCase):
 
     def test_merge_category(self):
         self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                               self.moneydata.merge_category, "UnknownCategory", "Category1")
+                               self.moneydata.merge_to_category, "UnknownCategory", "Category1")
         self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                               self.moneydata.merge_category, "Category1", "UnknownCategory")
+                               self.moneydata.merge_to_category, "Category1", "UnknownCategory")
 
         sourcecategory = self.moneydata.get_category("Category1")
         targetcategory = self.moneydata.get_category("Category2")
@@ -264,7 +264,7 @@ class TestMoneyData(unittest.TestCase):
         filter_func = lambda t: t.fromcategory.is_contained_in_subtree(targetcategory) or t.tocategory.is_contained_in_subtree(targetcategory)
         transactions = list(self.moneydata.filter_transactions(filter_func))
 
-        self.moneydata.merge_category(sourcecategory.name, targetcategory.name)
+        self.moneydata.merge_to_category(sourcecategory.name, targetcategory.name)
 
         for transaction in transactions:
             self.assertTrue(filter_func(transaction))

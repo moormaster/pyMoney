@@ -109,7 +109,7 @@ class  MoneyData:
 
 		category.rename(newname)
 
-	def merge_category(self, name, targetname):
+	def merge_to_category(self, name, targetname):
 		categories = []
 		targetcategories = []
 
@@ -137,13 +137,13 @@ class  MoneyData:
 		category = categories[0]
 		targetcategory = targetcategories[0]
 
-		targetcategory.merge_node(category)
+		targetcategory.merge_to_node(category)
 
 	def move_category(self, name, newparentname):
 		node = self.get_category(name)
 		newparent = self.get_category(newparentname)
 
-		newparent.move_node(node)
+		node.move_node_to(newparent)
 
 	def create_summary(self, transactionfilter, d_summary = None):
 		if d_summary is None:

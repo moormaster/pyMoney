@@ -40,7 +40,7 @@ class TestTreeNode(unittest.TestCase):
         self.assertTrue(l[0] is self.tree)
         
         self.assertTrue(l[1] is self.childnode1 or l[1] is self.childnode2)
-        self.assertTrue(l[4] is self.childnode1 or l[1] is self.childnode2)
+        self.assertTrue(l[4] is self.childnode1 or l[4] is self.childnode2)
         
         if l[1] is self.childnode1:
             self.assertTrue(l[2] is self.subchildnode1_1 or l[2] is self.subchildnode1_2)
@@ -101,33 +101,33 @@ class TestTreeNode(unittest.TestCase):
         assert isinstance(targetcategory, tree.TreeNode)
 
         self.assertRaisesRegex(tree.TargetNodeIsPartOfSourceNodeSubTreeException, "('Child1', 'SubChild1')",
-                               targetcategory.merge_node, sourcecategory)
+                               targetcategory.merge_to_node, sourcecategory)
 
         sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
         targetcategory = self.tree.find_first_node_by_relative_path("Child2")
 
         subcategories = targetcategory.children
 
-        targetcategory.merge_node(sourcecategory)
+        targetcategory.merge_to_node(sourcecategory)
 
         self.assertEqual(len(subcategories), 2)
         for category in subcategories:
             self.assertEqual(subcategories[category].parent, targetcategory)
 
-    def test_move(self):
+    def test_move_to(self):
         sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
         targetcategory = self.tree.find_first_node_by_relative_path("Child1.SubChild1")
 
         assert isinstance(sourcecategory, tree.TreeNode)
         assert isinstance(targetcategory, tree.TreeNode)
 
-        self.assertRaisesRegex(tree.TargetNodeIsPartOfSourceNodeSubTreeException, "('Child1', 'SubChild1')",
-                               targetcategory.move_node, sourcecategory)
+        self.assertRaisesRegex(tree.TargetNodeIsPartOfSourceNodeSubTreeException, "('SubChild1', 'Child1')",
+            sourcecategory.move_node_to, targetcategory)
 
         sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
         targetcategory = self.tree.find_first_node_by_relative_path("Child2")
 
-        targetcategory.move_node(sourcecategory)
+        sourcecategory.move_node_to(targetcategory)
 
         self.assertEqual(sourcecategory.parent, targetcategory)
 
