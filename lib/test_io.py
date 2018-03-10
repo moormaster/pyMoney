@@ -40,21 +40,23 @@ class TestTransactions(unittest.TestCase):
 
 		self.moneydata.add_transaction("2000-01-01", "Wages", "Cash.In", "1000.0", "Wages")
 		self.moneydata.add_transaction("2000-01-02", "Cash.Out", "Rent", "400.0", "My appartment")
-		self.moneydata.add_transaction("2000-01-03", "Cash.Out" ,"AnotherCategory", "100.0", "A comment")
+		self.moneydata.add_transaction("2000-01-03", "Cash.Out", "AnotherCategory", "100.0", "A comment")
 
 	def tearDown(self):
 		if os.access("pymoney.transactions", os.F_OK):
 			os.remove("pymoney.transactions")
 
 	def test_read(self):
-		lib.io.Transactions.write("pymoney.transactions", self.moneydata.transactions, self.moneydata.get_notfound_category(), False)
+		lib.io.Transactions.write("pymoney.transactions", self.moneydata.transactions,
+			self.moneydata.get_notfound_category(), False)
 
 		categorycount = len(list(self.moneydata.categorytree))
 		self.moneydata.delete_category("AnotherCategory")
 
-		self.assertEqual(categorycount-1, len(list(self.moneydata.categorytree)))
+		self.assertEqual(categorycount - 1, len(list(self.moneydata.categorytree)))
 
-		transactionparser = lib.io.parser.TransactionParser(self.moneydata.categorytree, self.moneydata.notfoundcategoryname)
+		transactionparser = lib.io.parser.TransactionParser(self.moneydata.categorytree,
+			self.moneydata.notfoundcategoryname)
 		t = lib.io.Transactions.read("pymoney.transactions", transactionparser)
 
 		foreigncategory = self.moneydata.get_category("AnotherCategory")
@@ -62,7 +64,7 @@ class TestTransactions(unittest.TestCase):
 		self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(foreigncategory))
 
 		# NOTFOUND base category shall be appeared
-		self.assertEqual(categorycount+1, len(list(self.moneydata.categorytree)))
+		self.assertEqual(categorycount + 1, len(list(self.moneydata.categorytree)))
 
 		self.assertEqual(len(t), len(self.moneydata.transactions))
 
@@ -90,7 +92,8 @@ class TestCategories(unittest.TestCase):
 			os.remove("pymoney.categories")
 
 	def test_read(self):
-		lib.io.Categories.write("pymoney.categories", self.moneydata.categorytree, self.moneydata.get_notfound_category())
+		lib.io.Categories.write("pymoney.categories", self.moneydata.categorytree,
+			self.moneydata.get_notfound_category())
 
 		c = lib.io.Categories.read("pymoney.categories")
 

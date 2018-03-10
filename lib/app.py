@@ -41,10 +41,12 @@ class PyMoney:
 		self.filterFactory.set_moneydata(moneydata)
 
 	def write(self, skipwritetransactions=False):
-		lib.io.Categories.write(self.filenames["categories"], self.moneydata.categorytree, self.moneydata.get_notfound_category())
+		lib.io.Categories.write(self.filenames["categories"], self.moneydata.categorytree,
+			self.moneydata.get_notfound_category())
 
 		if not skipwritetransactions:
-			lib.io.Transactions.write(self.filenames["transactions"], self.moneydata.transactions, self.moneydata.get_notfound_category())
+			lib.io.Transactions.write(self.filenames["transactions"], self.moneydata.transactions,
+				self.moneydata.get_notfound_category())
 
 
 class FilterFactory:
@@ -109,19 +111,25 @@ class FilterFactory:
 			month = int(filter_month)
 
 			if greater_or_equal:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month >= month)
+				transactionfilter = transactionfilter.and_concat(
+					lambda t: t.date.year > year or t.date.year == year and t.date.month >= month)
 			if lower_or_equal:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month <= month)
+				transactionfilter = transactionfilter.and_concat(
+					lambda t: t.date.year < year or t.date.year == year and t.date.month <= month)
 			if greater:
 				if filter_day:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month >= month)
+					transactionfilter = transactionfilter.and_concat(
+						lambda t: t.date.year > year or t.date.year == year and t.date.month >= month)
 				else:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month > month)
+					transactionfilter = transactionfilter.and_concat(
+						lambda t: t.date.year > year or t.date.year == year and t.date.month > month)
 			if lower:
 				if filter_day:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month <= month)
+					transactionfilter = transactionfilter.and_concat(
+						lambda t: t.date.year < year or t.date.year == year and t.date.month <= month)
 				else:
-					transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month < month)
+					transactionfilter = transactionfilter.and_concat(
+						lambda t: t.date.year < year or t.date.year == year and t.date.month < month)
 			if equal:
 				transactionfilter = transactionfilter.and_concat(lambda t: t.date.month == month)
 
@@ -129,13 +137,17 @@ class FilterFactory:
 			day = int(filter_day)
 
 			if greater_or_equal:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month > month or t.date.year == year and t.date.month == month and t.date.day >= day)
+				transactionfilter = transactionfilter.and_concat(lambda
+						t: t.date.year > year or t.date.year == year and t.date.month > month or t.date.year == year and t.date.month == month and t.date.day >= day)
 			if lower_or_equal:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month < month or t.date.year == year and t.date.month == month and t.date.day <= day)
+				transactionfilter = transactionfilter.and_concat(lambda
+						t: t.date.year < year or t.date.year == year and t.date.month < month or t.date.year == year and t.date.month == month and t.date.day <= day)
 			if greater:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year > year or t.date.year == year and t.date.month > month or t.date.year == year and t.date.month == month and t.date.day > day)
+				transactionfilter = transactionfilter.and_concat(lambda
+						t: t.date.year > year or t.date.year == year and t.date.month > month or t.date.year == year and t.date.month == month and t.date.day > day)
 			if lower:
-				transactionfilter = transactionfilter.and_concat(lambda t: t.date.year < year or t.date.year == year and t.date.month < month or t.date.year == year and t.date.month == month and t.date.day < day)
+				transactionfilter = transactionfilter.and_concat(lambda
+						t: t.date.year < year or t.date.year == year and t.date.month < month or t.date.year == year and t.date.month == month and t.date.day < day)
 			if equal:
 				transactionfilter = transactionfilter.and_concat(lambda t: t.date.day == day)
 

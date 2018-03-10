@@ -6,6 +6,7 @@ from lib.data.moneydata import NoSuchCategoryException
 import datetime
 import re
 
+
 class CategoryParser:
 	def __init__(self):
 		self.categorytree = None
@@ -72,7 +73,8 @@ class TransactionParser:
 		return nodes[0]
 
 	def get_notfound_category(self, autocreate=False):
-		category = self.categorytree.find_first_node_by_relative_path(self.categorytree.name + "." + self.notfoundcategoryname)
+		category = self.categorytree.find_first_node_by_relative_path(
+			self.categorytree.name + "." + self.notfoundcategoryname)
 
 		if category is None and autocreate:
 			category = self.categorytree.append_childnode(CategoryTreeNode(self.notfoundcategoryname))

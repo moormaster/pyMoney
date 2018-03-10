@@ -1,6 +1,7 @@
 from lib.io.formatter import CategoryFormatter
 from lib.io.parser import CategoryParser
 
+
 def read(filename):
 	categoryparser = CategoryParser()
 

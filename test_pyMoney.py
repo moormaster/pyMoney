@@ -167,5 +167,6 @@ class SummaryTest(PymoneyTestBase):
 	def test_summary_yearly(self):
 		PymoneyTestBase.pymoney_main(["summary", "yearly", "Category1"])
 
+
 if __name__ == "__main__":
 	unittest.main()

@@ -93,7 +93,6 @@ class TestTableFormatter(unittest.TestCase):
 							  "170.33",
 							  "185.23"], list(lines))
 
-
 	def test_format_right_aligned_column(self):
 		column = self.tableformatter.add_column(0)
 		column.set_alignment(">")
@@ -103,7 +102,6 @@ class TestTableFormatter(unittest.TestCase):
 							  "            Ann",
 							  "          Marie",
 							  "Peter-Jean-Paul"], list(lines))
-
 
 	def test_format_maxwidth_column(self):
 		column = self.tableformatter.add_column(0)
@@ -127,6 +125,7 @@ class TestTableFormatter(unittest.TestCase):
 							  "Ann             25  165.12",
 							  "Marie           21  170.33",
 							  "Peter-Jean-Paul 35  185.23"], list(lines))
+
 
 if __name__ == "__main__":
 	unittest.main()

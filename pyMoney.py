@@ -5,6 +5,7 @@ import lib.formatter
 import lib.data
 import lib.data.filter
 import lib.data.moneydata
+import lib.data.tree
 import lib.io
 
 import argparse
@@ -32,7 +33,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		elif isinstance(error, lib.data.moneydata.CategoryIsTopCategoryException):
 			value = "top category may not be deleted: " + error.category.get_unique_name()
 		elif isinstance(error, lib.data.moneydata.AmbiguousCategoryNameException):
-		    value = "category name " + error.name + " is ambiguous: " + str(list(map(lambda c: c.get_unique_name(), error.matching_categories)))
+			value = "category name " + error.name + " is ambiguous: " + str(list(map(lambda c: c.get_unique_name(), error.matching_categories)))
 		elif isinstance(error, lib.data.tree.TargetNodeIsPartOfSourceNodeSubTreeException):
 			value = "cannot move source node into its own subtree: " + str(error.sourcenode.get_unique_name())
 		else:
@@ -136,7 +137,6 @@ class PyMoneyConsole(lib.app.PyMoney):
 					print("")
 
 				is_first_line = False
-
 
 		def cmd_delete():
 			self.moneydata.delete_transaction(self.arguments_dict["index"])
@@ -324,11 +324,13 @@ class PyMoneyConsole(lib.app.PyMoney):
 				else:
 					displaymonth = 12
 				
-				tabledata.append([str(datetime.date(year, displaymonth, displayday)), name,
-								  d_summary[key].amount,
-								  d_summary[key].sumin,
-								  d_summary[key].sumout,
-								  d_summary[key].sum])
+				tabledata.append([
+					str(datetime.date(year, displaymonth, displayday)),
+					name,
+					d_summary[key].amount,
+					d_summary[key].sumin,
+					d_summary[key].sumout,
+					d_summary[key].sum])
 
 				month += diff_months
 
@@ -379,8 +381,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 			try:
 				category = self.moneydata.get_category(self.arguments_dict["category"])
 			except Exception as e:
-			    self.print_error(e)
-			    return
+				self.print_error(e)
+				return
 
 			sub_time_interval_summary(category, mindate.year, mindate.month, 1, maxdate, self.arguments_dict["balance"])
 
@@ -397,8 +399,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 			try:
 				category = self.moneydata.get_category(self.arguments_dict["category"])
 			except Exception as e:
-			    self.print_error(e)
-			    return
+				self.print_error(e)
+				return
 
 			sub_time_interval_summary(category, mindate.year, 1, 12, maxdate, self.arguments_dict["balance"])
 

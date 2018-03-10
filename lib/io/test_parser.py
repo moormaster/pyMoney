@@ -15,7 +15,9 @@ class TestTransactionParser(unittest.TestCase):
 
 	def test_get_category_unkown_category(self):
 		self.parser.autocreatenotfoundcategory = False
-		self.assertRaisesRegex(lib.data.moneydata.NoSuchCategoryException, "UnknownCategory",
+		self.assertRaisesRegex(
+			lib.data.moneydata.NoSuchCategoryException,
+			"UnknownCategory",
 			self.parser.get_category, "UnknownCategory")
 
 	def test_get_category(self):
@@ -33,6 +35,7 @@ class TestTransactionParser(unittest.TestCase):
 		notfoundcategory = self.parser.get_notfound_category()
 		newcategory = notfoundcategory.append_childnode(lib.data.moneydata.CategoryTreeNode("NewCategory1"))
 		self.assertTrue(newcategory.is_contained_in_subtree(notfoundcategory))
+
 
 if __name__ == "__main__":
 	unittest.main()

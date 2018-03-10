@@ -18,7 +18,6 @@ class CategoryNameFormatter:
 
 		pass
 
-
 	def set_strategy(self, strategy):
 		if not strategy in [self.STRATEGY_NAME, self.STRATEGY_UNIQUE_NAME, self.STRATEGY_FULL_NAME]:
 			raise "invalid strategy: " + str(strategy)
@@ -28,13 +27,11 @@ class CategoryNameFormatter:
 
 		self.strategy = strategy
 
-
 	def set_indent_with_tree_level(self, flag):
 		if not flag:
 			self.indentWithTreeLevel = False
 		else:
 			self.indentWithTreeLevel = True
-
 
 	def format(self, category):
 		assert isinstance(category, lib.data.moneydata.CategoryTreeNode)
@@ -49,7 +46,7 @@ class CategoryNameFormatter:
 
 		formattedvalue = self.d_namecache[id(category)]
 		if self.indentWithTreeLevel:
-			formattedvalue = "  "*category.get_depth() + formattedvalue
+			formattedvalue = "  " * category.get_depth() + formattedvalue
 
 		return formattedvalue
 
@@ -72,7 +69,7 @@ class TableFormatter:
 		if len(string) <= max_length:
 			return string
 
-		return string[0:max_length-4] + "..." + string[-1]
+		return string[0:max_length - 4] + "..." + string[-1]
 
 	def get_formatted_cell_value(self, column, linedata):
 		assert isinstance(column, TableFormatterColumn)
@@ -105,7 +102,7 @@ class TableFormatter:
 			value = self.get_formatted_headercell_value(column, headerdata)
 			linevalues.append(value)
 
-			index = index+1
+			index = index + 1
 
 		datawidth = list(map(lambda s: len(s), linevalues))
 
@@ -117,7 +114,7 @@ class TableFormatter:
 				value = self.get_formatted_cell_value(column, linedata)
 				linevalues.append(value)
 
-				index = index+1
+				index = index + 1
 
 			linedatawidth = list(map(lambda s: len(s), linevalues))
 
@@ -143,7 +140,7 @@ class TableFormatter:
 			previous_column_width.append(column.get_width())
 			column.set_width(datawidth[index])
 
-			index = index+1
+			index = index + 1
 
 		# last column does not have a minimum width (if left aligned and string)
 		if not column is None and column.get_alignment() == "<":
@@ -161,7 +158,7 @@ class TableFormatter:
 			else:
 				line = line + " " + value
 
-			index = index+1
+			index = index + 1
 
 		lines.append(line)
 
@@ -176,7 +173,7 @@ class TableFormatter:
 				else:
 					line = line + " " + value
 
-				index = index+1
+				index = index + 1
 
 			lines.append(line)
 
@@ -187,9 +184,7 @@ class TableFormatter:
 
 			column.set_width(previous_column_width[index])
 
-
-			index = index+1
-
+			index = index + 1
 
 		return lines
 

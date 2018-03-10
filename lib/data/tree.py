@@ -19,7 +19,7 @@ class TreeNode:
 		return res
 
 	def format(self, fullname=False):
-		_depth = "\t"*self.get_depth()
+		_depth = "\t" * self.get_depth()
 
 		if fullname:
 			_name = self.get_full_name()
@@ -27,7 +27,6 @@ class TreeNode:
 			_name = self.name
 
 		return _depth + _name
-
 
 	def append_childnode(self, node):
 		assert isinstance(node, TreeNode)
@@ -67,7 +66,7 @@ class TreeNode:
 			children.append(targetnode.children[c])
 
 		for c in children:
-			if c.name in  self.children:
+			if c.name in self.children:
 				self.children[c.name].merge_to_node(c)
 			else:
 				targetnode.remove_childnode(c)

@@ -4,6 +4,7 @@ from lib.io.formatter import TransactionFormatter
 import csv
 import os
 
+
 def read(filename, transactionparser):
 	with open(filename) as f:
 		r = csv.DictReader(f)

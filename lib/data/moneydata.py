@@ -2,7 +2,7 @@ from lib.data import filter
 from lib.data import tree
 
 
-class  MoneyData:
+class MoneyData:
 	def __init__(self):
 		self.categorytree = CategoryTreeNode("All")
 		self.transactions = []
@@ -20,7 +20,8 @@ class  MoneyData:
 			if not force:
 				raise e
 
-		newtransaction = self.parse_transaction(str_date, str_fromcategory, str_tocategory, str_amount, str_comment, force)
+		newtransaction = self.parse_transaction(str_date, str_fromcategory, str_tocategory, str_amount, str_comment,
+			force)
 		self.transactions.append(newtransaction)
 
 		return newtransaction
@@ -28,8 +29,8 @@ class  MoneyData:
 	def delete_transaction(self, index):
 		del self.transactions[index]
 
-	def parse_transaction(	self, str_date, str_categoryin, str_categoryout, str_amount, str_comment,
-							autocreatenotfoundcategory=False, dateformat="%Y-%m-%d"):
+	def parse_transaction(self, str_date, str_categoryin, str_categoryout, str_amount, str_comment,
+			autocreatenotfoundcategory=False, dateformat="%Y-%m-%d"):
 		from lib.io.parser import TransactionParser
 		parser = TransactionParser(self.categorytree, self.notfoundcategoryname, dateformat)
 		parser.autocreatenotfoundcategory = autocreatenotfoundcategory
@@ -116,8 +117,8 @@ class  MoneyData:
 		categories.append(self.get_category(name))
 		targetcategories.append(self.get_category(targetname))
 
-		i=0
-		while i<len(categories):
+		i = 0
+		while i < len(categories):
 			category = categories[i]
 			targetcategory = targetcategories[i]
 
@@ -132,7 +133,7 @@ class  MoneyData:
 				if t.tocategory is category:
 					t.tocategory = targetcategory
 
-			i = i+1
+			i = i + 1
 
 		category = categories[0]
 		targetcategory = targetcategories[0]
@@ -145,10 +146,10 @@ class  MoneyData:
 
 		node.move_node_to(newparent)
 
-	def create_summary(self, transactionfilter, d_summary = None):
+	def create_summary(self, transactionfilter, d_summary=None):
 		if d_summary is None:
-			d_summary = {}		# resulting map unqique category name -> NodeSummary() object
-		d_unique_name = {}		# cached category.get_unique_name() results
+			d_summary = {}  # resulting map unqique category name -> NodeSummary() object
+		d_unique_name = {}  # cached category.get_unique_name() results
 
 		for c in self.categorytree:
 			unique_name = c.get_unique_name()
@@ -172,8 +173,8 @@ class  MoneyData:
 			c = t.fromcategory
 			while not c is None:
 				key = d_unique_name[id(c)]
-				d_summary[key].sumcountout = d_summary[key].sumcountout+1
-				d_summary[key].sumcount = d_summary[key].sumcount+1
+				d_summary[key].sumcountout = d_summary[key].sumcountout + 1
+				d_summary[key].sumcount = d_summary[key].sumcount + 1
 				d_summary[key].sumout -= t.amount
 				d_summary[key].sum -= t.amount
 				c = c.parent
@@ -181,8 +182,8 @@ class  MoneyData:
 			c = t.tocategory
 			while not c is None:
 				key = d_unique_name[id(c)]
-				d_summary[key].sumcountin = d_summary[key].sumcountin+1
-				d_summary[key].sumcount = d_summary[key].sumcount+1
+				d_summary[key].sumcountin = d_summary[key].sumcountin + 1
+				d_summary[key].sumcount = d_summary[key].sumcount + 1
 				d_summary[key].sumin += t.amount
 				d_summary[key].sum += t.amount
 				c = c.parent
@@ -190,16 +191,13 @@ class  MoneyData:
 		return d_summary
 
 
-
-
-
 class Transaction(object):
 	fields = ["date", "fromcategory", "tocategory", "amount", "comment"]
 	__slots__ = fields
 
 	def __init__(self, date, fromcategory, tocategory, amount, comment):
-		assert(isinstance(fromcategory, CategoryTreeNode))
-		assert(isinstance(tocategory, CategoryTreeNode))
+		assert (isinstance(fromcategory, CategoryTreeNode))
+		assert (isinstance(tocategory, CategoryTreeNode))
 
 		self.date = date
 		self.fromcategory = fromcategory
@@ -208,11 +206,14 @@ class Transaction(object):
 		self.comment = comment
 
 	def __str__(self):
-		return str(self.date) + " " + self.fromcategory.get_unique_name() + " " + self.tocategory.get_unique_name() + " " + str(self.amount) + " " + self.comment
+		return str(
+			self.date) + " " + self.fromcategory.get_unique_name() + " " + self.tocategory.get_unique_name() + " " + str(
+			self.amount) + " " + self.comment
+
 
 class NodeSummary(object):
 	__slots__ = ["amountin", "amountout", "amount", "sumcountin", "sumcountout", "sumcount", "sumin", "sumout", "sum"]
-	
+
 	def __init__(self):
 		self.amountin = 0
 		self.amountout = 0
@@ -225,8 +226,9 @@ class NodeSummary(object):
 		self.sumin = 0
 		self.sumout = 0
 		self.sum = 0
-	
+
 		pass
+
 
 class CategoryTreeNode(tree.TreeNode):
 	def __init__(self, name):
@@ -246,14 +248,14 @@ class CategoryTreeNode(tree.TreeNode):
 		return tree.TreeNode.append_childnode(self, node)
 
 	def format(self, fullname=False):
-		_depth = "  "*self.get_depth()
+		_depth = "  " * self.get_depth()
 
 		if fullname:
 			_name = self.get_full_name()
 		else:
 			_name = self.name
 
-		return _depth  + _name
+		return _depth + _name
 
 
 class AmbiguousCategoryNameException(Exception):
