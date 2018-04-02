@@ -163,7 +163,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 				category_name_formatter.set_indent_with_tree_level(False)
 
-			for c in self.moneydata.categorytree:
+			for c in self.moneydata.get_categories_iterator():
 				print(category_name_formatter.format(c))
 
 		def cmd_list():
@@ -171,7 +171,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			if self.arguments_dict["fullnamecategories"]:
 				category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 
-			for category in self.moneydata.categorytree:
+			for category in self.moneydata.get_categories_iterator():
 				_category = category_name_formatter.format(category)
 				print(_category)
 			print("")
@@ -254,7 +254,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			headerdata = ["node", "amount", "sum +", "sum -", "sum"]
 			tabledata = []
 
-			for category in lib.data.filter.FilterIterator(self.moneydata.categorytree.__iter__(), categoryfilter):
+			for category in lib.data.filter.FilterIterator(self.moneydata.get_categories_iterator(), categoryfilter):
 				key = category.get_unique_name()
 				name = category_name_formatter.format(category)
 				if not self.arguments_dict["showempty"] and d_summary[key].sumcount == 0:
@@ -371,7 +371,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		def cmd_monthly():
 			mindate = None
 			maxdate = None
-			for transaction in self.moneydata.transactions:
+			for transaction in self.moneydata.get_transactions_iterator():
 				if not mindate or transaction.date < mindate:
 					mindate = transaction.date
 
@@ -389,7 +389,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		def cmd_yearly():
 			mindate = None
 			maxdate = None
-			for transaction in self.moneydata.transactions:
+			for transaction in self.moneydata.get_transactions_iterator():
 				if not mindate or transaction.date < mindate:
 					mindate = transaction.date
 

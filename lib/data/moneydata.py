@@ -9,6 +9,12 @@ class MoneyData:
 
 		self.notfoundcategoryname = "NOTFOUND"
 
+	def get_categories_iterator(self):
+		return self.categorytree.__iter__()
+
+	def get_transactions_iterator(self):
+		return self.transactions.__iter__()
+
 	def filter_transactions(self, filter_func):
 		return filter.FilterIterator(self.transactions.__iter__(), filter_func)
 
