@@ -14,14 +14,14 @@ import datetime
 import sys
 
 
-class PyMoneyConsole(lib.app.PyMoney):
+class PyMoneyConsole:
 	def __init__(self, argv):
 		self.argumentparser = self.get_argument_parser()
 		self.arguments = self.argumentparser.parse_args(argv)
 		self.arguments_dict = self.arguments.__dict__
 
-		lib.app.PyMoney.__init__(self, self.arguments_dict["fileprefix"])
-		self.read()
+		self.pyMoney = lib.app.PyMoney(self.arguments_dict["fileprefix"])
+		self.pyMoney.read()
 
 	def print_error(self, error):
 		value = None
@@ -45,22 +45,22 @@ class PyMoneyConsole(lib.app.PyMoney):
 	def cmdgroup_transaction(self, parser):
 		def cmd_add():
 			try:
-				self.moneydata.add_transaction(	self.arguments_dict["date"], self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"], self.arguments_dict["amount"],
+				self.pyMoney.get_moneydata().add_transaction(	self.arguments_dict["date"], self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"], self.arguments_dict["amount"],
 								self.arguments_dict["comment"], self.arguments_dict["force"])
-				self.write()
+				self.pyMoney.write()
 			except Exception as e:
 				self.print_error(e)
 
 		def cmd_list():
-			transactionfilter = self.filterFactory.create_and_date_transactionfilter(self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
+			transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
 			summarycategory = None
 
 			if self.arguments_dict["category"]:
 				try:
 					transactionfilter = transactionfilter.and_concat(
-						self.filterFactory.create_or_category_transactionfilter(self.arguments_dict["category"], self.arguments_dict["category"])
+						self.pyMoney.filterFactory.create_or_category_transactionfilter(self.arguments_dict["category"], self.arguments_dict["category"])
 					)
-					summarycategory = self.moneydata.get_category(self.arguments_dict["category"])
+					summarycategory = self.pyMoney.get_moneydata().get_category(self.arguments_dict["category"])
 				except Exception as e:
 					self.print_error(e)
 					return
@@ -68,13 +68,13 @@ class PyMoneyConsole(lib.app.PyMoney):
 			if self.arguments_dict["fromcategory"] or self.arguments_dict["tocategory"]:
 				try:
 					transactionfilter = transactionfilter.and_concat(
-						self.filterFactory.create_and_category_transactionfilter(self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"])
+						self.pyMoney.filterFactory.create_and_category_transactionfilter(self.arguments_dict["fromcategory"], self.arguments_dict["tocategory"])
 					)
 
 					if self.arguments_dict["fromcategory"]:
-						summarycategory = self.moneydata.get_category(self.arguments_dict["fromcategory"])
+						summarycategory = self.pyMoney.get_moneydata().get_category(self.arguments_dict["fromcategory"])
 					if self.arguments_dict["tocategory"]:
-						summarycategory = self.moneydata.get_category(self.arguments_dict["tocategory"])
+						summarycategory = self.pyMoney.get_moneydata().get_category(self.arguments_dict["tocategory"])
 				except Exception as e:
 					self.print_error(e)
 					return
@@ -88,7 +88,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				fromcategory_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 				tocategory_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 
-			iterator = self.moneydata.filter_transactions(transactionfilter)
+			iterator = self.pyMoney.get_moneydata().filter_transactions(transactionfilter)
 			for d in iterator:
 				assert isinstance(d.fromcategory, lib.data.moneydata.CategoryTreeNode)
 				assert isinstance(d.tocategory, lib.data.moneydata.CategoryTreeNode)
@@ -104,7 +104,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 				tabledata.append([_index, _date, _fromcategory, _tocategory, _amount, _comment])
 
-			d_summary = self.moneydata.create_summary(transactionfilter)
+			d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter)
 
 			if summarycategory:
 				_summarycategory = tocategory_name_formatter.format(summarycategory)
@@ -139,8 +139,8 @@ class PyMoneyConsole(lib.app.PyMoney):
 				is_first_line = False
 
 		def cmd_delete():
-			self.moneydata.delete_transaction(self.arguments_dict["index"])
-			self.write()
+			self.pyMoney.get_moneydata().delete_transaction(self.arguments_dict["index"])
+			self.pyMoney.write()
 
 		d_commands = {
 			"add": cmd_add,
@@ -163,7 +163,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 				category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 				category_name_formatter.set_indent_with_tree_level(False)
 
-			for c in self.moneydata.get_categories_iterator():
+			for c in self.pyMoney.get_moneydata().get_categories_iterator():
 				print(category_name_formatter.format(c))
 
 		def cmd_list():
@@ -171,43 +171,43 @@ class PyMoneyConsole(lib.app.PyMoney):
 			if self.arguments_dict["fullnamecategories"]:
 				category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 
-			for category in self.moneydata.get_categories_iterator():
+			for category in self.pyMoney.get_moneydata().get_categories_iterator():
 				_category = category_name_formatter.format(category)
 				print(_category)
 			print("")
 
 		def cmd_add():
 			try:
-				self.moneydata.add_category(self.arguments_dict["parentname"], self.arguments_dict["name"])
-				self.write()
+				self.pyMoney.get_moneydata().add_category(self.arguments_dict["parentname"], self.arguments_dict["name"])
+				self.pyMoney.write()
 			except Exception as e:
 				self.print_error(e)
 
 		def cmd_delete():
 			try:
-				self.moneydata.delete_category(self.arguments_dict["name"])
-				self.write()
+				self.pyMoney.get_moneydata().delete_category(self.arguments_dict["name"])
+				self.pyMoney.write()
 			except Exception as e:
 				self.print_error(e)
 
 		def cmd_move():
 			try:
-				self.moneydata.move_category(self.arguments_dict["name"], self.arguments_dict["newparentname"])
-				self.write()
+				self.pyMoney.get_moneydata().move_category(self.arguments_dict["name"], self.arguments_dict["newparentname"])
+				self.pyMoney.write()
 			except Exception as e:
 				self.print_error(e)
 
 		def cmd_rename():
 			try:
-				self.moneydata.rename_category(self.arguments_dict["name"], self.arguments_dict["newname"])
-				self.write()
+				self.pyMoney.get_moneydata().rename_category(self.arguments_dict["name"], self.arguments_dict["newname"])
+				self.pyMoney.write()
 			except Exception as e:
 				self.print_error(e)
 
 		def cmd_merge():
 			try:
-				self.moneydata.merge_to_category(self.arguments_dict["name"], self.arguments_dict["targetname"])
-				self.write()
+				self.pyMoney.get_moneydata().merge_to_category(self.arguments_dict["name"], self.arguments_dict["targetname"])
+				self.pyMoney.write()
 			except Exception as e:
 				self.print_error(e)
 
@@ -228,12 +228,12 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 	def cmdgroup_summary(self, parser):
 		def cmd_categories():
-			transactionfilter = self.filterFactory.create_and_date_transactionfilter(self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
+			transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(self.arguments_dict["year"], self.arguments_dict["month"], self.arguments_dict["day"])
 
 			if self.arguments_dict["cashflowcategory"]:
 				try:
 					transactionfilter = transactionfilter.and_concat(
-						self.filterFactory.create_or_category_transactionfilter(self.arguments_dict["cashflowcategory"], self.arguments_dict["cashflowcategory"])
+						self.pyMoney.filterFactory.create_or_category_transactionfilter(self.arguments_dict["cashflowcategory"], self.arguments_dict["cashflowcategory"])
 					)
 				except Exception as e:
 					self.print_error(e)
@@ -241,12 +241,12 @@ class PyMoneyConsole(lib.app.PyMoney):
 
 			categoryfilter = lib.data.filter.Filter(lambda c: True)
 			if self.arguments_dict["maxlevel"]:
-				categoryfilter = categoryfilter.and_concat(self.filterFactory.create_maxlevel_categoryfilter(self.arguments_dict["maxlevel"]))
+				categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_maxlevel_categoryfilter(self.arguments_dict["maxlevel"]))
 
 			if self.arguments_dict["category"]:
-				categoryfilter = categoryfilter.and_concat(self.filterFactory.create_subtree_categoryfilter(self.arguments_dict["category"]))
+				categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_subtree_categoryfilter(self.arguments_dict["category"]))
 
-			d_summary = self.moneydata.create_summary(transactionfilter)
+			d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter)
 			category_name_formatter = lib.formatter.CategoryNameFormatter()
 			category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
 			category_name_formatter.set_indent_with_tree_level(True)
@@ -254,7 +254,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 			headerdata = ["node", "amount", "sum +", "sum -", "sum"]
 			tabledata = []
 
-			for category in lib.data.filter.FilterIterator(self.moneydata.get_categories_iterator(), categoryfilter):
+			for category in lib.data.filter.FilterIterator(self.pyMoney.get_moneydata().get_categories_iterator(), categoryfilter):
 				key = category.get_unique_name()
 				name = category_name_formatter.format(category)
 				if not self.arguments_dict["showempty"] and d_summary[key].sumcount == 0:
@@ -307,16 +307,16 @@ class PyMoneyConsole(lib.app.PyMoney):
 			d_summary = None
 			while datetime.date(year, month, 1) <= maxdate:
 				if diff_months == 1:
-					transactionfilter = self.filterFactory.create_and_date_transactionfilter(str(year), str(month), None)
+					transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(str(year), str(month), None)
 				elif diff_months == 12:
-					transactionfilter = self.filterFactory.create_and_date_transactionfilter(str(year), None, None)
+					transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(str(year), None, None)
 				else:
 					raise Exception("diff_months value not supported: " + str(diff_months))
 
 				if calculate_balance:
-					d_summary = self.moneydata.create_summary(transactionfilter, d_summary)
+					d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, d_summary)
 				else:
-					d_summary = self.moneydata.create_summary(transactionfilter, None)
+					d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, None)
 
 				displayday = calendar.monthrange(year, month)[1]
 				if diff_months != 12:
@@ -371,7 +371,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		def cmd_monthly():
 			mindate = None
 			maxdate = None
-			for transaction in self.moneydata.get_transactions_iterator():
+			for transaction in self.pyMoney.get_moneydata().get_transactions_iterator():
 				if not mindate or transaction.date < mindate:
 					mindate = transaction.date
 
@@ -379,7 +379,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 					maxdate = transaction.date
 
 			try:
-				category = self.moneydata.get_category(self.arguments_dict["category"])
+				category = self.pyMoney.get_moneydata().get_category(self.arguments_dict["category"])
 			except Exception as e:
 				self.print_error(e)
 				return
@@ -389,7 +389,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 		def cmd_yearly():
 			mindate = None
 			maxdate = None
-			for transaction in self.moneydata.get_transactions_iterator():
+			for transaction in self.pyMoney.get_moneydata().get_transactions_iterator():
 				if not mindate or transaction.date < mindate:
 					mindate = transaction.date
 
@@ -397,7 +397,7 @@ class PyMoneyConsole(lib.app.PyMoney):
 					maxdate = transaction.date
 
 			try:
-				category = self.moneydata.get_category(self.arguments_dict["category"])
+				category = self.pyMoney.get_moneydata().get_category(self.arguments_dict["category"])
 			except Exception as e:
 				self.print_error(e)
 				return

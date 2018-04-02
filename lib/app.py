@@ -27,6 +27,9 @@ class PyMoney:
 			"categories": self.fileprefix + ".categories"
 		}
 
+	def get_moneydata(self):
+		return self.moneydata
+
 	def read(self):
 		moneydata = lib.data.moneydata.MoneyData()
 
