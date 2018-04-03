@@ -22,6 +22,9 @@ class PyMoneyCompletion:
 		self.pyMoney = pyMoney
 
 	def complete_transaction(self, text, line, begidx, endidx):
+		if endidx < len(line):
+			return
+
 		argv = shlex.split(line)
 
 		if len(argv) == 1 or line.endswith(" "):
@@ -48,12 +51,17 @@ class PyMoneyCompletion:
 				elif len(argv) >= 3:
 					if argv[-1].startswith("--"):
 						return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+					elif argv[-1].startswith("-"):
+						return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
 					else:
 						return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
 			elif len(argv) == 2:
 				return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'list', 'delete']))
 
 	def complete_category(self, text, line, begidx, endidx):
+		if endidx < len(line):
+			return
+
 		argv = shlex.split(line)
 
 		if len(argv) == 1 or line.endswith(" "):
@@ -90,12 +98,17 @@ class PyMoneyCompletion:
 
 					if argv[-1].startswith("--"):
 						return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+					elif argv[-1].startswith("-"):
+						return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
 					else:
 						return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
 			elif len(argv) == 2:
 				return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'delete', 'list', 'merge', 'move', 'rename', 'tree']))
 
 	def complete_summary(self, text, line, begidx, endidx):
+		if endidx < len(line):
+			return
+
 		argv = shlex.split(line)
 
 		if len(argv) == 1 or line.endswith(" "):
@@ -128,6 +141,8 @@ class PyMoneyCompletion:
 
 					if argv[-1].startswith("--"):
 						return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+					elif argv[-1].startswith("-"):
+						return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
 					else:
 						return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
 			elif len(argv) == 2:
