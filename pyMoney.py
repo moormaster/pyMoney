@@ -37,6 +37,8 @@ class PyMoneyCompletion:
 
 					return list(categorynames)
 			elif argv[1] == "list":
+				parameters = ['category', 'fromcategory', 'tocategory']
+
 				if argv[-2] in ["--category", "--fromcategory", "--tocategory"]:
 					categories = self.pyMoney.get_moneydata().get_categories_iterator()
 					categorynames = map(lambda c: c.get_unique_name(), categories)
@@ -44,8 +46,10 @@ class PyMoneyCompletion:
 
 					return list(categorynames)
 				elif len(argv) >= 3:
-					# TODO: fix autocompletion doubles -- to ----
-					return list(filter(lambda v: v.startswith(argv[-1]), ['--category', '--fromcategory', '--tocategory']))
+					if argv[-1].startswith("--"):
+						return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+					else:
+						return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
 			elif len(argv) == 2:
 				return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'list', 'delete']))
 
@@ -82,7 +86,12 @@ class PyMoneyCompletion:
 					return list(categorynames)
 			elif argv[1] == "list" or argv[1] == "tree":
 				if len(argv) == 3:
-					return list(filter(lambda v: v.startswith(argv[-1]), ['--fullnamecategories']))
+					parameters = ['fullnamecategories']
+
+					if argv[-1].startswith("--"):
+						return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+					else:
+						return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
 			elif len(argv) == 2:
 				return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'delete', 'list', 'merge', 'move', 'rename', 'tree']))
 
@@ -94,6 +103,8 @@ class PyMoneyCompletion:
 
 		if len(argv) >= 2:
 			if argv[1] == "categories":
+				parameters = ['category', 'cashflowcategory', 'showempty',  'maxlevel']
+
 				if argv[-2] in ["--category", "--cashflowcategory"]:
 					categories = self.pyMoney.get_moneydata().get_categories_iterator()
 					categorynames = map(lambda c: c.get_unique_name(), categories)
@@ -101,8 +112,10 @@ class PyMoneyCompletion:
 
 					return list(categorynames)
 				elif len(argv) >= 3:
-					# TODO: fix autocompletion doubles -- to ----
-					return list(filter(lambda v: v.startswith(argv[-1]), ['--category', '--cashflowcategory', '--showempty',  '--maxlevel']))
+					if argv[-1].startswith("--"):
+						return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+					else:
+						return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
 			elif argv[1] == "monthly" or argv[1] == "yearly":
 				if len(argv) == 3:
 					categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -111,8 +124,12 @@ class PyMoneyCompletion:
 
 					return list(categorynames)
 				if len(argv) == 4:
-					# TODO: fix autocompletion doubles -- to ----
-					return list(filter(lambda v: v.startswith(argv[-1]), ['--balance']))
+					parameters = ['balance']
+
+					if argv[-1].startswith("--"):
+						return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+					else:
+						return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
 			elif len(argv) == 2:
 				return list(filter(lambda v: v.startswith(argv[-1]), ['categories', 'monthly', 'yearly']))
 
