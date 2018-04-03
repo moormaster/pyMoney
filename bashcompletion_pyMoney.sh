@@ -109,10 +109,11 @@ _pymoney_category()
 			;;
 
 		list | tree)
+			COMPREPLY=( $( compgen -W "--fullnamecategories" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 	        ;;
 
 		*)
-			COMPREPLY=( $( compgen -W "--fullnamecategories add delete merge move rename list tree" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "add delete merge move rename list tree" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
@@ -180,8 +181,11 @@ _pymoney()
 			_pymoney_summary 2
 			;;
 
+		--script)
+			;;
+
 		*)
-			COMPREPLY=( $( compgen -W "transaction category summary" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "transaction category summary --script" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
