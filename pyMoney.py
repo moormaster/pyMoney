@@ -17,38 +17,9 @@ import shlex
 import sys
 
 
-class PyMoneyConsole(cmd.Cmd):
-	def __init__(self, argv):
-		cmd.Cmd.__init__(self)
-
-		self.prompt = '(pyMoney) '
-
-		self.stopcmdloop = False
-
-		parser = self.get_argument_parser()
-		self.arguments = parser.parse_args(argv)
-
-		self.pyMoney = lib.app.PyMoney(self.arguments.__dict__["fileprefix"])
-		self.pyMoney.read()
-
-	def print_error(self, error):
-		value = None
-
-		if isinstance(error, lib.data.moneydata.NoSuchCategoryException):
-			value = "category not found: " + error.name
-		elif isinstance(error, lib.data.moneydata.DuplicateCategoryException):
-			value = "category already exists: " + error.category.get_unique_name()
-		elif isinstance(error, lib.data.moneydata.CategoryIsTopCategoryException):
-			value = "top category may not be deleted: " + error.category.get_unique_name()
-		elif isinstance(error, lib.data.moneydata.AmbiguousCategoryNameException):
-			value = "category name " + error.name + " is ambiguous: " + str(list(map(lambda c: c.get_unique_name(), error.matching_categories)))
-		elif isinstance(error, lib.data.tree.TargetNodeIsPartOfSourceNodeSubTreeException):
-			value = "cannot move source node into its own subtree: " + str(error.sourcenode.get_unique_name())
-		else:
-			value = "unhandled exception: " + error.__class__.__module__ + "." + error.__class__.__name__ + ": " + str(error)
-
-		if not value is None:
-			print(value, file=sys.stderr)
+class PyMoneyCompletion:
+	def __init__(self, pyMoney):
+		self.pyMoney = pyMoney
 
 	def complete_transaction(self, text, line, begidx, endidx):
 		argv = shlex.split(line)
@@ -78,6 +49,114 @@ class PyMoneyConsole(cmd.Cmd):
 			elif len(argv) == 2:
 				return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'list', 'delete']))
 
+	def complete_category(self, text, line, begidx, endidx):
+		argv = shlex.split(line)
+
+		if len(argv) == 1 or line.endswith(" "):
+			argv.append("")
+
+		if len(argv) >= 2:
+			if argv[1] == "add":
+				# parent-category
+				if len(argv) == 3:
+					categories = self.pyMoney.get_moneydata().get_categories_iterator()
+					categorynames = map(lambda c: c.get_unique_name(), categories)
+					categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+					return list(categorynames)
+			elif argv[1] == "delete" or argv[1] == "rename":
+				# category
+				if len(argv) == 3:
+					categories = self.pyMoney.get_moneydata().get_categories_iterator()
+					categorynames = map(lambda c: c.get_unique_name(), categories)
+					categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+					return list(categorynames)
+			elif argv[1] == "merge" or argv[1] == "move":
+				# category, target-category
+				if len(argv) == 3 or len(argv) == 4:
+					categories = self.pyMoney.get_moneydata().get_categories_iterator()
+					categorynames = map(lambda c: c.get_unique_name(), categories)
+					categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+					return list(categorynames)
+			elif argv[1] == "list" or argv[1] == "tree":
+				if len(argv) == 3:
+					return list(filter(lambda v: v.startswith(argv[-1]), ['--fullnamecategories']))
+			elif len(argv) == 2:
+				return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'delete', 'list', 'merge', 'move', 'rename', 'tree']))
+
+	def complete_summary(self, text, line, begidx, endidx):
+		argv = shlex.split(line)
+
+		if len(argv) == 1 or line.endswith(" "):
+			argv.append("")
+
+		if len(argv) >= 2:
+			if argv[1] == "categories":
+				if argv[-2] in ["--category", "--cashflowcategory"]:
+					categories = self.pyMoney.get_moneydata().get_categories_iterator()
+					categorynames = map(lambda c: c.get_unique_name(), categories)
+					categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+					return list(categorynames)
+				elif len(argv) >= 3:
+					# TODO: fix autocompletion doubles -- to ----
+					return list(filter(lambda v: v.startswith(argv[-1]), ['--category', '--cashflowcategory', '--showempty',  '--maxlevel']))
+			elif argv[1] == "monthly" or argv[1] == "yearly":
+				if len(argv) == 3:
+					categories = self.pyMoney.get_moneydata().get_categories_iterator()
+					categorynames = map(lambda c: c.get_unique_name(), categories)
+					categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+					return list(categorynames)
+				if len(argv) == 4:
+					# TODO: fix autocompletion doubles -- to ----
+					return list(filter(lambda v: v.startswith(argv[-1]), ['--balance']))
+			elif len(argv) == 2:
+				return list(filter(lambda v: v.startswith(argv[-1]), ['categories', 'monthly', 'yearly']))
+
+class PyMoneyConsole(cmd.Cmd):
+	def __init__(self, argv):
+		cmd.Cmd.__init__(self)
+
+		self.prompt = '(pyMoney) '
+
+		parser = self.get_argument_parser()
+		self.arguments = parser.parse_args(argv)
+
+		self.pyMoney = lib.app.PyMoney(self.arguments.__dict__["fileprefix"])
+		self.pyMoney.read()
+
+		self.completion = PyMoneyCompletion(self.pyMoney)
+
+	def print_error(self, error):
+		value = None
+
+		if isinstance(error, lib.data.moneydata.NoSuchCategoryException):
+			value = "category not found: " + error.name
+		elif isinstance(error, lib.data.moneydata.DuplicateCategoryException):
+			value = "category already exists: " + error.category.get_unique_name()
+		elif isinstance(error, lib.data.moneydata.CategoryIsTopCategoryException):
+			value = "top category may not be deleted: " + error.category.get_unique_name()
+		elif isinstance(error, lib.data.moneydata.AmbiguousCategoryNameException):
+			value = "category name " + error.name + " is ambiguous: " + str(list(map(lambda c: c.get_unique_name(), error.matching_categories)))
+		elif isinstance(error, lib.data.tree.TargetNodeIsPartOfSourceNodeSubTreeException):
+			value = "cannot move source node into its own subtree: " + str(error.sourcenode.get_unique_name())
+		else:
+			value = "unhandled exception: " + error.__class__.__module__ + "." + error.__class__.__name__ + ": " + str(error)
+
+		if not value is None:
+			print(value, file=sys.stderr)
+
+	def complete_transaction(self, text, line, beginidx, endidx):
+		return self.completion.complete_transaction(text, line, beginidx, endidx)
+
+	def complete_category(self, text, line, beginidx, endidx):
+		return self.completion.complete_category(text, line, beginidx, endidx)
+
+	def complete_summary(self, text, line, beginidx, endidx):
+		return self.completion.complete_summary(text, line, beginidx, endidx)
 
 	def do_transaction(self, args):
 		def cmd_add(arguments):
@@ -223,43 +302,6 @@ class PyMoneyConsole(cmd.Cmd):
 		else:
 			d_commands[arguments.__dict__["command"]](arguments)
 
-	def complete_category(self, text, line, begidx, endidx):
-		argv = shlex.split(line)
-
-		if len(argv) == 1 or line.endswith(" "):
-			argv.append("")
-
-		if len(argv) >= 2:
-			if argv[1] == "add":
-				# parent-category
-				if len(argv) == 3:
-					categories = self.pyMoney.get_moneydata().get_categories_iterator()
-					categorynames = map(lambda c: c.get_unique_name(), categories)
-					categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
-
-					return list(categorynames)
-			elif argv[1] == "delete" or argv[1] == "rename":
-				# category
-				if len(argv) == 3:
-					categories = self.pyMoney.get_moneydata().get_categories_iterator()
-					categorynames = map(lambda c: c.get_unique_name(), categories)
-					categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
-
-					return list(categorynames)
-			elif argv[1] == "merge" or argv[1] == "move":
-				# category, target-category
-				if len(argv) == 3 or len(argv) == 4:
-					categories = self.pyMoney.get_moneydata().get_categories_iterator()
-					categorynames = map(lambda c: c.get_unique_name(), categories)
-					categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
-
-					return list(categorynames)
-			elif argv[1] == "list" or argv[1] == "tree":
-				if len(argv) == 3:
-					return list(filter(lambda v: v.startswith(argv[-1]), ['--fullnamecategories']))
-			elif len(argv) == 2:
-				return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'delete', 'list', 'merge', 'move', 'rename', 'tree']))
-
 	def do_category(self, args):
 		def cmd_tree(arguments):
 			category_name_formatter = lib.formatter.CategoryNameFormatter()
@@ -374,36 +416,6 @@ class PyMoneyConsole(cmd.Cmd):
 			parser.print_help()
 		else:
 			d_commands[arguments.__dict__["command"]](arguments)
-
-	def complete_summary(self, text, line, begidx, endidx):
-		argv = shlex.split(line)
-
-		if len(argv) == 1 or line.endswith(" "):
-			argv.append("")
-
-		if len(argv) >= 2:
-			if argv[1] == "categories":
-				if argv[-2] in ["--category", "--cashflowcategory"]:
-					categories = self.pyMoney.get_moneydata().get_categories_iterator()
-					categorynames = map(lambda c: c.get_unique_name(), categories)
-					categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
-
-					return list(categorynames)
-				elif len(argv) >= 3:
-					# TODO: fix autocompletion doubles -- to ----
-					return list(filter(lambda v: v.startswith(argv[-1]), ['--category', '--cashflowcategory', '--showempty',  '--maxlevel']))
-			elif argv[1] == "monthly" or argv[1] == "yearly":
-				if len(argv) == 3:
-					categories = self.pyMoney.get_moneydata().get_categories_iterator()
-					categorynames = map(lambda c: c.get_unique_name(), categories)
-					categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
-
-					return list(categorynames)
-				if len(argv) == 4:
-					# TODO: fix autocompletion doubles -- to ----
-					return list(filter(lambda v: v.startswith(argv[-1]), ['--balance']))
-			elif len(argv) == 2:
-				return list(filter(lambda v: v.startswith(argv[-1]), ['categories', 'monthly', 'yearly']))
 
 	def do_summary(self, args):
 		def cmd_categories(arguments):
@@ -624,14 +636,14 @@ class PyMoneyConsole(cmd.Cmd):
 		else:
 			d_commands[arguments.__dict__["command"]](arguments)
 
-	def do_EOF(self, args):
-		self.do_quit(args)
-
 	def do_quit(self, args):
-		self.stopcmdloop = True
+		return True
 
-	def postcmd(self, stop, line):
-		return self.stopcmdloop
+	def precmd(self, line):
+		if line == "EOF":
+			return "quit"
+		else:
+			return line
 
 	def get_argument_parser(self):
 		p_main = lib.argparse.ArgumentParser()
