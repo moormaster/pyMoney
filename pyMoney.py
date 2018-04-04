@@ -175,6 +175,8 @@ class PyMoneyConsole(cmd.Cmd):
 			value = "category name " + error.name + " is ambiguous: " + str(list(map(lambda c: c.get_unique_name(), error.matching_categories)))
 		elif isinstance(error, lib.data.tree.TargetNodeIsPartOfSourceNodeSubTreeException):
 			value = "cannot move source node into its own subtree: " + str(error.sourcenode.get_unique_name())
+		elif isinstance(error, ValueError):
+			value = str(error)
 		else:
 			value = "unhandled exception: " + error.__class__.__module__ + "." + error.__class__.__name__ + ": " + str(error)
 
@@ -201,6 +203,7 @@ class PyMoneyConsole(cmd.Cmd):
 
 		def cmd_list(arguments):
 			transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
+
 			summarycategory = None
 
 			if arguments.__dict__["category"]:
@@ -296,6 +299,7 @@ class PyMoneyConsole(cmd.Cmd):
 
 		p_transaction_add = sp_transaction.add_parser("add")
 		p_transaction_add.set_defaults(command="add")
+		p_transaction_add.set_defaults(parser=p_transaction_add)
 		p_transaction_add.add_argument("date")
 		p_transaction_add.add_argument("fromcategory")
 		p_transaction_add.add_argument("tocategory")
@@ -305,10 +309,12 @@ class PyMoneyConsole(cmd.Cmd):
 
 		p_transaction_delete = sp_transaction.add_parser("delete")
 		p_transaction_delete.set_defaults(command="delete")
+		p_transaction_delete.set_defaults(parser=p_transaction_delete)
 		p_transaction_delete.add_argument("index", type=int)
 
 		p_transaction_list = sp_transaction.add_parser("list")
 		p_transaction_list.set_defaults(command="list")
+		p_transaction_list.set_defaults(parser=p_transaction_list)
 		p_transaction_list.add_argument("year", nargs='?')
 		p_transaction_list.add_argument("month", type=int, nargs='?')
 		p_transaction_list.add_argument("day", type=int, nargs='?')
@@ -332,7 +338,12 @@ class PyMoneyConsole(cmd.Cmd):
 		if not "command" in arguments.__dict__:
 			parser.print_help()
 		else:
-			d_commands[arguments.__dict__["command"]](arguments)
+			try:
+				d_commands[arguments.__dict__["command"]](arguments)
+			except Exception as e:
+				self.print_error(e)
+				arguments.__dict__["parser"].print_help()
+				return
 
 	def do_category(self, args):
 		def cmd_tree(arguments):
@@ -397,34 +408,41 @@ class PyMoneyConsole(cmd.Cmd):
 
 		p_category_add = sp_category.add_parser("add")
 		p_category_add.set_defaults(command="add")
+		p_category_add.set_defaults(parser=p_category_add)
 		p_category_add.add_argument("parentname")
 		p_category_add.add_argument("name")
 
 		p_category_delete = sp_category.add_parser("delete")
 		p_category_delete.set_defaults(command="delete")
+		p_category_delete.set_defaults(parser=p_category_delete)
 		p_category_delete.add_argument("name")
 
 		p_category_merge = sp_category.add_parser("merge")
 		p_category_merge.set_defaults(command="merge")
+		p_category_merge.set_defaults(parser=p_category_merge)
 		p_category_merge.add_argument("name")
 		p_category_merge.add_argument("targetname")
 
 		p_category_move = sp_category.add_parser("move")
 		p_category_move.set_defaults(command="move")
+		p_category_move.set_defaults(parser=p_category_move)
 		p_category_move.add_argument("name")
 		p_category_move.add_argument("newparentname")
 
 		p_category_rename = sp_category.add_parser("rename")
 		p_category_rename.set_defaults(command="rename")
+		p_category_rename.set_defaults(parser=p_category_rename)
 		p_category_rename.add_argument("name")
 		p_category_rename.add_argument("newname")
 
 		p_category_tree = sp_category.add_parser("tree")
 		p_category_tree.set_defaults(command="tree")
+		p_category_tree.set_defaults(parser=p_category_tree)
 		p_category_tree.add_argument("--fullnamecategories", action="store_true")
 
 		p_category_list = sp_category.add_parser("list")
 		p_category_list.set_defaults(command="list")
+		p_category_list.set_defaults(parser=p_category_list)
 		p_category_list.add_argument("--fullnamecategories", action="store_true")
 
 		try:
@@ -447,7 +465,12 @@ class PyMoneyConsole(cmd.Cmd):
 		if not "command" in arguments.__dict__:
 			parser.print_help()
 		else:
-			d_commands[arguments.__dict__["command"]](arguments)
+			try:
+				d_commands[arguments.__dict__["command"]](arguments)
+			except Exception as e:
+				self.print_error(e)
+				arguments.__dict__["parser"].print_help()
+				return
 
 	def do_summary(self, args):
 		def cmd_categories(arguments):
@@ -632,6 +655,7 @@ class PyMoneyConsole(cmd.Cmd):
 
 		p_summary_categories = sp_summary.add_parser("categories")
 		p_summary_categories.set_defaults(command="categories")
+		p_summary_categories.set_defaults(parser=p_summary_categories)
 		p_summary_categories.add_argument("--maxlevel", type=int, nargs='?')
 		p_summary_categories.add_argument("--showempty", action='store_true')
 		p_summary_categories.add_argument("--cashflowcategory")
@@ -642,11 +666,13 @@ class PyMoneyConsole(cmd.Cmd):
 
 		p_summary_monthly = sp_summary.add_parser("monthly")
 		p_summary_monthly.set_defaults(command="monthly")
+		p_summary_monthly.set_defaults(parser=p_summary_monthly)
 		p_summary_monthly.add_argument("--balance", action='store_true')
 		p_summary_monthly.add_argument("category")
 
 		p_summary_yearly = sp_summary.add_parser("yearly")
 		p_summary_yearly.set_defaults(command="yearly")
+		p_summary_yearly.set_defaults(parser=p_summary_yearly)
 		p_summary_yearly.add_argument("--balance", action='store_true')
 		p_summary_yearly.add_argument("category")
 
@@ -666,7 +692,12 @@ class PyMoneyConsole(cmd.Cmd):
 		if not "command" in arguments.__dict__:
 			parser.print_help()
 		else:
-			d_commands[arguments.__dict__["command"]](arguments)
+			try:
+				d_commands[arguments.__dict__["command"]](arguments)
+			except Exception as e:
+				self.print_error(e)
+				arguments.__dict__["parser"].print_help()
+				return
 
 	def do_quit(self, args):
 		return True
