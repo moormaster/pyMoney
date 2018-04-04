@@ -166,6 +166,20 @@ _pymoney_summary()
 	esac
 }
 
+_pymoney_export()
+{
+	_ARGINDEX=$1
+	case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
+		--category | --fromcategory | --tocategory)
+			COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			;;
+
+		*)
+			COMPREPLY=( $( compgen -W "--category --fromcategory --tocategory" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			;;
+	esac
+}
+
 _pymoney()
 {
 	case ${COMP_WORDS[1]} in
@@ -181,11 +195,15 @@ _pymoney()
 			_pymoney_summary 2
 			;;
 
+		export)
+			_pymoney_export 2
+			;;
+
 		--script)
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "transaction category summary --script" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "transaction category summary export --script" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }

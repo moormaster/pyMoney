@@ -168,5 +168,10 @@ class SummaryTest(PymoneyTestBase):
 		PymoneyTestBase.pymoney_main(["summary", "yearly", "Category1"])
 
 
+class ExportTest(PymoneyTestBase):
+	def test_export(self):
+		PymoneyTestBase.pymoney_main(["export"])
+
+
 if __name__ == "__main__":
 	unittest.main()

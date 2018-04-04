@@ -148,6 +148,33 @@ class PyMoneyCompletion:
 			elif len(argv) == 2:
 				return list(filter(lambda v: v.startswith(argv[-1]), ['categories', 'monthly', 'yearly']))
 
+	def complete_export(self, text, line, begidx, endidx):
+		if endidx < len(line):
+			return
+
+		argv = shlex.split(line)
+
+		if len(argv) == 1 or line.endswith(" "):
+			argv.append("")
+
+		if len(argv) >= 2:
+			parameters = ['category', 'fromcategory', 'tocategory']
+
+			if argv[-2] in ["--category", "--fromcategory", "--tocategory"]:
+				categories = self.pyMoney.get_moneydata().get_categories_iterator()
+				categorynames = map(lambda c: c.get_unique_name(), categories)
+				categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+				return list(categorynames)
+			elif len(argv) >= 3:
+				if argv[-1].startswith("--"):
+					return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+				elif argv[-1].startswith("-"):
+					return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
+				else:
+					return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
+
+
 class PyMoneyConsole(cmd.Cmd):
 	def __init__(self, argv):
 		cmd.Cmd.__init__(self)
@@ -182,6 +209,9 @@ class PyMoneyConsole(cmd.Cmd):
 
 		if not value is None:
 			print(value, file=sys.stderr)
+
+	def complete_export(self, text, line, beginidx, endidx):
+		return self.completion.complete_export(text, line, beginidx, endidx)
 
 	def complete_transaction(self, text, line, beginidx, endidx):
 		return self.completion.complete_transaction(text, line, beginidx, endidx)
@@ -698,6 +728,74 @@ class PyMoneyConsole(cmd.Cmd):
 				self.print_error(e)
 				arguments.__dict__["parser"].print_help()
 				return
+
+	def do_export(self, args):
+		def cmd_export(arguments):
+			transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
+
+			if arguments.__dict__["category"]:
+				try:
+					transactionfilter = transactionfilter.and_concat(
+						self.pyMoney.filterFactory.create_or_category_transactionfilter(arguments.__dict__["category"], arguments.__dict__["category"])
+					)
+				except Exception as e:
+					self.print_error(e)
+					return
+
+			if arguments.__dict__["fromcategory"] or arguments.__dict__["tocategory"]:
+				try:
+					transactionfilter = transactionfilter.and_concat(
+						self.pyMoney.filterFactory.create_and_category_transactionfilter(arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"])
+					)
+				except Exception as e:
+					self.print_error(e)
+					return
+
+			categories_iterator = self.pyMoney.get_moneydata().get_categories_iterator()
+			transactions_iterator = self.pyMoney.get_moneydata().filter_transactions(transactionfilter)
+
+			for c in categories_iterator:
+				assert isinstance(c, lib.data.moneydata.CategoryTreeNode)
+
+				if c.parent is None:
+					continue
+				assert isinstance(c.parent, lib.data.moneydata.CategoryTreeNode)
+
+				parent_category_name = c.parent.get_full_name()
+				category_name = c.name
+
+				print("category add \"" + parent_category_name + "\" \"" + category_name + "\"")
+
+			for t in transactions_iterator:
+				assert isinstance(t, lib.data.moneydata.Transaction)
+				assert isinstance(t.fromcategory, lib.data.moneydata.CategoryTreeNode)
+				assert isinstance(t.tocategory, lib.data.moneydata.CategoryTreeNode)
+
+				print("transaction add " + str(t.date) + " \"" + t.fromcategory.get_full_name() + "\" \"" + t.tocategory.get_full_name() + "\" " + str(t.amount) + " \"" + t.comment + "\"")
+
+			pass
+
+		parser = lib.argparse.ArgumentParser()
+		parser.add_argument("year", nargs='?')
+		parser.add_argument("month", type=int, nargs='?')
+		parser.add_argument("day", type=int, nargs='?')
+		parser.add_argument("--category")
+		parser.add_argument("--fromcategory")
+		parser.add_argument("--tocategory")
+
+		try:
+			arguments = parser.parse_args(shlex.split(args))
+		except Exception as e:
+			# parse errors already handled by parser (printed to user)
+			# no further handling
+			return
+
+		try:
+			cmd_export(arguments)
+		except Exception as e:
+			self.print_error(e)
+			parser.print_help()
+			return
 
 	def do_quit(self, args):
 		return True
