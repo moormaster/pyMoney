@@ -202,8 +202,11 @@ _pymoney()
 		--script)
 			;;
 
+		--cli)
+			;;
+
 		*)
-			COMPREPLY=( $( compgen -W "transaction category summary export --script" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "transaction category summary export --script --cli" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }

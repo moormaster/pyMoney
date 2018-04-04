@@ -189,6 +189,8 @@ class PyMoneyConsole(cmd.Cmd):
 
 		self.completion = PyMoneyCompletion(self.pyMoney)
 
+		self.writeOnQuit = False
+
 	def print_error(self, error):
 		value = None
 
@@ -227,7 +229,7 @@ class PyMoneyConsole(cmd.Cmd):
 			try:
 				self.pyMoney.get_moneydata().add_transaction(	arguments.__dict__["date"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"],
 								arguments.__dict__["comment"], arguments.__dict__["force"])
-				self.pyMoney.write()
+				self.writeOnQuit = True
 			except Exception as e:
 				self.print_error(e)
 
@@ -321,7 +323,7 @@ class PyMoneyConsole(cmd.Cmd):
 
 		def cmd_delete(arguments):
 			self.pyMoney.get_moneydata().delete_transaction(arguments.__dict__["index"])
-			self.pyMoney.write()
+			self.writeOnQuit = True
 
 		parser = lib.argparse.ArgumentParser()
 		parser.add_argument("--fullnamecategories", action="store_true")
@@ -401,35 +403,35 @@ class PyMoneyConsole(cmd.Cmd):
 		def cmd_add(arguments):
 			try:
 				self.pyMoney.get_moneydata().add_category(arguments.__dict__["parentname"], arguments.__dict__["name"])
-				self.pyMoney.write()
+				self.writeOnQuit = True
 			except Exception as e:
 				self.print_error(e)
 
 		def cmd_delete(arguments):
 			try:
 				self.pyMoney.get_moneydata().delete_category(arguments.__dict__["name"])
-				self.pyMoney.write()
+				self.writeOnQuit = True
 			except Exception as e:
 				self.print_error(e)
 
 		def cmd_move(arguments):
 			try:
 				self.pyMoney.get_moneydata().move_category(arguments.__dict__["name"], arguments.__dict__["newparentname"])
-				self.pyMoney.write()
+				self.writeOnQuit = True
 			except Exception as e:
 				self.print_error(e)
 
 		def cmd_rename(arguments):
 			try:
 				self.pyMoney.get_moneydata().rename_category(arguments.__dict__["name"], arguments.__dict__["newname"])
-				self.pyMoney.write()
+				self.writeOnQuit = True
 			except Exception as e:
 				self.print_error(e)
 
 		def cmd_merge(arguments):
 			try:
 				self.pyMoney.get_moneydata().merge_to_category(arguments.__dict__["name"], arguments.__dict__["targetname"])
-				self.pyMoney.write()
+				self.writeOnQuit = True
 			except Exception as e:
 				self.print_error(e)
 
@@ -798,6 +800,9 @@ class PyMoneyConsole(cmd.Cmd):
 			return
 
 	def do_quit(self, args):
+		if self.writeOnQuit:
+			self.pyMoney.write()
+
 		return True
 
 	def precmd(self, line):
@@ -810,18 +815,23 @@ class PyMoneyConsole(cmd.Cmd):
 		p_main = lib.argparse.ArgumentParser()
 		p_main.add_argument("--fileprefix", default="pymoney")
 		p_main.add_argument("--script", action='store_true')
+		p_main.add_argument("--cli", action='store_true')
 		p_main.add_argument("command", nargs=argparse.REMAINDER)
 
 		return p_main
 
 	def main(self):
 		if self.arguments.__dict__["script"]:
+			self.prompt = "."
+			self.cmdloop()
+		elif self.arguments.__dict__["cli"]:
 			self.cmdloop()
 		else:
 			argv = self.arguments.__dict__["command"]
 
 			if len(argv) > 0:
 				self.onecmd(argv[0] + ' "' + '" "'.join(argv[1:]) + '"')
+				self.do_quit([])
 			else:
 				self.do_help([])
 
