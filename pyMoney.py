@@ -836,5 +836,12 @@ class PyMoneyConsole(cmd.Cmd):
 				self.do_help([])
 
 if __name__ == "__main__":
-	pymoneyconsole = PyMoneyConsole(sys.argv[1:])
+	argv = sys.argv[1:]
+	if len(sys.argv)>1 and sys.argv[1] in ("-h", "--help"):
+		if len(sys.argv)>2:
+			argv = sys.argv[2:] + [sys.argv[1]]
+		else:
+			argv = []
+
+	pymoneyconsole = PyMoneyConsole(argv)
 	pymoneyconsole.main()
