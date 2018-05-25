@@ -212,6 +212,7 @@ class PyMoneyConsole(cmd.Cmd):
 		if not value is None:
 			print(value, file=sys.stderr)
 
+	### Cmd completion
 	def complete_export(self, text, line, beginidx, endidx):
 		return self.completion.complete_export(text, line, beginidx, endidx)
 
@@ -224,6 +225,7 @@ class PyMoneyConsole(cmd.Cmd):
 	def complete_summary(self, text, line, beginidx, endidx):
 		return self.completion.complete_summary(text, line, beginidx, endidx)
 
+	### Cmd commands
 	def do_transaction(self, args):
 		def cmd_add(arguments):
 			try:
@@ -804,6 +806,10 @@ class PyMoneyConsole(cmd.Cmd):
 			self.pyMoney.write()
 
 		return True
+
+	### Cmd behaviour
+	def emptyline(self):
+		return
 
 	def precmd(self, line):
 		if line == "EOF":
