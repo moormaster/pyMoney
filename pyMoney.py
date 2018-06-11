@@ -227,6 +227,7 @@ class PyMoneyConsole(cmd.Cmd):
 
 	### Cmd commands
 	def do_transaction(self, args):
+		'Adds, deletes or lists transaction(s). Use transaction -h for more details.'
 		def cmd_add(arguments):
 			try:
 				self.pyMoney.get_moneydata().add_transaction(	arguments.__dict__["date"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"],
@@ -380,6 +381,7 @@ class PyMoneyConsole(cmd.Cmd):
 				return
 
 	def do_category(self, args):
+		'Adds, deletes, merges, moves or lists categories. Use category -h for more details.'
 		def cmd_tree(arguments):
 			category_name_formatter = lib.formatter.CategoryNameFormatter()
 			category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
@@ -507,6 +509,7 @@ class PyMoneyConsole(cmd.Cmd):
 				return
 
 	def do_summary(self, args):
+		'Prints a summarized report across categories / date intervals. Use summary -h for more details.'
 		def cmd_categories(arguments):
 			transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
 
@@ -734,6 +737,8 @@ class PyMoneyConsole(cmd.Cmd):
 				return
 
 	def do_export(self, args):
+		'Exports data from the given date range. Outputs pyMoney cli commands. Use export -h for more details.'
+
 		def cmd_export(arguments):
 			transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
 
@@ -802,10 +807,17 @@ class PyMoneyConsole(cmd.Cmd):
 			return
 
 	def do_quit(self, args):
+		'Quits the application.'
 		if self.writeOnQuit:
 			self.pyMoney.write()
 
 		return True
+
+	### additional help entries
+	def help_parameters(self):
+		self.stdout.write("--fileprefix [prefix]\t- loads data from [prefix].transactions, [preifix].categories files. Default value: 'pymoney'\n")
+		self.stdout.write("--script\t\t- Executes commands piped from stdin\n")
+		self.stdout.write("--cli\t\t\t- Shows a prompt and executes commands from stdin\n")
 
 	### Cmd behaviour
 	def emptyline(self):
@@ -825,6 +837,14 @@ class PyMoneyConsole(cmd.Cmd):
 		p_main.add_argument("command", nargs=argparse.REMAINDER)
 
 		return p_main
+
+	def do_help(self, arg):
+		parser = lib.argparse.ArgumentParser()
+		parser.add_argument("command", nargs='?')
+
+		arguments = parser.parse_args(shlex.split(arg))
+
+		cmd.Cmd.do_help(self, arguments.__dict__["command"])
 
 	def main(self):
 		if self.arguments.__dict__["script"]:
