@@ -859,7 +859,7 @@ class PyMoneyConsole(cmd.Cmd):
 				self.onecmd(argv[0] + ' "' + '" "'.join(argv[1:]) + '"')
 				self.do_quit([])
 			else:
-				self.do_help([])
+				self.do_help("")
 
 if __name__ == "__main__":
 	argv = sys.argv[1:]
