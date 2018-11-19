@@ -14,7 +14,7 @@
       ERROR
       $ ./pyMoney.py transaction add Costs.Misc 25.00
       OK
-- [x] refactor category add/rename/move - replace find_first_node() with find_first_node_by_relative_pathname()  
+- [x] refactor category add/rename/move - replace find_first_node() with find_first_node_by_relative_pathname()
 - [x] transactions should always happen between a source and a target category
       this enables one to keep track of the amount of money stored within each bank
       account:
@@ -46,7 +46,7 @@
         Giro                                         0.00    1075.00
          In                                       1500.00    1500.00
          Out                                      -425.00    -425.00
-       External                                      0.00   -1405.00  
+       External                                      0.00   -1405.00
         In                                           0.00   -1500.00
          Wages                                   -1500.00   -1500.00
         Out                                          0.00      95.00
@@ -63,3 +63,36 @@
 - [x] summary categories: add --maxlevel parameter to hide detailed categories
 - [x] summary categories: hide categories with 0 transaction count
                           add --showempty parameter to display all 
+- [ ] editing of transactions
+	transaction edit <id> [--date <YYYY-MM-DD>] [--from-category <category>] [--to-category <category>] [--amount <amount>]
+- [ ] introduce paymentplans:
+	paymentplan add <name> <groupname> <from-category> <to-category> <amount>
+	paymentplan edit <name> [--group <groupname>] [--from-category <category>] [--to-category <category>] [--amount <amount>]
+	paymentplan remove <name>
+	paymentplan execute YYYY-MM-DD <name> [--fromcategory <category>] [--tocategory <category> <amount>] [<category>]
+
+	summary paymentplan <name> [YYYY] [MM] [DD] [--cashflowcategory <category>] [--category <category>] [--maxlevel <n>] [--showempty]
+	-> summarizes only those transactions attached to paymentplan
+	-> but always shows categories belonging to the plan
+
+	node                       amount  sum +  sum -    sum
+
+	Giro                       -40.00   0.00 -40.00 -40.00
+	DSL                         40.00  40.00   0.00  40.00
+
+	summary paymentplangroups <groupname> [YYYY] [MM] [DD] [--cashflowcategory <category>] [--category <category>] [--maxlevel <n>] [--showempty]
+	-> summarizes only those transactions attached to paymentplans of the given group
+	-> but shows empty groups which are part of at least one plan
+
+	node                       amount   sum +   sum -     sum
+
+	Giro                      -610.00    0.00 -610.00 -610.00
+	Expenses                     0.00  610.00    0.00  610.00
+	  Energy                    50.00   50.00    0.00   50.00
+	  Rent                     500.00  500.00    0.00  500.00
+	  Communications             0.00   60.00    0.00   60.00
+	    DSL                     40.00   40.00    0.00   40.00
+	    MobilePhone             20.00   20.00    0.00   20.00
+
+
+	-> check wether to use "summary paymentplans" or "summary categories --paymentplan <name>" / "summary categories "--paymentplangroup <groupname>"
