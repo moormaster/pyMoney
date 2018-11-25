@@ -82,10 +82,11 @@ class TransactionParser:
 		return category
 
 	def parse(self, date, fromcategory, tocategory, amount, comment):
+		index = None
 		date = datetime.datetime.strptime(date, self.dateformat).date()
 		fromcategory = self.get_category(fromcategory)
 		tocategory = self.get_category(tocategory)
 		amount = float(amount)
 		comment = comment
 
-		return Transaction(date, fromcategory, tocategory, amount, comment)
+		return Transaction(index, date, fromcategory, tocategory, amount, comment)

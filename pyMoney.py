@@ -4,7 +4,7 @@ import lib.app
 import lib.argparse
 import lib.formatter
 import lib.data
-import lib.data.filter
+import lib.data.filterchain
 import lib.data.moneydata
 import lib.data.tree
 import lib.io
@@ -279,7 +279,7 @@ class PyMoneyConsole(cmd.Cmd):
 				assert isinstance(d.fromcategory, lib.data.moneydata.CategoryTreeNode)
 				assert isinstance(d.tocategory, lib.data.moneydata.CategoryTreeNode)
 
-				_index = iterator.index
+				_index = d.index
 				_date = str(d.date)
 
 				_fromcategory = fromcategory_name_formatter.format(d.fromcategory)
@@ -522,7 +522,7 @@ class PyMoneyConsole(cmd.Cmd):
 					self.print_error(e)
 					return
 
-			categoryfilter = lib.data.filter.Filter(lambda c: True)
+			categoryfilter = lib.data.filterchain.Filter(lambda c: True)
 			if arguments.__dict__["maxlevel"]:
 				categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_maxlevel_categoryfilter(arguments.__dict__["maxlevel"]))
 
@@ -537,7 +537,7 @@ class PyMoneyConsole(cmd.Cmd):
 			headerdata = ["node", "amount", "sum +", "sum -", "sum"]
 			tabledata = []
 
-			for category in lib.data.filter.FilterIterator(self.pyMoney.get_moneydata().get_categories_iterator(), categoryfilter):
+			for category in filter(categoryfilter, self.pyMoney.get_moneydata().get_categories_iterator()):
 				key = category.get_unique_name()
 				name = category_name_formatter.format(category)
 				if not arguments.__dict__["showempty"] and d_summary[key].sumcount == 0:

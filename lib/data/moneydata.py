@@ -1,4 +1,3 @@
-from lib.data import filter
 from lib.data import tree
 
 
@@ -16,7 +15,13 @@ class MoneyData:
 		return self.transactions.__iter__()
 
 	def filter_transactions(self, filter_func):
-		return filter.FilterIterator(self.transactions.__iter__(), filter_func)
+		return filter(filter_func, self.transactions.__iter__())
+
+	def import_transaction(self, transaction):
+		nextfreeindex = len(self.transactions)
+
+		transaction.index = nextfreeindex+1
+		self.transactions.append(transaction)
 
 	def add_transaction(self, str_date, str_fromcategory, str_tocategory, str_amount, str_comment, force=False):
 		try:
@@ -28,7 +33,7 @@ class MoneyData:
 
 		newtransaction = self.parse_transaction(str_date, str_fromcategory, str_tocategory, str_amount, str_comment,
 			force)
-		self.transactions.append(newtransaction)
+		self.import_transaction(newtransaction)
 
 		return newtransaction
 
@@ -44,7 +49,7 @@ class MoneyData:
 		return parser.parse(str_date, str_categoryin, str_categoryout, str_amount, str_comment)
 
 	def filter_categories(self, filter_func):
-		return filter.FilterIterator(self.categorytree.__iter__(), filter_func)
+		return filter(filter_func, self.categorytree.__iter__())
 
 	def get_category(self, name):
 		nodes = self.categorytree.find_nodes_by_relative_path(name)
@@ -198,13 +203,14 @@ class MoneyData:
 
 
 class Transaction(object):
-	fields = ["date", "fromcategory", "tocategory", "amount", "comment"]
+	fields = ["index", "date", "fromcategory", "tocategory", "amount", "comment"]
 	__slots__ = fields
 
-	def __init__(self, date, fromcategory, tocategory, amount, comment):
+	def __init__(self, index, date, fromcategory, tocategory, amount, comment):
 		assert (isinstance(fromcategory, CategoryTreeNode))
 		assert (isinstance(tocategory, CategoryTreeNode))
 
+		self.index = index
 		self.date = date
 		self.fromcategory = fromcategory
 		self.tocategory = tocategory
@@ -212,9 +218,7 @@ class Transaction(object):
 		self.comment = comment
 
 	def __str__(self):
-		return str(
-			self.date) + " " + self.fromcategory.get_unique_name() + " " + self.tocategory.get_unique_name() + " " + str(
-			self.amount) + " " + self.comment
+		return str(self.index) + " " + str(self.date) + " " + self.fromcategory.get_unique_name() + " " + self.tocategory.get_unique_name() + " " + str(self.amount) + " " + self.comment
 
 
 class NodeSummary(object):

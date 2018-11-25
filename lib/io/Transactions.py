@@ -29,7 +29,7 @@ def write(filename, transactions, notfoundcategory, append=False):
 		mode = 'w'
 
 	with open(filename, mode) as f:
-		w = csv.DictWriter(f, fieldnames=Transaction.fields)
+		w = csv.DictWriter(f, fieldnames=["date", "fromcategory", "tocategory", "amount", "comment"])
 
 		if not append:
 			w.writeheader()
