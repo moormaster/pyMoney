@@ -42,7 +42,8 @@ class CategoryParser:
 
 
 class TransactionParser:
-	def __init__(self, categorytree, notfoundcategoryname, dateformat="%Y-%m-%d"):
+	def __init__(self, categorytree, notfoundcategoryname, nextfreeindex, dateformat="%Y-%m-%d"):
+		self.nextfreeindex = nextfreeindex
 		self.categorytree = categorytree
 		self.dateformat = dateformat
 		self.notfoundcategoryname = notfoundcategoryname
@@ -82,10 +83,13 @@ class TransactionParser:
 		return category
 
 	def parse(self, date, fromcategory, tocategory, amount, comment):
+		index = self.nextfreeindex
 		date = datetime.datetime.strptime(date, self.dateformat).date()
 		fromcategory = self.get_category(fromcategory)
 		tocategory = self.get_category(tocategory)
 		amount = float(amount)
 		comment = comment
 
-		return Transaction(date, fromcategory, tocategory, amount, comment)
+		self.nextfreeindex += 1
+
+		return Transaction(index, date, fromcategory, tocategory, amount, comment)

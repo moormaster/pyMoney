@@ -1,5 +1,5 @@
 import lib.data
-import lib.data.filter
+import lib.data.filterchain
 import lib.data.moneydata
 import lib.io
 import lib.io.parser
@@ -62,7 +62,7 @@ class FilterFactory:
 		self.moneydata = moneydata
 
 	def create_and_date_transactionfilter(self, filter_year, filter_month, filter_day):
-		transactionfilter = lib.data.filter.Filter(lambda t: True)
+		transactionfilter = lib.data.filterchain.Filter(lambda t: True)
 
 		greater_or_equal = False
 		greater = False
@@ -157,7 +157,7 @@ class FilterFactory:
 		return transactionfilter
 
 	def create_or_category_transactionfilter(self, filter_from_category, filter_to_category):
-		transactionfilter = lib.data.filter.Filter(lambda t: False)
+		transactionfilter = lib.data.filterchain.Filter(lambda t: False)
 
 		if filter_from_category:
 			fromcategory = self.moneydata.get_category(filter_from_category)
@@ -182,7 +182,7 @@ class FilterFactory:
 		return transactionfilter
 
 	def create_and_category_transactionfilter(self, filter_from_category, filter_to_category):
-		transactionfilter = lib.data.filter.Filter(lambda t: True)
+		transactionfilter = lib.data.filterchain.Filter(lambda t: True)
 
 		if filter_from_category:
 			fromcategory = self.moneydata.get_category(filter_from_category)
@@ -207,7 +207,7 @@ class FilterFactory:
 		return transactionfilter
 
 	def create_maxlevel_categoryfilter(self, maxlevel):
-		categoryfilter = lib.data.filter.Filter(lambda c: True)
+		categoryfilter = lib.data.filterchain.Filter(lambda c: True)
 
 		if maxlevel:
 			categoryfilter = categoryfilter.and_concat(lambda c: c.get_depth() <= maxlevel)
@@ -215,7 +215,7 @@ class FilterFactory:
 		return categoryfilter
 
 	def create_subtree_categoryfilter(self, filter_rootcategory):
-		categoryfilter = lib.data.filter.Filter(lambda c: True)
+		categoryfilter = lib.data.filterchain.Filter(lambda c: True)
 
 		rootcategory = self.moneydata.get_category(filter_rootcategory)
 

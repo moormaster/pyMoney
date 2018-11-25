@@ -1,12 +1,12 @@
-from lib.data import filter
+from lib.data import filterchain
 
 import unittest
 
 
 class TestFilter(unittest.TestCase):
 	def setUp(self):
-		self.trueFilter = filter.Filter(lambda n: True)
-		self.falseFilter = filter.Filter(lambda n: False)
+		self.trueFilter = filterchain.Filter(lambda n: True)
+		self.falseFilter = filterchain.Filter(lambda n: False)
 
 	def test_default_filter(self):
 		self.assertTrue(self.trueFilter(123))
@@ -40,19 +40,6 @@ class TestFilter(unittest.TestCase):
 
 		self.assertTrue(negated_false_filter(123), "negation of false should be true")
 		self.assertFalse(negated_true_filter(123), "negation of true should be false")
-
-
-class TestFilterIterator(unittest.TestCase):
-	def setUp(self):
-		self.list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-	def test_filteriterator(self):
-		filter_func = lambda n: n > 5
-		filteriter = filter.FilterIterator(self.list.__iter__(), filter_func)
-
-		l = list(filteriter)
-
-		self.assertEqual(l, [6, 7, 8, 9, 10])
 
 
 if __name__ == '__main__':
