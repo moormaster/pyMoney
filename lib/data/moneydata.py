@@ -20,7 +20,7 @@ class MoneyData:
 	def import_transaction(self, transaction):
 		nextfreeindex = len(self.transactions)
 
-		transaction.index = nextfreeindex+1
+		transaction.index = nextfreeindex
 		self.transactions.append(transaction)
 
 	def add_transaction(self, str_date, str_fromcategory, str_tocategory, str_amount, str_comment, force=False):
