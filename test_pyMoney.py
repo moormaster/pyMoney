@@ -1,3 +1,4 @@
+# vim: expandtab softtabstop=0 list listchars=tab\:>-:
 import pyMoney
 from lib import app
 
@@ -255,4 +256,4 @@ class PymoneySafetyNet(unittest.TestCase):
 
 
 if __name__ == "__main__":
-	unittest.main()
+        unittest.main()
