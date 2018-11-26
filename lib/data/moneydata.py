@@ -16,7 +16,7 @@ class MoneyData:
 
 	def filter_transactions(self, filter_func):
 		return filter(filter_func, self.transactions.__iter__())
-
+	
 	def import_transaction(self, transaction):
 		nextfreeindex = len(self.transactions)
 
