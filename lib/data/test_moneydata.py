@@ -1,4 +1,4 @@
-# vim: expandtab softtabstop=0 list listchars=tab\:>-:
+# vim: expandtab softtabstop=0 list listchars=tab\:>-,space\:·:
 from lib.data import moneydata
 from lib.data import tree
 

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# vim: expandtab softtabstop=0 list listchars=tab\:>-:
+# vim: expandtab softtabstop=0 list listchars=tab\:>-,space\:·:
 
 import lib.app
 import lib.argparse

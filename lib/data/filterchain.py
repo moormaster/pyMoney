@@ -1,4 +1,4 @@
-# vim: expandtab softtabstop=0 list listchars=tab\:>-:
+# vim: expandtab softtabstop=0 list listchars=tab\:>-,space\:·:
 class Filter:
         def __init__(self, filter_func):
                 self.filter_func = filter_func

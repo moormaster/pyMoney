@@ -1,4 +1,4 @@
-# vim: expandtab softtabstop=0 list listchars=tab\:>-:
+# vim: expandtab softtabstop=0 list listchars=tab\:>-,space\:·:
 class TreeNode:
         def __init__(self, name):
                 self.parent = None
