@@ -10,17 +10,39 @@ class TestCategoryTreeNode(unittest.TestCase):
         def setUp(self):
                 self.tree = moneydata.CategoryTreeNode("All")
 
-        def test_append_childnode(self):
+        def test_append_childnode_should_raise_exception_for_foreign_tree_node(self):
                 self.assertRaises(AssertionError, self.tree.append_childnode, tree.TreeNode("TreeNode"))
-                self.assertRaisesRegex(moneydata.DuplicateCategoryException, "All",
-                        self.tree.append_childnode, moneydata.CategoryTreeNode("All"))
 
+        def test_append_childnode_should_raise_exception_for_duplicate_tree_node(self):
+                self.tree.append_childnode(moneydata.CategoryTreeNode("Child"))
+
+                self.assertRaisesRegex(moneydata.DuplicateCategoryException, "Child",
+                        self.tree.append_childnode, moneydata.CategoryTreeNode("Child"))
+
+        def test_append_childnode_should_return_node(self):
                 node = self.tree.append_childnode(moneydata.CategoryTreeNode("Child"))
 
                 self.assertTrue(node is not None)
 
-        def test_format(self):
+        def test_format_should_not_increment_root_node(self):
                 self.assertEqual(self.tree.format(False), "All")
+
+        def test_format_should_indent_child_node(self):
+                child = self.tree.append_childnode(moneydata.CategoryTreeNode("Child"))
+
+                self.assertEqual(child.format(False), "  Child")
+
+        def test_format_should_indent_each_sublevel(self):
+                child = self.tree.append_childnode(moneydata.CategoryTreeNode("Child"))
+                subchild = child.append_childnode(moneydata.CategoryTreeNode("SubChild"))
+
+                self.assertEqual(subchild.format(False), "    SubChild")
+
+        def test_format_should_return_indented_full_name(self):
+                child = self.tree.append_childnode(moneydata.CategoryTreeNode("Child"))
+                subchild = child.append_childnode(moneydata.CategoryTreeNode("SubChild"))
+
+                self.assertEqual(subchild.format(True), "    All.Child.SubChild")
 
 
 class TestMoneyData(unittest.TestCase):
