@@ -45,6 +45,115 @@ class TestCategoryTreeNode(unittest.TestCase):
                 self.assertEqual(subchild.format(True), "    All.Child.SubChild")
 
 
+class TestMoneyData_Transactions(unittest.TestCase):
+        def setUp(self):
+                self.moneydata = moneydata.MoneyData()
+
+                self.moneydata.add_category("All", "Category1")
+                self.moneydata.add_category("All", "Category2")
+                self.moneydata.add_category("All", "Category3")
+
+        def test_filter_transactions(self):
+                self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+                self.moneydata.add_transaction("2000-01-01", "Category2", "Category3", "20.0", "")
+                self.moneydata.add_transaction("2000-01-01", "Category1", "Category3", "30.0", "")
+
+                filter_func = lambda t: t.fromcategory.name == "Category1"
+
+                l = list(self.moneydata.filter_transactions(filter_func))
+
+                self.assertEqual(len(l), 2)
+
+        def test_add_transaction_should_raise_exception_if_from_category_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory1",
+                        self.moneydata.add_transaction, "2000-01-01", "Category1", "UnknownCategory1", "10.0", "")
+
+        def test_add_transaction_should_raise_exception_if_to_category_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory1",
+                        self.moneydata.add_transaction, "2000-01-01", "UnknownCategory1", "Category1", "10.0", "")
+
+        def test_add_transaction_should_add_fromcategory_if_forced(self):
+                self.moneydata.add_transaction("2000-01-01", "UnknownCategory", "Category1", "10.0", "", True)
+
+                unknowncategory = self.moneydata.get_category("UnknownCategory")
+                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(unknowncategory))
+
+        def test_add_transaction_should_add_tocategory_if_forced(self):
+                self.moneydata.add_transaction("2000-01-01", "Category1", "UnknownCategory", "10.0", "", True)
+
+                unknowncategory = self.moneydata.get_category("UnknownCategory")
+                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(unknowncategory))
+
+        def test_add_transaction_should_increase_transaction_list(self):
+                self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+                self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "20.0", "")
+
+                self.assertEqual(len(self.moneydata.transactions), 2)
+
+        def test_add_transaction_should_replace_category_strings_with_CategoryTreeNode(self):
+                newtransaction = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "40.0", "")
+
+                fromcategory = self.moneydata.get_category("Category1")
+                tocategory = self.moneydata.get_category("Category2")
+
+                self.assertEqual(newtransaction.fromcategory, fromcategory)
+                self.assertEqual(newtransaction.tocategory, tocategory)
+
+        def test_add_transaction_should_generate_an_unique_index(self):
+                transaction1 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+                transaction2 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "20.0", "")
+
+                self.assertNotEqual(transaction1.index, transaction2.index)
+
+        def test_add_transaction_should_generate_an_unique_index_after_deletion(self):
+                transaction1 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+                transaction2 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "20.0", "")
+
+                self.moneydata.delete_transaction(transaction1.index)
+
+                transaction3 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "30.0", "")
+
+                self.assertNotEqual(transaction3.index, transaction2.index)
+
+        def test_delete_transaction_should_delete_first_transaction(self):
+                transaction1 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+                transaction2 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "20.0", "")
+
+                self.moneydata.delete_transaction(transaction1.index)
+
+                self.assertEqual(len(self.moneydata.transactions), 1)
+                self.assertEqual(self.moneydata.transactions[0].amount, "20.0", "second transaction should not have been deleted")
+
+        def test_parse_transaction_should_raise_exception_if_fromcategory_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
+                        self.moneydata.parse_transaction, "2000-01-01", "Category1", "UnknownCategory", "10.0", "A comment")
+ 
+        def test_parse_transaction_should_raise_exception_if_tocategory_was_not_found(self):
+               self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
+                        self.moneydata.parse_transaction, "2000-01-01", "UnknownCategory", "Category1", "10.0", "A comment")
+
+        def test_parse_transaction_should_add_fromcategory_if_forced(self):
+                self.moneydata.parse_transaction("2000-01-01", "UnknownCategory", "Category1", "10.0", "", True)
+
+                unknowncategory = self.moneydata.get_category("UnknownCategory")
+                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(unknowncategory))
+
+        def test_parse_transaction_should_add_tocategory_if_forced(self):
+                self.moneydata.parse_transaction("2000-01-01", "Category1", "UnknownCategory", "10.0", "", True)
+
+                unknowncategory = self.moneydata.get_category("UnknownCategory")
+                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(unknowncategory))
+
+        def test_parse_transaction(self):
+                newtransaction = self.moneydata.parse_transaction("2000-01-01", "Category1", "Category2", "10.0", "A comment")
+
+                self.assertEqual(newtransaction.date, datetime.date(2000, 1, 1))
+                self.assertEqual(newtransaction.fromcategory.name, "Category1")
+                self.assertEqual(newtransaction.tocategory.name, "Category2")
+                self.assertEqual(newtransaction.amount, 10.0)
+                self.assertEqual(newtransaction.comment, "A comment")
+
+
 class TestMoneyData(unittest.TestCase):
         def setUp(self):
                 self.moneydata = moneydata.MoneyData()
@@ -67,84 +176,6 @@ class TestMoneyData(unittest.TestCase):
                 self.moneydata.add_transaction("2000-01-02", "Cash.Out", "Category1.Subcategory1", "20.0", "")
                 self.moneydata.add_transaction("2000-01-03", "Category2", "Cash.In", "30.0", "")
                 self.moneydata.add_transaction("2000-01-04", "Category2.Subcategory1", "Cash.In", "35.0", "")
-
-        def test_filter_transactions(self):
-                category = self.moneydata.get_category("Category1")
-                filter_func = lambda t: t.fromcategory.is_contained_in_subtree(
-                        category) or t.tocategory.is_contained_in_subtree(category)
-
-                l = list(self.moneydata.filter_transactions(filter_func))
-
-                self.assertEqual(len(l), 2)
-
-        def test_add_transaction(self):
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory1",
-                        self.moneydata.add_transaction, "2000-01-01", "Cash.Out", "UnknownCategory1", "60.0", "")
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory1",
-                        self.moneydata.add_transaction, "2000-01-01", "UnknownCategory1", "Cash.In", "60.0", "")
-
-                transactioncount = len(self.moneydata.transactions)
-                fromcategory = self.moneydata.get_category("Cash.Out")
-                tocategory = self.moneydata.get_category("Category1")
-
-                newtransaction = self.moneydata.add_transaction("2000-01-01", "Cash.Out", "Category1", "40.0", "")
-
-                self.assertEqual(len(self.moneydata.transactions), transactioncount + 1)
-                self.assertEqual(newtransaction.fromcategory, fromcategory)
-                self.assertEqual(newtransaction.tocategory, tocategory)
-
-                self.moneydata.add_transaction("2000-01-01", "Cash.Out", "UnknownCategory2", "50.0", "", True)
-                self.assertEqual(len(self.moneydata.transactions), transactioncount + 2)
-
-                self.moneydata.add_transaction("2000-01-01", "UnknownCategory3", "Cash.In", "50.0", "", True)
-                self.assertEqual(len(self.moneydata.transactions), transactioncount + 3)
-
-                self.moneydata.add_transaction("2000-01-01", "UnknownCategory4", "UnknownCategory5", "50.0", "", True)
-                self.assertEqual(len(self.moneydata.transactions), transactioncount + 4)
-
-        def test_delete_transaction(self):
-                transactioncount = len(self.moneydata.transactions)
-
-                # delete transaction to Subcategory1
-                self.moneydata.delete_transaction(1)
-
-                self.assertEqual(len(self.moneydata.transactions), transactioncount - 1)
-
-                category = self.moneydata.get_category("Category1")
-                subcategory = self.moneydata.get_category("Category1.Subcategory1")
-
-                filter_func = lambda t: t.fromcategory is category or t.tocategory is category
-                self.assertEqual(len(list(self.moneydata.filter_transactions(filter_func))), 1)
-
-                filter_func = lambda t: t.fromcategory is subcategory or t.tocategory is subcategory
-                self.assertEqual(len(list(self.moneydata.filter_transactions(filter_func))), 0)
-
-        def test_parse_transaction(self):
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                        self.moneydata.parse_transaction, "2000-01-01", "Cash.Out", "UnknownCategory", "10.0", "A comment")
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                        self.moneydata.parse_transaction, "2000-01-01", "UnknownCategory", "Cash.In", "10.0", "A comment")
-
-                newtransaction = self.moneydata.parse_transaction("2000-01-01", "Cash.Out", "Category1", "10.0", "A comment")
-
-                self.assertEqual(newtransaction.date, datetime.date(2000, 1, 1))
-                self.assertEqual(newtransaction.fromcategory.name, "Out")
-                self.assertEqual(newtransaction.tocategory.name, "Category1")
-                self.assertEqual(newtransaction.amount, 10.0)
-                self.assertEqual(newtransaction.comment, "A comment")
-
-                newtransaction = self.moneydata.parse_transaction("2000-01-01", "Cash.Out", "UnknownCategory1", "10.0",
-                        "A comment", True)
-                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.tocategory))
-
-                newtransaction = self.moneydata.parse_transaction("2000-01-01", "UnknownCategory2", "Cash.In", "10.0",
-                        "A comment", True)
-                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.fromcategory))
-
-                newtransaction = self.moneydata.parse_transaction("2000-01-01", "UnknownCategory3", "UnknownCategory4", "10.0",
-                        "A comment", True)
-                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.fromcategory))
-                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newtransaction.tocategory))
 
         def test_get_category(self):
                 self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
