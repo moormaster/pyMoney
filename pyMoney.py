@@ -194,7 +194,7 @@ class PyMoneyConsole(cmd.Cmd):
 		self.stdout = sys.stdout
 		self.stderr = sys.stderr
 
-	def set_print_streams(stdout, stderr):
+	def set_print_streams(self, stdout, stderr):
 		self.stdout = stdout
 		self.stderr = stderr
 

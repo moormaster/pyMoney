@@ -1,0 +1,23 @@
+All
+	Equity
+		OpeningBalance
+	Assets
+		Cash
+		Giro
+	Income
+		Wages
+		Interests
+		IncomingMisc
+	Expenses
+		Frequent
+			Energy
+			Internet
+		OnDemand
+			Life
+				Break
+					Breakfast
+					Lunch
+			Clothes
+			Media
+			Misc
+	Liabilities

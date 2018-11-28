@@ -5,172 +5,248 @@ import unittest
 import os
 
 
-class PymoneyTestBase(unittest.TestCase):
+class PymoneySafetyNet(unittest.TestCase):
 	def setUp(self):
-		if os.access("pymoney.transactions", os.F_OK):
-			os.remove("pymoney.transactions")
-		if os.access("pymoney.categories", os.F_OK):
-			os.remove("pymoney.categories")
+		self.fileprefix = "safetynet_run"
 
-		self.setUp_categories()
-		self.setUp_transactions()
+		self.outputfile = self.fileprefix + ".log"
+		self.transactionsfile = self.fileprefix + ".transactions"
+		self.categoriesfile = self.fileprefix + ".categories"
+
+		self.fileprefixcompare = "safetynet"
+
+		self.outputfilecompare = self.fileprefixcompare + ".log"
+		self.transactionsfilecompare = self.fileprefixcompare + ".transactions"
+		self.categoriesfilecompare = self.fileprefixcompare + ".categories"
+
+		if os.access(self.outputfile, os.F_OK):
+			os.remove(self.outputfile)
+		if os.access(self.transactionsfile, os.F_OK):
+			os.remove(self.transactionsfile)
+		if os.access(self.categoriesfile, os.F_OK):
+			os.remove(self.categoriesfile)
+
+		self.outputfilestream = open(self.outputfile, "w")
+		self.execute()
+		self.outputfilestream.close()
 
 	def tearDown(self):
-		if os.access("pymoney.transactions", os.F_OK):
-			os.remove("pymoney.transactions")
-		if os.access("pymoney.categories", os.F_OK):
-			os.remove("pymoney.categories")
+		if os.access(self.outputfile, os.F_OK):
+			os.remove(self.outputfile)
+		if os.access(self.transactionsfile, os.F_OK):
+			os.remove(self.transactionsfile)
+		if os.access(self.categoriesfile, os.F_OK):
+			os.remove(self.categoriesfile)
 
-	@staticmethod
-	def pymoney_main(argv):
+	def execute(self):
+		self.pymoney(["category", "add", "All", "Equity"])
+		self.pymoney(["category", "add", "Equity", "OpeningBalance"])
+		self.pymoney(["category", "add", "All", "Assets"])
+		self.pymoney(["category", "add", "Assets", "Cash"])
+		self.pymoney(["category", "add", "Assets", "DayMoney"])
+		self.pymoney(["category", "add", "Assets", "Giro"])
+		self.pymoney(["category", "add", "All", "Income"])
+		self.pymoney(["category", "add", "Income", "Wages"])
+		self.pymoney(["category", "add", "Income", "Interests"])
+		self.pymoney(["category", "add", "Income", "Misc"])
+		self.pymoney(["category", "add", "All", "Expenses"])
+		self.pymoney(["category", "add", "Expenses", "Frequent"])
+		self.pymoney(["category", "add", "Frequent", "Rent"])
+		self.pymoney(["category" ,"add", "Frequent", "Energy"])
+		self.pymoney(["category" ,"add", "Frequent", "Internet"])
+		self.pymoney(["category", "add", "Expenses", "OnDemand"])
+		self.pymoney(["category", "add", "OnDemand", "Break"])
+		self.pymoney(["category", "add", "Break", "Breakfast"])
+		self.pymoney(["category", "add", "Break", "Lunch"])
+		self.pymoney(["category", "add", "OnDemand", "Life"])
+		self.pymoney(["category", "add", "OnDemand", "Clothes"])
+		self.pymoney(["category", "add", "OnDemand", "Media"])
+		self.pymoney(["category", "add", "OnDemand", "Misc"])
+		self.pymoney(["category", "add", "All", "Liabilities"])
+
+		self.pymoney(["category", "tree"])
+		self.pymoney(["category", "tree", "--fullnamecategories"])
+		self.pymoney(["category", "list"])
+		self.pymoney(["category", "list", "--fullnamecategories"])
+
+		self.pymoney(["transaction", "add", "2000-01-01", "OpeningBalance", "Cash", "400"])
+		self.pymoney(["transaction", "add", "2000-01-01", "OpeningBalance", "Giro", "3000"])
+		self.pymoney(["transaction", "add", "2000-01-01", "OpeningBalance", "DayMoney", "10000"])
+
+		self.pymoney(["transaction", "add", "2000-01-03", "Giro", "Energy", "50"])
+		self.pymoney(["transaction", "add", "2000-01-03", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-03", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-04", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-04", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-05", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-05", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-06", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-06", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-07", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-07", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-10", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-10", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-11", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-11", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-12", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-12", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-13", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-13", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-14", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-14", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-17", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-17", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-18", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-18", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-19", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-19", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-20", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-20", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-21", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-21", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-24", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-24", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-25", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-25", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-25", "Giro", "Rent", "600"])
+		self.pymoney(["transaction", "add", "2000-01-25", "Giro", "Internet", "30"])
+		self.pymoney(["transaction", "add", "2000-01-26", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-26", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-27", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-27", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-28", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-28", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-28", "Wages", "Giro", "2000"])
+		self.pymoney(["transaction", "add", "2000-01-28", "Giro", "DayMoney", "500"])
+		self.pymoney(["transaction", "add", "2000-01-28", "Giro", "Cash", "400"])
+		self.pymoney(["transaction", "add", "2000-01-31", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-01-31", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-01-31", "Income.Misc", "Cash", "10", "Found"])
+		self.pymoney(["summary", "categories", "--category", "Assets"])
+
+		self.pymoney(["transaction", "add", "2000-02-01", "Giro", "Energy", "50"])
+		self.pymoney(["transaction", "add", "2000-02-01", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-01", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-02", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-02", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-03", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-03", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-04", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-04", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-07", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-07", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-08", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-08", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-09", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-09", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-10", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-10", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-11", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-11", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-14", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-14", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-15", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-15", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-16", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-16", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-17", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-17", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-18", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-18", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-21", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-21", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-22", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-22", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-23", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-23", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-24", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-24", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-25", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-25", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-25", "Giro", "Rent", "600"])
+		self.pymoney(["transaction", "add", "2000-02-25", "Giro", "Internet", "30"])
+		self.pymoney(["transaction", "add", "2000-02-28", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-28", "Cash", "Lunch", "8"])
+		self.pymoney(["transaction", "add", "2000-02-28", "Wages", "Giro", "2000"])
+		self.pymoney(["transaction", "add", "2000-02-28", "Giro", "DayMoney", "500"])
+		self.pymoney(["transaction", "add", "2000-02-28", "Giro", "Cash", "400"])
+		self.pymoney(["transaction", "add", "2000-02-29", "Cash", "Breakfast", "2.00", "Bakery"])
+		self.pymoney(["transaction", "add", "2000-02-29", "Cash", "Lunch", "8"])
+		self.pymoney(["summary", "categories", "--category", "Assets"])
+
+		self.pymoney(["summary", "categories", "2000", "01"])
+		self.pymoney(["summary", "categories", "2000", "02"])
+
+		self.pymoney(["summary", "categories", "2000", "01", "--maxlevel", "2"])
+		self.pymoney(["summary", "categories", "2000", "01", "--category", "Frequent", "--showempty"])
+		self.pymoney(["summary", "categories", "2000", "01", "--cashflowcategory", "Rent"])
+
+		self.pymoney(["summary", "monthly", "--balance", "Giro"])
+		self.pymoney(["summary", "monthly", "Frequent"])
+		self.pymoney(["summary", "yearly", "Expenses"])
+
+		self.pymoney(["transaction", "list", "2000", "01"])
+		self.pymoney(["transaction", "list", "2000", "02"])
+		self.pymoney(["transaction", "list", "<=2000", "02", "15"])
+		self.pymoney(["transaction", "list", "<2000", "02", "16"])
+		self.pymoney(["transaction", "list", ">=2000", "01", "15"])
+		self.pymoney(["transaction", "list", ">2000", "01", "14"])
+
+		self.pymoney(["transaction", "list", "--category", "Rent"])
+
+		self.pymoney(["category", "delete", "Rent"])
+		self.pymoney(["category", "tree"])
+		self.pymoney(["category", "list"])
+		self.pymoney(["transaction", "list"])
+
+		self.pymoney(["category", "rename", "Income.Misc", "IncomingMisc"])
+		self.pymoney(["category", "tree"])
+		self.pymoney(["category", "list"])
+		self.pymoney(["transaction", "list"])
+
+		self.pymoney(["category", "move", "Break", "Life"])
+		self.pymoney(["category", "tree"])
+		self.pymoney(["category", "list"])
+		self.pymoney(["transaction", "list"])
+
+		self.pymoney(["category", "merge", "DayMoney", "Giro"])
+		self.pymoney(["category", "tree"])
+		self.pymoney(["category", "list"])
+		self.pymoney(["transaction", "list"])
+
+		self.pymoney(["transaction", "delete", "12"])
+		self.pymoney(["transaction", "delete", "11"])
+		self.pymoney(["transaction", "delete", "10"])
+		self.pymoney(["transaction", "list"])
+
+		self.pymoney(["export", "2000","01"])
+		self.pymoney(["export"])
+
+	def pymoney(self, argv):
+		print("$ ./pyMoney.py " + " ".join(argv), file=self.outputfilestream)
+
+		argv = ["--fileprefix", self.fileprefix] + argv
 		pymoneyconsole = pyMoney.PyMoneyConsole(argv)
+		pymoneyconsole.set_print_streams(self.outputfilestream, self.outputfilestream)
 		pymoneyconsole.main()
+		
+		print("", file=self.outputfilestream)
 
-	def setUp_categories(self):
-		PymoneyTestBase.pymoney_main(["category", "add",  "All", "Cash"])
-		PymoneyTestBase.pymoney_main(["category", "add",  "Cash", "In"])
-		PymoneyTestBase.pymoney_main(["category", "add",  "Cash", "Out"])
-		PymoneyTestBase.pymoney_main(["category", "add",  "All", "External"])
-		PymoneyTestBase.pymoney_main(["category", "add",  "External", "In"])
-		PymoneyTestBase.pymoney_main(["category", "add",  "External", "Out"])
-		PymoneyTestBase.pymoney_main(["category", "add",  "External.In", "Category1"])
-		PymoneyTestBase.pymoney_main(["category", "add",  "Category1", "Subcategory1"])
-		PymoneyTestBase.pymoney_main(["category", "add",  "External.In", "Category2"])
-		PymoneyTestBase.pymoney_main(["category", "add",  "Category2", "Subcategory1"])
+	def assertFileEqual(self, expectedfile, actualfile, msg=None):
+		f = open(expectedfile)
+		expected = f.readlines()
+		f.close()
 
-	def setUp_transactions(self):
-		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Cash.Out", "Category1", "10.0", "A comment"])
-		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Cash.Out", "Category1.Subcategory1", "20.0", "A comment"])
-		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Cash.Out", "Category2", "30.0", "A comment"])
-		PymoneyTestBase.pymoney_main(["transaction", "add", "2000-01-01", "Cash.Out", "Category2.Subcategory1", "40.0", "A comment"])
+		f = open(actualfile)
+		actual = f.readlines()
+		f.close()
 
-	def get_app(self):
-		read_app = app.PyMoney()
-		read_app.read()
+		self.assertListEqual(expected, actual, msg)
 
-		return read_app
-
-
-class TransactionsTest(PymoneyTestBase):
-	def test_transaction_add(self):
-		read_app = self.get_app()
-		self.assertEqual(len(list(read_app.moneydata.categorytree)), 11)
-		self.assertEqual(len(read_app.moneydata.transactions), 4)
-
-	def test_transaction_delete(self):
-		PymoneyTestBase.pymoney_main(["transaction", "delete", "2"])
-
-		read_app = self.get_app()
-		filter_func = lambda t: t.fromcategory.name == "Category2" or t.tocategory.name == "Category2"
-		self.assertEqual(len(list(read_app.moneydata.filter_transactions(filter_func))), 0)
-		self.assertEqual(len(read_app.moneydata.transactions), 3)
-
-	def test_transaction_list(self):
-		PymoneyTestBase.pymoney_main(["transaction", "list"])
-		PymoneyTestBase.pymoney_main(["transaction", "list", "2000"])
-		PymoneyTestBase.pymoney_main(["transaction", "list", "2000", "01"])
-		PymoneyTestBase.pymoney_main(["transaction", "list", "2000", "01", "--category=Category1"])
-		PymoneyTestBase.pymoney_main(["transaction", "--fullnamecategories", "list", "2000", "01"])
-
-
-class CategoriesTest(PymoneyTestBase):
-	def test_category_add(self):
-		PymoneyTestBase.pymoney_main(["category", "add", "All", "NewCategory"])
-
-		read_app = self.get_app()
-		self.assertEqual(len(list(read_app.moneydata.categorytree)), 12)
-
-		category = read_app.moneydata.categorytree.find_first_node_by_relative_path("NewCategory")
-		self.assertIsNotNone(category)
-		self.assertEqual(category.name, "NewCategory")
-		self.assertEqual(category.parent.name, "All")
-
-	def test_category_delete(self):
-		PymoneyTestBase.pymoney_main(["category", "delete", "Category1"])
-
-		read_app = self.get_app()
-
-		notfoundcategory = read_app.moneydata.get_notfound_category()
-		self.assertIsNotNone(notfoundcategory)
-		self.assertTrue("Category1" in notfoundcategory.children)
-
-		PymoneyTestBase.pymoney_main(["transaction", "delete", "1"])
-		PymoneyTestBase.pymoney_main(["transaction", "delete", "0"])
-
-		read_app = self.get_app()
-
-		self.assertEqual(len(list(read_app.moneydata.categorytree)), 9)
-		category = read_app.moneydata.categorytree.find_first_node_by_relative_path("Category1")
-		self.assertIsNone(category)
-
-	def test_category_merge(self):
-		PymoneyTestBase.pymoney_main(["category", "merge", "Category1", "Category2"])
-
-		read_app = self.get_app()
-		self.assertEqual(len(list(read_app.moneydata.categorytree)), 9)
-
-		category1 = read_app.moneydata.categorytree.find_first_node_by_relative_path("Category1")
-		category2 = read_app.moneydata.categorytree.find_first_node_by_relative_path("Category2")
-		subcategory1 = read_app.moneydata.categorytree.find_first_node_by_relative_path("Subcategory1")
-
-		filter_func = lambda t: t.fromcategory.is_contained_in_subtree(category2) or t.tocategory.is_contained_in_subtree(category2)
-		self.assertEqual(len(list(read_app.moneydata.filter_transactions(filter_func))), 4)
-
-		filter_func = lambda t: t.fromcategory.is_contained_in_subtree(subcategory1) or t.tocategory.is_contained_in_subtree(subcategory1)
-		self.assertEqual(len(list(read_app.moneydata.filter_transactions(filter_func))), 2)
-
-		self.assertIsNone(category1)
-		self.assertIsNotNone(category2)
-		self.assertIsNotNone(subcategory1)
-
-		self.assertEqual(category2.parent.name, "In")
-		self.assertEqual(subcategory1.parent.name, "Category2")
-
-	def test_category_move(self):
-		PymoneyTestBase.pymoney_main(["category", "move", "Category2.Subcategory1", "All"])
-
-		read_app = self.get_app()
-		allcategory = read_app.moneydata.categorytree.find_first_node_by_relative_path("All")
-		subcategory1 = read_app.moneydata.categorytree.find_first_node_by_relative_path("All.Subcategory1")
-
-		self.assertEqual(subcategory1.parent.name, "All")
-		self.assertEqual(len(allcategory.children), 3)
-
-	def test_category_rename(self):
-		PymoneyTestBase.pymoney_main(["category", "rename", "Category1", "RenamedCategory"])
-
-		read_add = self.get_app()
-		category1 = read_add.moneydata.categorytree.find_first_node_by_relative_path("Category1")
-		renamedcategory = read_add.moneydata.categorytree.find_first_node_by_relative_path("RenamedCategory")
-
-		self.assertIsNone(category1)
-		self.assertIsNotNone(renamedcategory)
-		self.assertEqual(renamedcategory.name, "RenamedCategory")
-		self.assertEqual(renamedcategory.parent.name, "In")
-
-	def test_category_list(self):
-		PymoneyTestBase.pymoney_main(["category", "list"])
-
-	def test_category_tree(self):
-		PymoneyTestBase.pymoney_main(["category", "tree"])
-
-
-class SummaryTest(PymoneyTestBase):
-	def test_summary_categories(self):
-		PymoneyTestBase.pymoney_main(["summary", "categories"])
-		PymoneyTestBase.pymoney_main(["summary", "categories", "2000"])
-		PymoneyTestBase.pymoney_main(["summary", "categories", "2000", "01"])
-
-	def test_summary_monthly(self):
-		PymoneyTestBase.pymoney_main(["summary", "monthly", "Category1"])
-
-	def test_summary_yearly(self):
-		PymoneyTestBase.pymoney_main(["summary", "yearly", "Category1"])
-
-
-class ExportTest(PymoneyTestBase):
-	def test_export(self):
-		PymoneyTestBase.pymoney_main(["export"])
+	def test_compare_safetynet(self):
+		self.assertFileEqual(self.outputfilecompare, self.outputfile, "output differs from " + self.outputfilecompare)
+		self.assertFileEqual(self.transactionsfilecompare, self.transactionsfile, "transactions file differs from " + self.transactionsfilecompare)
+		self.assertFileEqual(self.categoriesfilecompare, self.categoriesfile, "output differs from " + self.categoriesfilecompare)
 
 
 if __name__ == "__main__":
