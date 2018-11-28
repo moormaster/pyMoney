@@ -191,6 +191,19 @@ class PyMoneyConsole(cmd.Cmd):
 
 		self.writeOnQuit = False
 
+		self.stdout = sys.stdout
+		self.stderr = sys.stderr
+
+	def set_print_streams(stdout, stderr):
+		self.stdout = stdout
+		self.stderr = stderr
+
+	def print(self, line):
+		print(line, file=self.stdout)
+
+	def print_stderr(self, line):
+		print(line, file=self.stderr)
+
 	def print_error(self, error):
 		value = None
 
@@ -210,7 +223,7 @@ class PyMoneyConsole(cmd.Cmd):
 			value = "unhandled exception: " + error.__class__.__module__ + "." + error.__class__.__name__ + ": " + str(error)
 
 		if not value is None:
-			print(value, file=sys.stderr)
+			self.print_stderr(value)
 
 	### Cmd completion
 	def complete_export(self, text, line, beginidx, endidx):
@@ -318,9 +331,9 @@ class PyMoneyConsole(cmd.Cmd):
 
 			is_first_line = True
 			for line in lines:
-				print(line)
+				self.print(line)
 				if is_first_line:
-					print("")
+					self.print("")
 
 				is_first_line = False
 
@@ -392,7 +405,7 @@ class PyMoneyConsole(cmd.Cmd):
 				category_name_formatter.set_indent_with_tree_level(False)
 
 			for c in self.pyMoney.get_moneydata().get_categories_iterator():
-				print(category_name_formatter.format(c))
+				self.print(category_name_formatter.format(c))
 
 		def cmd_list(arguments):
 			category_name_formatter = lib.formatter.CategoryNameFormatter()
@@ -401,8 +414,8 @@ class PyMoneyConsole(cmd.Cmd):
 
 			for category in self.pyMoney.get_moneydata().get_categories_iterator():
 				_category = category_name_formatter.format(category)
-				print(_category)
-			print("")
+				self.print(_category)
+			self.print("")
 
 		def cmd_add(arguments):
 			try:
@@ -568,9 +581,9 @@ class PyMoneyConsole(cmd.Cmd):
 
 			is_first_line = True
 			for line in lines:
-				print(line)
+				self.print(line)
 				if is_first_line:
-					print("")
+					self.print("")
 
 				is_first_line = False
 
@@ -645,9 +658,9 @@ class PyMoneyConsole(cmd.Cmd):
 
 			is_first_line = True
 			for line in lines:
-				print(line)
+				self.print(line)
 				if is_first_line:
-					print("")
+					self.print("")
 
 				is_first_line = False
 
@@ -773,14 +786,14 @@ class PyMoneyConsole(cmd.Cmd):
 				parent_category_name = c.parent.get_full_name()
 				category_name = c.name
 
-				print("category add \"" + parent_category_name + "\" \"" + category_name + "\"")
+				self.print("category add \"" + parent_category_name + "\" \"" + category_name + "\"")
 
 			for t in transactions_iterator:
 				assert isinstance(t, lib.data.moneydata.Transaction)
 				assert isinstance(t.fromcategory, lib.data.moneydata.CategoryTreeNode)
 				assert isinstance(t.tocategory, lib.data.moneydata.CategoryTreeNode)
 
-				print("transaction add " + str(t.date) + " \"" + t.fromcategory.get_full_name() + "\" \"" + t.tocategory.get_full_name() + "\" " + str(t.amount) + " \"" + t.comment + "\"")
+				self.print("transaction add " + str(t.date) + " \"" + t.fromcategory.get_full_name() + "\" \"" + t.tocategory.get_full_name() + "\" " + str(t.amount) + " \"" + t.comment + "\"")
 
 			pass
 
