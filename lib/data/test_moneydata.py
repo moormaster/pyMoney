@@ -158,6 +158,37 @@ class TestMoneyData(unittest.TestCase):
         def setUp(self):
                 self.moneydata = moneydata.MoneyData()
 
+        def test_get_category_should_raise_exception_if_category_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
+                        self.moneydata.get_category, "UnknownCategory")
+
+        def test_get_category_should_find_the_CategoryTree_instance(self):
+                self.moneydata.add_category("All", "Category")
+
+                existingcategory = self.moneydata.get_category("Category")
+                self.assertEqual(existingcategory.name, "Category")
+
+        def test_get_category_should_find_the_CategoryTree_instance_when_mentioning_subpath(self):
+                self.moneydata.add_category("All", "Category")
+                self.moneydata.add_category("Category", "SubCategory")
+
+                existingcategory = self.moneydata.get_category("Category.SubCategory")
+                self.assertEqual(existingcategory.name, "SubCategory")
+
+        def test_get_category_should_raise_exception_if_category_name_was_ambiguous(self):
+                self.moneydata.add_category("All", "Category1")
+                self.moneydata.add_category("All", "Category2")
+
+                self.moneydata.add_category("Category1", "Ambi")
+                self.moneydata.add_category("Category2", "Ambi")
+
+                self.assertRaisesRegex(moneydata.AmbiguousCategoryNameException, "Ambi", self.moneydata.get_category, "Ambi")
+
+
+class TestMoneyDataWithTransaction(unittest.TestCase):
+        def setUp(self):
+                self.moneydata = moneydata.MoneyData()
+
                 self.moneydata.add_category("All", "Cash")
                 self.moneydata.add_category("Cash", "In")
                 self.moneydata.add_category("Cash", "Out")
@@ -176,13 +207,6 @@ class TestMoneyData(unittest.TestCase):
                 self.moneydata.add_transaction("2000-01-02", "Cash.Out", "Category1.Subcategory1", "20.0", "")
                 self.moneydata.add_transaction("2000-01-03", "Category2", "Cash.In", "30.0", "")
                 self.moneydata.add_transaction("2000-01-04", "Category2.Subcategory1", "Cash.In", "35.0", "")
-
-        def test_get_category(self):
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                        self.moneydata.get_category, "UnknownCategory")
-
-                existingcategory = self.moneydata.get_category("Category1")
-                self.assertEqual(existingcategory.name, "Category1")
 
         def test_category_is_contained_in_notfound_category(self):
                 self.assertIsNone(self.moneydata.get_notfound_category())
