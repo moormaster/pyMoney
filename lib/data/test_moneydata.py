@@ -154,7 +154,7 @@ class TestMoneyData_Transactions(unittest.TestCase):
                 self.assertEqual(newtransaction.comment, "A comment")
 
 
-class TestMoneyData(unittest.TestCase):
+class TestMoneyData_Categories(unittest.TestCase):
         def setUp(self):
                 self.moneydata = moneydata.MoneyData()
 
@@ -184,6 +184,32 @@ class TestMoneyData(unittest.TestCase):
 
                 self.assertRaisesRegex(moneydata.AmbiguousCategoryNameException, "Ambi", self.moneydata.get_category, "Ambi")
 
+        def test_regular_category_should_not_be_contained_in_notfound_category(self):
+                self.moneydata.add_category("All", "Category")
+
+                category = self.moneydata.get_category("Category")
+                self.assertFalse(self.moneydata.category_is_contained_in_notfound_category(category))
+
+        def test_add_category_should_add_a_category_under_the_given_parent(self):
+                self.moneydata.add_category("All", "Category")
+
+                category = self.moneydata.get_category("Category")
+                self.assertTrue(category.is_contained_in_subtree(self.moneydata.get_category("All")))
+
+        def test_add_category_should_raise_an_exception_when_adding_another_child_having_the_same_name(self):
+                self.moneydata.add_category("All", "Category")
+
+                self.assertRaisesRegex(moneydata.DuplicateCategoryException, "Category",
+                        self.moneydata.add_category, "All", "Category")
+ 
+
+        def test_add_category_should_be_possible_with_equal_names_under_different_parents(self):
+                self.moneydata.add_category("All", "Category1")
+                self.moneydata.add_category("All", "Category2")
+
+                self.assertTrue(self.moneydata.add_category("Category1", "SubCategory1"))
+                self.assertTrue(self.moneydata.add_category("Category2", "SubCategory1"))
+
 
 class TestMoneyDataWithTransaction(unittest.TestCase):
         def setUp(self):
@@ -207,56 +233,6 @@ class TestMoneyDataWithTransaction(unittest.TestCase):
                 self.moneydata.add_transaction("2000-01-02", "Cash.Out", "Category1.Subcategory1", "20.0", "")
                 self.moneydata.add_transaction("2000-01-03", "Category2", "Cash.In", "30.0", "")
                 self.moneydata.add_transaction("2000-01-04", "Category2.Subcategory1", "Cash.In", "35.0", "")
-
-        def test_category_is_contained_in_notfound_category(self):
-                self.assertIsNone(self.moneydata.get_notfound_category())
-
-                self.assertFalse(self.moneydata.category_is_contained_in_notfound_category(self.moneydata.get_category("All")))
-                self.assertFalse(
-                        self.moneydata.category_is_contained_in_notfound_category(self.moneydata.get_category("Category1")))
-                self.assertFalse(
-                        self.moneydata.category_is_contained_in_notfound_category(self.moneydata.get_category("Category2")))
-
-                self.assertIsNone(self.moneydata.get_notfound_category())
-                self.moneydata.add_category("All", self.moneydata.notfoundcategoryname)
-                self.assertIsNotNone(self.moneydata.get_notfound_category())
-
-                self.assertTrue(
-                        self.moneydata.category_is_contained_in_notfound_category(self.moneydata.get_notfound_category()))
-
-                newcategory = self.moneydata.add_category(self.moneydata.notfoundcategoryname, "NewCategory1")
-                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newcategory))
-
-        def test_add_category(self):
-                # duplicate category names are allowed if they dont share the same dad
-                self.moneydata.add_category("Category1", "SubCategory1")
-                self.moneydata.add_category("Category2", "SubCategory1")
-
-                self.assertRaisesRegex(moneydata.DuplicateCategoryException, "SubCategory1",
-                        self.moneydata.add_category, "Category2", "SubCategory1")
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                        self.moneydata.add_category, "UnknownCategory", "NewCategory1")
-
-                newcategory = self.moneydata.add_category("All", "NewCategory1")
-                self.assertEqual(newcategory.name, "NewCategory1")
-                self.assertEqual(newcategory.parent.name, "All")
-
-                newcategory = self.moneydata.add_category("Category1", "NewCategory2")
-                self.assertEqual(newcategory.name, "NewCategory2")
-                self.assertEqual(newcategory.parent.name, "Category1")
-
-                self.moneydata.add_category("All", self.moneydata.notfoundcategoryname)
-                self.moneydata.add_category(self.moneydata.notfoundcategoryname, "NewCategory3")
-                newcategory3 = self.moneydata.get_category("NewCategory3")
-                self.assertEqual(newcategory3.name, "NewCategory3")
-                self.assertEqual(newcategory3.parent.name, self.moneydata.notfoundcategoryname)
-                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(newcategory3))
-
-                newcategory = self.moneydata.add_category("All", "NewCategory3")
-                self.assertFalse(self.moneydata.category_is_contained_in_notfound_category(newcategory3))
-                self.assertFalse(self.moneydata.category_is_contained_in_notfound_category(newcategory))
-                self.assertEqual(newcategory.name, "NewCategory3")
-                self.assertEqual(newcategory.parent.name, "All")
 
         def test_delete_category(self):
                 self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
