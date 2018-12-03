@@ -220,6 +220,14 @@ $ ./pyMoney.py transaction add 2000-01-20 Cash Breakfast 2.00 Bakery
 
 $ ./pyMoney.py transaction add 2000-01-20 Cash Lunch 8
 
+$ ./pyMoney.py summary categories 2000 01 --category Frequent --showempty
+node           amount sum + sum -   sum
+
+    Frequent     0.00 50.00  0.00 50.00
+      Rent       0.00  0.00  0.00  0.00
+      Energy    50.00 50.00  0.00 50.00
+      Internet   0.00  0.00  0.00  0.00
+
 $ ./pyMoney.py transaction add 2000-01-21 Cash Breakfast 2.00 Bakery
 
 $ ./pyMoney.py transaction add 2000-01-21 Cash Lunch 8
@@ -326,6 +334,14 @@ $ ./pyMoney.py transaction add 2000-02-18 Cash Breakfast 2.00 Bakery
 
 $ ./pyMoney.py transaction add 2000-02-18 Cash Lunch 8
 
+$ ./pyMoney.py summary categories 2000 02 --category Frequent --showempty
+node           amount sum + sum -   sum
+
+    Frequent     0.00 50.00  0.00 50.00
+      Rent       0.00  0.00  0.00  0.00
+      Energy    50.00 50.00  0.00 50.00
+      Internet   0.00  0.00  0.00  0.00
+
 $ ./pyMoney.py transaction add 2000-02-21 Cash Breakfast 2.00 Bakery
 
 $ ./pyMoney.py transaction add 2000-02-21 Cash Lunch 8
@@ -431,14 +447,6 @@ All                     0.00 17200.00 -17200.00      0.00
   Expenses              0.00   890.00      0.00    890.00
     Frequent            0.00   680.00      0.00    680.00
     OnDemand            0.00   210.00      0.00    210.00
-
-$ ./pyMoney.py summary categories 2000 01 --category Frequent --showempty
-node           amount  sum + sum -    sum
-
-    Frequent     0.00 680.00  0.00 680.00
-      Rent     600.00 600.00  0.00 600.00
-      Energy    50.00  50.00  0.00  50.00
-      Internet  30.00  30.00  0.00  30.00
 
 $ ./pyMoney.py summary categories 2000 01 --cashflowcategory Rent
 node          amount  sum +   sum -     sum
