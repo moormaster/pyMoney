@@ -122,7 +122,7 @@ class TestMoneyData_Transactions(unittest.TestCase):
                 self.moneydata.delete_transaction(transaction1.index)
 
                 self.assertEqual(len(self.moneydata.transactions), 1)
-                self.assertEqual(self.moneydata.transactions[0].amount, "20.0", "second transaction should not have been deleted")
+                self.assertEqual(self.moneydata.transactions[0].amount, 20.0, "second transaction should not have been deleted")
 
         def test_parse_transaction_should_raise_exception_if_fromcategory_was_not_found(self):
                 self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",

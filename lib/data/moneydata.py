@@ -9,6 +9,8 @@ class MoneyData:
 
                 self.notfoundcategoryname = "NOTFOUND"
 
+                self.nextfreeindex = None
+
         def get_categories_iterator(self):
                 return self.categorytree.__iter__()
 
@@ -17,11 +19,17 @@ class MoneyData:
 
         def filter_transactions(self, filter_func):
                 return filter(filter_func, self.transactions.__iter__())
+
+        def create_new_index(self):
+                if self.nextfreeindex is None:
+                        self.nextfreeindex = len(self.transactions)
+                else:
+                        self.nextfreeindex += 1
+                
+                return self.nextfreeindex
         
         def import_transaction(self, transaction):
-                nextfreeindex = len(self.transactions)
-
-                transaction.index = nextfreeindex
+                transaction.index = self.create_new_index()
                 self.transactions.append(transaction)
 
         def add_transaction(self, str_date, str_fromcategory, str_tocategory, str_amount, str_comment, force=False):
