@@ -227,6 +227,37 @@ class TestMoneyData_Categories(unittest.TestCase):
                 self.assertFalse(self.moneydata.categorytree.find_first_node_by_relative_path("Subcategory"))
                 self.assertFalse(self.moneydata.categorytree.find_first_node_by_relative_path("Category"))
 
+        def test_rename_category_should_raise_an_exception_if_category_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
+                        self.moneydata.rename_category, "UnknownCategory", "RenamedUnknownCategory")
+
+        def test_rename_category_should_raise_an_exception_if_a_sibling_with_equal_name_exists(self):
+                self.moneydata.add_category("All", "Category1")
+                self.moneydata.add_category("All", "Category2")
+
+                self.assertRaisesRegex(moneydata.DuplicateCategoryException, "Category1",
+                        self.moneydata.rename_category, "Category2", "Category1")
+
+        def test_rename_category_should_change_the_name_of_a_category(self):
+                self.moneydata.add_category("All", "Category")
+
+                category = self.moneydata.get_category("Category")
+                self.moneydata.rename_category("Category", "RenamedCategory")
+
+                self.assertEqual(category.name, "RenamedCategory")
+
+        def test_rename_category_should_change_all_transactions_involved(self):
+                self.moneydata.add_category("All", "Category")
+                self.moneydata.add_category("All", "OtherCategory")
+
+                transaction1 = self.moneydata.add_transaction("2000-01-01", "Category", "OtherCategory", "10.0", "")
+                transaction2 = self.moneydata.add_transaction("2000-01-01", "OtherCategory", "Category", "10.0", "")
+
+                self.moneydata.rename_category("Category", "RenamedCategory")
+
+                self.assertEqual(transaction1.fromcategory.name, "RenamedCategory")
+                self.assertEqual(transaction2.tocategory.name, "RenamedCategory")
+
 
 class TestMoneyDataWithTransaction(unittest.TestCase):
         def setUp(self):
@@ -252,11 +283,6 @@ class TestMoneyDataWithTransaction(unittest.TestCase):
                 self.moneydata.add_transaction("2000-01-04", "Category2.Subcategory1", "Cash.In", "35.0", "")
 
         def test_rename_category(self):
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                        self.moneydata.rename_category, "UnknownCategory", "RenamedUnknownCategory")
-                self.assertRaisesRegex(moneydata.DuplicateCategoryException, "In",
-                        self.moneydata.rename_category, "External.Out", "In")
-
                 # test renaming to a new category name
                 category = self.moneydata.get_category("Category1")
                 filter_func_from = lambda t: t.fromcategory is category
