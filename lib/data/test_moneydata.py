@@ -210,6 +210,23 @@ class TestMoneyData_Categories(unittest.TestCase):
                 self.assertTrue(self.moneydata.add_category("Category1", "SubCategory1"))
                 self.assertTrue(self.moneydata.add_category("Category2", "SubCategory1"))
 
+        def test_delete_category_should_raise_an_exception_if_category_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
+                        self.moneydata.delete_category, "UnknownCategory")
+
+        def test_delete_category_should_raise_an_exception_if_top_category_was_given(self):
+                self.assertRaisesRegex(moneydata.CategoryIsTopCategoryException, "All",
+                        self.moneydata.delete_category, "All")
+
+        def test_delete_category_should_delete_category_and_its_descendants(self):
+                self.moneydata.add_category("All", "Category")
+                self.moneydata.add_category("Category", "SubCategory")
+
+                self.moneydata.delete_category("Category")
+
+                self.assertFalse(self.moneydata.categorytree.find_first_node_by_relative_path("Subcategory"))
+                self.assertFalse(self.moneydata.categorytree.find_first_node_by_relative_path("Category"))
+
 
 class TestMoneyDataWithTransaction(unittest.TestCase):
         def setUp(self):
@@ -233,17 +250,6 @@ class TestMoneyDataWithTransaction(unittest.TestCase):
                 self.moneydata.add_transaction("2000-01-02", "Cash.Out", "Category1.Subcategory1", "20.0", "")
                 self.moneydata.add_transaction("2000-01-03", "Category2", "Cash.In", "30.0", "")
                 self.moneydata.add_transaction("2000-01-04", "Category2.Subcategory1", "Cash.In", "35.0", "")
-
-        def test_delete_category(self):
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                        self.moneydata.delete_category, "UnknownCategory")
-                self.assertRaisesRegex(moneydata.CategoryIsTopCategoryException, "All",
-                        self.moneydata.delete_category, "All")
-
-                self.moneydata.delete_category("Category1")
-
-                self.assertFalse(self.moneydata.categorytree.find_first_node_by_relative_path("Category1.Subcategory1"))
-                self.assertFalse(self.moneydata.categorytree.find_first_node_by_relative_path("Category1"))
 
         def test_rename_category(self):
                 self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
