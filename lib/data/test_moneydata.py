@@ -272,6 +272,76 @@ class TestMoneyData_Categories(unittest.TestCase):
                 self.assertRaisesRegex(moneydata.DuplicateCategoryException, "Target",
                         self.moneydata.rename_category, "Category", "Target")
 
+        def test_merge_to_category_should_raise_an_exception_when_source_category_was_not_found(self):
+                self.moneydata.add_category("All", "Category")
+
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
+                        self.moneydata.merge_to_category, "UnknownCategory", "Category")
+
+        def test_merge_to_category_should_raise_an_exception_when_target_category_was_not_found(self):
+                self.moneydata.add_category("All", "Category")
+
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
+                        self.moneydata.merge_to_category, "Category", "UnknownCategory")
+
+        def test_merge_to_category_should_remove_source_category(self):
+                self.moneydata.add_category("All", "Category1")
+                self.moneydata.add_category("All", "Category2")
+
+                self.moneydata.merge_to_category("Category1", "Category2")
+
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "Category1",
+                        self.moneydata.get_category, "Category1")
+
+        def test_merge_to_category_should_replace_source_category_with_target_category_in_transactions_involved(self):
+                self.moneydata.add_category("All", "Assets")
+                self.moneydata.add_category("All", "Category1")
+                self.moneydata.add_category("All", "Category2")
+
+                transactions_from_assets = [
+                        self.moneydata.add_transaction("2000-01-01", "Assets", "Category1", "10.0", ""),
+                        self.moneydata.add_transaction("2000-01-02", "Assets", "Category2", "20.0", "")
+                ]
+
+                transactions_to_assets = [
+                        self.moneydata.add_transaction("2000-01-01", "Category1", "Assets", "30.0", ""),
+                        self.moneydata.add_transaction("2000-01-02", "Category2", "Assets", "40.0", "")
+                ]
+
+                self.moneydata.merge_to_category("Category1", "Category2")
+
+                for transaction in transactions_from_assets:
+                        self.assertEqual(transaction.tocategory.name, "Category2")
+
+                for transaction in transactions_to_assets:
+                        self.assertEqual(transaction.fromcategory.name, "Category2")
+
+        def test_move_category_should_change_parent_of_source_category(self):
+                category1 = self.moneydata.add_category("All", "Category1")
+                category2 = self.moneydata.add_category("All", "Category2")
+
+                self.moneydata.move_category("Category1", "Category2")
+
+                self.assertEqual(category1.parent.name, "Category2")
+
+        def test_move_category_should_raise_an_exception_if_source_category_was_not_found(self):
+                self.moneydata.add_category("All", "Category")
+
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
+                        self.moneydata.move_category, "UnknownCategory", "Category")
+
+        def test_move_category_should_raise_an_exception_if_target_category_was_not_found(self):
+                self.moneydata.add_category("All", "Category")
+
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
+                        self.moneydata.move_category, "Category", "UnknownCategory")
+
+        def test_move_category_should_raise_an_exception_if_target_category_is_contained_in_source_category_subtree(self):
+                self.moneydata.add_category("All", "Category")
+                self.moneydata.add_category("Category", "SubCategory")
+
+                self.assertRaises(tree.TargetNodeIsPartOfSourceNodeSubTreeException, self.moneydata.move_category, "Category", "SubCategory")
+
 
 class TestMoneyDataWithTransaction(unittest.TestCase):
         def setUp(self):
@@ -295,30 +365,6 @@ class TestMoneyDataWithTransaction(unittest.TestCase):
                 self.moneydata.add_transaction("2000-01-02", "Cash.Out", "Category1.Subcategory1", "20.0", "")
                 self.moneydata.add_transaction("2000-01-03", "Category2", "Cash.In", "30.0", "")
                 self.moneydata.add_transaction("2000-01-04", "Category2.Subcategory1", "Cash.In", "35.0", "")
-
-        def test_merge_category(self):
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                        self.moneydata.merge_to_category, "UnknownCategory", "Category1")
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                        self.moneydata.merge_to_category, "Category1", "UnknownCategory")
-
-                sourcecategory = self.moneydata.get_category("Category1")
-                targetcategory = self.moneydata.get_category("Category2")
-
-                filter_func = lambda t: t.fromcategory.is_contained_in_subtree(
-                        targetcategory) or t.tocategory.is_contained_in_subtree(targetcategory)
-                transactions = list(self.moneydata.filter_transactions(filter_func))
-
-                self.moneydata.merge_to_category(sourcecategory.name, targetcategory.name)
-
-                for transaction in transactions:
-                        self.assertTrue(filter_func(transaction))
-
-        def test_move_category(self):
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                        self.moneydata.move_category, "UnknownCategory", "Category1")
-                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
-                        self.moneydata.move_category, "Category1", "UnknownCategory")
 
         def test_create_summary(self):
                 filter_func = lambda t: True
