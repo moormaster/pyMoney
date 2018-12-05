@@ -343,7 +343,7 @@ class TestMoneyData_Categories(unittest.TestCase):
                 self.assertRaises(tree.TargetNodeIsPartOfSourceNodeSubTreeException, self.moneydata.move_category, "Category", "SubCategory")
 
 
-class TestMoneyDataWithTransaction(unittest.TestCase):
+class TestMoneyData_Summary(unittest.TestCase):
         def setUp(self):
                 self.moneydata = moneydata.MoneyData()
 
