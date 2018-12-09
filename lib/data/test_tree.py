@@ -24,30 +24,28 @@ class TestTreeNode(unittest.TestCase):
                 self.childnode2.append_childnode(self.subchildnode2_1)
                 self.childnode2.append_childnode(self.subchildnode2_2)
 
-        def test___iter__(self):
-                l = list(self.tree)
+        def test___iter___should_iterate_using_in_order(self):
+                nodeA = tree.TreeNode("A")
+                nodeB = tree.TreeNode("B")
+                nodeC = tree.TreeNode("C")
+                nodeD = tree.TreeNode("D")
+                nodeE = tree.TreeNode("E")
+                nodeF = tree.TreeNode("F")
+                nodeG = tree.TreeNode("G")
 
-                expected_set = {self.tree, self.childnode1, self.subchildnode1_1, self.subchildnode1_2, self.childnode2,
-                                                self.subchildnode2_1, self.subchildnode2_2}
-                self.assertSetEqual(expected_set, set(l))
+                nodeA.append_childnode(nodeB)
+                nodeA.append_childnode(nodeE)
 
-                self.assertTrue(l[0] is self.tree)
+                nodeB.append_childnode(nodeC)
+                nodeB.append_childnode(nodeD)
 
-                self.assertTrue(l[1] is self.childnode1 or l[1] is self.childnode2)
-                self.assertTrue(l[4] is self.childnode1 or l[4] is self.childnode2)
+                nodeE.append_childnode(nodeF)
+                nodeE.append_childnode(nodeG)
 
-                if l[1] is self.childnode1:
-                        self.assertTrue(l[2] is self.subchildnode1_1 or l[2] is self.subchildnode1_2)
-                        self.assertTrue(l[3] is self.subchildnode1_1 or l[3] is self.subchildnode1_2)
+                expected_order = ["A", "B", "C", "D", "E", "F", "G"]
+                order = list(map(lambda node : node.name, nodeA))
 
-                        self.assertTrue(l[5] is self.subchildnode2_1 or l[5] is self.subchildnode2_2)
-                        self.assertTrue(l[6] is self.subchildnode2_1 or l[6] is self.subchildnode2_2)
-                else:
-                        self.assertTrue(l[2] is self.subchildnode2_1 or l[2] is self.subchildnode2_2)
-                        self.assertTrue(l[3] is self.subchildnode2_1 or l[3] is self.subchildnode2_2)
-
-                        self.assertTrue(l[5] is self.subchildnode1_1 or l[5] is self.subchildnode1_2)
-                        self.assertTrue(l[6] is self.subchildnode1_1 or l[6] is self.subchildnode1_2)
+                self.assertEqual(expected_order, order)
 
         def test_format(self):
                 self.assertRegex(self.tree.format(), "[\t]{0}[^\t]*")
@@ -55,18 +53,20 @@ class TestTreeNode(unittest.TestCase):
                 self.assertRegex(self.childnode2.format(), "[\t]{1}[^\t]*")
                 self.assertRegex(self.subchildnode1_1.format(), "[\t]{2}[^\t]*")
 
-        def test_append_childnode(self):
+        def test_append_childnode_should_raise_an_exception_if_parameter_is_not_a_TreeNode_object(self):
                 self.assertRaises(AssertionError, self.tree.append_childnode, object())
 
-                node = self.tree.append_childnode(tree.TreeNode("Child"))
+        def test_append_childnode_should_set_parent_of_child_node(self):
+                treeRoot = tree.TreeNode("Root")
+                node = treeRoot.append_childnode(tree.TreeNode("Child"))
 
-                self.assertTrue(node is not None)
-                self.assertEqual(node.parent, self.tree)
+                self.assertEqual(node.parent, treeRoot)
 
-                subnode = node.append_childnode(tree.TreeNode("SubChild"))
+        def test_append_childnode_should_insert_node_into_children_dictionary(self):
+                treeRoot = tree.TreeNode("Root")
+                node = treeRoot.append_childnode(tree.TreeNode("Child"))
 
-                self.assertTrue(subnode is not None)
-                self.assertEqual(subnode.parent, node)
+                self.assertEqual(treeRoot.children[node.name], node)
 
         def test_remove_childnode_by_name(self):
                 self.assertRaisesRegex(tree.NoSuchNodeException, "NoChild", self.tree.remove_childnode_by_name, "NoChild")
