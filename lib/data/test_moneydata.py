@@ -347,107 +347,64 @@ class TestMoneyData_Summary(unittest.TestCase):
         def setUp(self):
                 self.moneydata = moneydata.MoneyData()
 
-                self.moneydata.add_category("All", "Cash")
-                self.moneydata.add_category("Cash", "In")
-                self.moneydata.add_category("Cash", "Out")
+        def test_create_summary_should_accumulate_transactions_of_a_category(self):
+                self.moneydata.add_category("All", "Source")
+                self.moneydata.add_category("All", "Target")
 
-                self.moneydata.add_category("All", "External")
-                self.moneydata.add_category("External", "In")
-                self.moneydata.add_category("External", "Out")
+                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "10.0", "")
+                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "20.0", "")
+                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "30.0", "")
 
-                self.moneydata.add_category("External.Out", "Category1")
-                self.moneydata.add_category("External.In", "Category2")
+                filter_func = lambda t: True
+                summary = self.moneydata.create_summary(filter_func)
 
-                self.moneydata.add_category("Category1", "Subcategory1")
-                self.moneydata.add_category("Category2", "Subcategory1")
+                self.assertEqual(summary["Source"].amountin, 0.0)
+                self.assertEqual(summary["Source"].amountout, -60.0)
+                self.assertEqual(summary["Source"].amount, -60.0)
 
-                self.moneydata.add_transaction("2000-01-01", "Cash.Out", "Category1", "10.0", "")
-                self.moneydata.add_transaction("2000-01-02", "Cash.Out", "Category1.Subcategory1", "20.0", "")
-                self.moneydata.add_transaction("2000-01-03", "Category2", "Cash.In", "30.0", "")
-                self.moneydata.add_transaction("2000-01-04", "Category2.Subcategory1", "Cash.In", "35.0", "")
+                self.assertEqual(summary["Source"].sumcountin, 0)
+                self.assertEqual(summary["Source"].sumcountout, 3)
+                self.assertEqual(summary["Source"].sumcount, 3)
 
-        def test_create_summary(self):
+                self.assertEqual(summary["Source"].sumin, 0.0)
+                self.assertEqual(summary["Source"].sumout, -60.0)
+                self.assertEqual(summary["Source"].sum, -60.0)
+
+
+                self.assertEqual(summary["Target"].amountin, 60.0)
+                self.assertEqual(summary["Target"].amountout, 0.0)
+                self.assertEqual(summary["Target"].amount, 60.0)
+
+                self.assertEqual(summary["Target"].sumcountin, 3)
+                self.assertEqual(summary["Target"].sumcountout, 0)
+                self.assertEqual(summary["Target"].sumcount, 3)
+
+                self.assertEqual(summary["Target"].sumin, 60.0)
+                self.assertEqual(summary["Target"].sumout, 0.0)
+                self.assertEqual(summary["Target"].sum, 60.0)
+
+        def test_create_summary_should_accumulate_values_of_subcategories(self):
+                self.moneydata.add_category("All", "Source")
+                self.moneydata.add_category("All", "Target")
+
+                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "10.0", "")
+                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "20.0", "")
+                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "30.0", "")
+
                 filter_func = lambda t: True
                 summary = self.moneydata.create_summary(filter_func)
 
                 self.assertEqual(summary["All"].amountin, 0)
-                self.assertEqual(summary["Cash"].amountin, 0)
-                self.assertEqual(summary["Cash.In"].amountin, 65)
-                self.assertEqual(summary["Cash.Out"].amountin, 0)
-                self.assertEqual(summary["External"].amountin, 0)
-                self.assertEqual(summary["External.In"].amountin, 0)
-                self.assertEqual(summary["Category2"].amountin, 0)
-                self.assertEqual(summary["Category2.Subcategory1"].amountin, 0)
-                self.assertEqual(summary["External.Out"].amountin, 0)
-                self.assertEqual(summary["Category1"].amountin, 10)
-                self.assertEqual(summary["Category1.Subcategory1"].amountin, 20)
-
                 self.assertEqual(summary["All"].amountout, 0)
-                self.assertEqual(summary["Cash"].amountout, 0)
-                self.assertEqual(summary["Cash.In"].amountout, 0)
-                self.assertEqual(summary["Cash.Out"].amountout, -30)
-                self.assertEqual(summary["External"].amountout, 0)
-                self.assertEqual(summary["External.In"].amountout, 0)
-                self.assertEqual(summary["Category2"].amountout, -30)
-                self.assertEqual(summary["Category2.Subcategory1"].amountout, -35)
-                self.assertEqual(summary["External.Out"].amountout, 0)
-                self.assertEqual(summary["Category1"].amountout, 0)
-                self.assertEqual(summary["Category1.Subcategory1"].amountout, 0)
+                self.assertEqual(summary["All"].amount, 0)
 
-                self.assertEqual(summary["All"].sumcountin, 4)
-                self.assertEqual(summary["Cash"].sumcountin, 2)
-                self.assertEqual(summary["Cash.In"].sumcountin, 2)
-                self.assertEqual(summary["Cash.Out"].sumcountin, 0)
-                self.assertEqual(summary["External"].sumcountin, 2)
-                self.assertEqual(summary["External.In"].sumcountin, 0)
-                self.assertEqual(summary["Category2"].sumcountin, 0)
-                self.assertEqual(summary["Category2.Subcategory1"].sumcountin, 0)
-                self.assertEqual(summary["External.Out"].sumcountin, 2)
-                self.assertEqual(summary["Category1"].sumcountin, 2)
-                self.assertEqual(summary["Category1.Subcategory1"].sumcountin, 1)
+                self.assertEqual(summary["All"].sumcountin, 3)
+                self.assertEqual(summary["All"].sumcountout, 3)
+                self.assertEqual(summary["All"].sumcount, 6)
 
-                self.assertEqual(summary["All"].sumcountout, 4)
-                self.assertEqual(summary["Cash"].sumcountout, 2)
-                self.assertEqual(summary["Cash.In"].sumcountout, 0)
-                self.assertEqual(summary["Cash.Out"].sumcountout, 2)
-                self.assertEqual(summary["External"].sumcountout, 2)
-                self.assertEqual(summary["External.In"].sumcountout, 2)
-                self.assertEqual(summary["Category2"].sumcountout, 2)
-                self.assertEqual(summary["Category2.Subcategory1"].sumcountout, 1)
-                self.assertEqual(summary["External.Out"].sumcountout, 0)
-                self.assertEqual(summary["Category1"].sumcountout, 0)
-                self.assertEqual(summary["Category1.Subcategory1"].sumcountout, 0)
-
-                self.assertEqual(summary["All"].sumin, 95)
-                self.assertEqual(summary["Cash"].sumin, 65)
-                self.assertEqual(summary["Cash.In"].sumin, 65)
-                self.assertEqual(summary["Cash.Out"].sumin, 0)
-                self.assertEqual(summary["External"].sumin, 30)
-                self.assertEqual(summary["External.In"].sumin, 0)
-                self.assertEqual(summary["Category2"].sumin, 0)
-                self.assertEqual(summary["Category2.Subcategory1"].sumin, 0)
-                self.assertEqual(summary["External.Out"].sumin, 30)
-                self.assertEqual(summary["Category1"].sumin, 30)
-                self.assertEqual(summary["Category1.Subcategory1"].sumin, 20)
-
-                self.assertEqual(summary["All"].sumout, -95)
-                self.assertEqual(summary["Cash"].sumout, -30)
-                self.assertEqual(summary["Cash.In"].sumout, 0)
-                self.assertEqual(summary["Cash.Out"].sumout, -30)
-                self.assertEqual(summary["External"].sumout, -65)
-                self.assertEqual(summary["External.In"].sumout, -65)
-                self.assertEqual(summary["Category2"].sumout, -65)
-                self.assertEqual(summary["Category2.Subcategory1"].sumout, -35)
-                self.assertEqual(summary["External.Out"].sumout, 0)
-                self.assertEqual(summary["Category1"].sumout, 0)
-                self.assertEqual(summary["Category1.Subcategory1"].sumout, 0)
-
-                for categoryname in summary:
-                        self.assertEqual(summary[categoryname].amount,
-                                summary[categoryname].amountin + summary[categoryname].amountout)
-                        self.assertEqual(summary[categoryname].sumcount,
-                                summary[categoryname].sumcountin + summary[categoryname].sumcountout)
-                        self.assertEqual(summary[categoryname].sum, summary[categoryname].sumin + summary[categoryname].sumout)
+                self.assertEqual(summary["All"].sumin, 60.0)
+                self.assertEqual(summary["All"].sumout, -60.0)
+                self.assertEqual(summary["All"].sum, 0.0)
 
 
 if __name__ == '__main__':
