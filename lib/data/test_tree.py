@@ -54,7 +54,9 @@ class TestTreeNode(unittest.TestCase):
                 self.assertRegex(self.subchildnode1_1.format(), "[\t]{2}[^\t]*")
 
         def test_append_childnode_should_raise_an_exception_if_parameter_is_not_a_TreeNode_object(self):
-                self.assertRaises(AssertionError, self.tree.append_childnode, object())
+                treeRoot = tree.TreeNode("Root")
+
+                self.assertRaises(AssertionError, treeRoot.append_childnode, object())
 
         def test_append_childnode_should_set_parent_of_child_node(self):
                 treeRoot = tree.TreeNode("Root")
@@ -67,25 +69,38 @@ class TestTreeNode(unittest.TestCase):
                 node = treeRoot.append_childnode(tree.TreeNode("Child"))
 
                 self.assertEqual(treeRoot.children[node.name], node)
+                self.assertEqual(treeRoot.find_first_node_by_relative_path("Child"), node)
 
-        def test_remove_childnode_by_name(self):
-                self.assertRaisesRegex(tree.NoSuchNodeException, "NoChild", self.tree.remove_childnode_by_name, "NoChild")
+        def test_remove_childnode_by_name_should_raise_an_exception_if_node_was_not_found(self):
+                treeRoot = tree.TreeNode("Root")
 
-                self.tree.remove_childnode_by_name("Child1")
+                self.assertRaisesRegex(tree.NoSuchNodeException, "Unknown", treeRoot.remove_childnode_by_name, "Unknown")
 
-                self.assertEqual(self.tree.find_first_node_by_relative_path("Child1"), None)
-                self.assertNotEqual(self.tree.find_first_node_by_relative_path("SubChild1"), self.subchildnode1_1)
-                self.assertEqual(self.tree.find_first_node_by_relative_path("Child2"), self.childnode2)
+        def test_remove_childnode_by_name_should_remove_the_given_childnode(self):
+                treeRoot = tree.TreeNode("Root")
+                childNode = tree.TreeNode("Child")
+                treeRoot.append_childnode(childNode)
 
-        def test_remove_childnode(self):
-                self.assertRaisesRegex(tree.NodeIsNotAChildException, "('All', 'NoChild')",
-                        self.tree.remove_childnode, tree.TreeNode("NoChild"))
+                treeRoot.remove_childnode_by_name("Child")
 
-                self.tree.remove_childnode(self.childnode1)
+                self.assertEqual(childNode.parent, None)
+                self.assertEqual(treeRoot.find_first_node_by_relative_path("Child"), None)
 
-                self.assertEqual(self.tree.find_first_node_by_relative_path("Child1"), None)
-                self.assertNotEqual(self.tree.find_first_node_by_relative_path("SubChild1"), self.subchildnode1_1)
-                self.assertEqual(self.tree.find_first_node_by_relative_path("Child2"), self.childnode2)
+        def test_remove_childnode_should_raise_an_exception_if_the_given_node_is_not_a_child(self):
+                treeRoot = tree.TreeNode("Root")
+
+                self.assertRaisesRegex(tree.NodeIsNotAChildException, "('Root', 'NotAChild')",
+                        treeRoot.remove_childnode, tree.TreeNode("NotAChild"))
+
+        def test_remove_childnode_should_remove_the_given_childnode(self):
+                treeRoot = tree.TreeNode("Root")
+                childNode = tree.TreeNode("Child")
+                treeRoot.append_childnode(childNode)
+
+                treeRoot.remove_childnode(childNode)
+
+                self.assertEqual(childNode.parent, None)
+                self.assertEqual(treeRoot.find_first_node_by_relative_path("Child"), None)
 
         def test_merge(self):
                 sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
