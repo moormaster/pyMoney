@@ -55,22 +55,22 @@ class TreeNode:
                 node.parent = None
                 self.children.pop(node.name)
 
-        def merge_to_node(self, targetnode):
-                if self.is_contained_in_subtree(targetnode):
-                        raise TargetNodeIsPartOfSourceNodeSubTreeException(targetnode, self)
+        def merge_from_node(self, sourcenode):
+                if self.is_contained_in_subtree(sourcenode):
+                        raise TargetNodeIsPartOfSourceNodeSubTreeException(sourcenode, self)
 
-                if targetnode.parent is not None:
-                        targetnode.parent.remove_childnode(targetnode)
+                if sourcenode.parent is not None:
+                        sourcenode.parent.remove_childnode(sourcenode)
 
                 children = []
-                for c in targetnode.children:
-                        children.append(targetnode.children[c])
+                for c in sourcenode.children:
+                        children.append(sourcenode.children[c])
 
                 for c in children:
                         if c.name in self.children:
-                                self.children[c.name].merge_to_node(c)
+                                self.children[c.name].merge_from_node(c)
                         else:
-                                targetnode.remove_childnode(c)
+                                sourcenode.remove_childnode(c)
                                 self.append_childnode(c)
 
         def move_node_to(self, targetnode):

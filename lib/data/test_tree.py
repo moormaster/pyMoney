@@ -83,8 +83,8 @@ class TestTreeNode(unittest.TestCase):
 
                 treeRoot.remove_childnode_by_name("Child")
 
-                self.assertEqual(childNode.parent, None)
-                self.assertEqual(treeRoot.find_first_node_by_relative_path("Child"), None)
+                self.assertIsNone(childNode.parent)
+                self.assertIsNone(treeRoot.find_first_node_by_relative_path("Child"))
 
         def test_remove_childnode_should_raise_an_exception_if_the_given_node_is_not_a_child(self):
                 treeRoot = tree.TreeNode("Root")
@@ -99,29 +99,52 @@ class TestTreeNode(unittest.TestCase):
 
                 treeRoot.remove_childnode(childNode)
 
-                self.assertEqual(childNode.parent, None)
-                self.assertEqual(treeRoot.find_first_node_by_relative_path("Child"), None)
+                self.assertIsNone(childNode.parent)
+                self.assertIsNone(treeRoot.find_first_node_by_relative_path("Child"))
 
-        def test_merge(self):
-                sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
-                targetcategory = self.tree.find_first_node_by_relative_path("Child1.SubChild1")
+        def test_merge_from_node_should_raise_an_exception_if_targetnode_is_a_descendant_of_self(self):
+                treeRoot = tree.TreeNode("Root")
+                childNode = tree.TreeNode("Child")
+                treeRoot.append_childnode(childNode)
 
-                assert isinstance(sourcecategory, tree.TreeNode)
-                assert isinstance(targetcategory, tree.TreeNode)
+                self.assertRaisesRegex(tree.TargetNodeIsPartOfSourceNodeSubTreeException, "('Root', 'Child')",
+                        childNode.merge_from_node, treeRoot)
 
-                self.assertRaisesRegex(tree.TargetNodeIsPartOfSourceNodeSubTreeException, "('Child1', 'SubChild1')",
-                        targetcategory.merge_to_node, sourcecategory)
+        def test_merge_from_node_should_remove_source_node(self):
+                treeRoot = tree.TreeNode("Root")
+                source = tree.TreeNode("Source")
+                target = tree.TreeNode("Target")
+                treeRoot.append_childnode(source)
+                treeRoot.append_childnode(target)
 
-                sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
-                targetcategory = self.tree.find_first_node_by_relative_path("Child2")
+                target.merge_from_node(source)
 
-                subcategories = targetcategory.children
+                self.assertIsNone(source.parent)
+                self.assertIsNone(treeRoot.find_first_node_by_relative_path("Source"))
 
-                targetcategory.merge_to_node(sourcecategory)
+        def test_merge_from_node_should_merge_all_descendant_categories_of_source_node_with_descendand_categories_of_the_target_node(self):
+                treeRoot= tree.TreeNode("Root")
+                source = tree.TreeNode("Source")
+                sourcechild = tree.TreeNode("SourceChild")
+                sourcecommonchild = tree.TreeNode("CommonChild")
+                target = tree.TreeNode("Target")
+                targetchild = tree.TreeNode("TargetChild")
+                targetcommonchild = tree.TreeNode("CommonChild")
+                treeRoot.append_childnode(source)
+                treeRoot.append_childnode(target)
+                source.append_childnode(sourcechild)
+                source.append_childnode(sourcecommonchild)
+                target.append_childnode(targetchild)
+                target.append_childnode(targetcommonchild)
 
-                self.assertEqual(len(subcategories), 2)
-                for category in subcategories:
-                        self.assertEqual(subcategories[category].parent, targetcategory)
+                target.merge_from_node(source)
+
+                self.assertIsNone(source.parent)
+                self.assertIs(sourcechild.parent, target)
+                self.assertIsNone(sourcecommonchild.parent)
+                self.assertIsNotNone(target.find_first_node_by_relative_path("SourceChild"))
+                self.assertIsNotNone(target.find_first_node_by_relative_path("CommonChild"))
+                self.assertIsNotNone(target.find_first_node_by_relative_path("TargetChild"))
 
         def test_move_to(self):
                 sourcecategory = self.tree.find_first_node_by_relative_path("Child1")

@@ -158,7 +158,7 @@ class MoneyData:
                 category = categories[0]
                 targetcategory = targetcategories[0]
 
-                targetcategory.merge_to_node(category)
+                targetcategory.merge_from_node(category)
 
         def move_category(self, name, newparentname):
                 node = self.get_category(name)
