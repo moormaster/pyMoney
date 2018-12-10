@@ -53,14 +53,14 @@ class TestTreeNode(unittest.TestCase):
                 treeRoot = tree.TreeNode("Root")
                 node = treeRoot.append_childnode(tree.TreeNode("Child"))
 
-                self.assertEqual(node.parent, treeRoot)
+                self.assertIs(node.parent, treeRoot)
 
         def test_append_childnode_should_insert_node_into_children_dictionary(self):
                 treeRoot = tree.TreeNode("Root")
                 node = treeRoot.append_childnode(tree.TreeNode("Child"))
 
-                self.assertEqual(treeRoot.children[node.name], node)
-                self.assertEqual(treeRoot.find_first_node_by_relative_path("Child"), node)
+                self.assertIs(treeRoot.children[node.name], node)
+                self.assertIs(treeRoot.find_first_node_by_relative_path("Child"), node)
 
         def test_remove_childnode_by_name_should_raise_an_exception_if_node_was_not_found(self):
                 treeRoot = tree.TreeNode("Root")
@@ -126,28 +126,28 @@ class TestTreeNode(unittest.TestCase):
                 self.assertIsNotNone(target.find_first_node_by_relative_path("CommonChild"))
                 self.assertIsNotNone(target.find_first_node_by_relative_path("TargetChild"))
 
-        def test_move_to(self):
-                sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
-                targetcategory = self.tree.find_first_node_by_relative_path("Child1.SubChild1")
+        def test_move_node_to_should_raise_an_exception_if_tried_to_move_node_under_one_of_its_descendants(self):
+                treeRoot = tree.TreeNode("Root")
+                node = treeRoot.append_childnode(tree.TreeNode("Node"))
+                child = node.append_childnode(tree.TreeNode("Child"))
 
-                assert isinstance(sourcecategory, tree.TreeNode)
-                assert isinstance(targetcategory, tree.TreeNode)
+                self.assertRaisesRegex(tree.TargetNodeIsPartOfSourceNodeSubTreeException, "('Child', 'Node')",
+                        node.move_node_to, child)
 
-                self.assertRaisesRegex(tree.TargetNodeIsPartOfSourceNodeSubTreeException, "('SubChild1', 'Child1')",
-                        sourcecategory.move_node_to, targetcategory)
+        def test_move_node_to_should_change_parent_to_the_given_one(self):
+                treeRoot = tree.TreeNode("Root")
+                node1 = treeRoot.append_childnode(tree.TreeNode("Node1"))
+                node2 = treeRoot.append_childnode(tree.TreeNode("Node2"))
 
-                sourcecategory = self.tree.find_first_node_by_relative_path("Child1")
-                targetcategory = self.tree.find_first_node_by_relative_path("Child2")
+                node2.move_node_to(node1)
 
-                sourcecategory.move_node_to(targetcategory)
-
-                self.assertEqual(sourcecategory.parent, targetcategory)
+                self.assertIs(node2.parent, node1)
 
         def test_rename(self):
                 self.subchildnode1_1.rename("renamed")
 
                 self.assertEqual(self.subchildnode1_1.name, "renamed")
-                self.assertEqual(self.tree.find_first_node_by_relative_path("renamed"), self.subchildnode1_1)
+                self.assertIs(self.tree.find_first_node_by_relative_path("renamed"), self.subchildnode1_1)
 
         def test_get_depth(self):
                 self.assertEqual(self.tree.get_depth(), 0)
@@ -155,18 +155,18 @@ class TestTreeNode(unittest.TestCase):
                 self.assertEqual(self.subchildnode1_1.get_depth(), 2)
 
         def test_get_root(self):
-                self.assertEqual(self.tree.get_root(), self.tree)
-                self.assertEqual(self.childnode1.get_root(), self.tree)
-                self.assertEqual(self.subchildnode1_1.get_root(), self.tree)
+                self.assertIs(self.tree.get_root(), self.tree)
+                self.assertIs(self.childnode1.get_root(), self.tree)
+                self.assertIs(self.subchildnode1_1.get_root(), self.tree)
 
         def test_find_first_node_by_relative_path(self):
                 node = self.tree.find_first_node_by_relative_path("Child1.SubChild1")
                 selfnode = self.subchildnode1_1.find_first_node_by_relative_path("SubChild1")
                 notfoundnode = self.tree.find_first_node_by_relative_path("NoChild")
 
-                self.assertEqual(node, self.subchildnode1_1)
-                self.assertEqual(selfnode, self.subchildnode1_1)
-                self.assertEqual(notfoundnode, None)
+                self.assertIs(node, self.subchildnode1_1)
+                self.assertIs(selfnode, self.subchildnode1_1)
+                self.assertIs(notfoundnode, None)
 
         def test_find_nodes_by_relative_path(self):
                 nodelist = self.tree.find_nodes_by_relative_path("SubChild1")
@@ -176,7 +176,7 @@ class TestTreeNode(unittest.TestCase):
                 self.assertEqual(len(nodelist), 2)
                 self.assertSetEqual(set(nodelist), {self.subchildnode1_1, self.subchildnode2_1})
                 self.assertEqual(len(selfnodelist), 1)
-                self.assertEqual(selfnodelist[0], self.subchildnode1_1)
+                self.assertIs(selfnodelist[0], self.subchildnode1_1)
                 self.assertEqual(len(notfoundnodelist), 0)
 
         def test_find_nodes(self):
