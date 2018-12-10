@@ -26,21 +26,12 @@ class TestTreeNode(unittest.TestCase):
 
         def test___iter___should_iterate_using_in_order(self):
                 nodeA = tree.TreeNode("A")
-                nodeB = tree.TreeNode("B")
-                nodeC = tree.TreeNode("C")
-                nodeD = tree.TreeNode("D")
-                nodeE = tree.TreeNode("E")
-                nodeF = tree.TreeNode("F")
-                nodeG = tree.TreeNode("G")
-
-                nodeA.append_childnode(nodeB)
-                nodeA.append_childnode(nodeE)
-
-                nodeB.append_childnode(nodeC)
-                nodeB.append_childnode(nodeD)
-
-                nodeE.append_childnode(nodeF)
-                nodeE.append_childnode(nodeG)
+                nodeB = nodeA.append_childnode(tree.TreeNode("B"))
+                nodeB.append_childnode(tree.TreeNode("C"))
+                nodeB.append_childnode(tree.TreeNode("D"))
+                nodeE = nodeA.append_childnode(tree.TreeNode("E"))
+                nodeE.append_childnode(tree.TreeNode("F"))
+                nodeE.append_childnode(tree.TreeNode("G"))
 
                 expected_order = ["A", "B", "C", "D", "E", "F", "G"]
                 order = list(map(lambda node : node.name, nodeA))
@@ -78,8 +69,7 @@ class TestTreeNode(unittest.TestCase):
 
         def test_remove_childnode_by_name_should_remove_the_given_childnode(self):
                 treeRoot = tree.TreeNode("Root")
-                childNode = tree.TreeNode("Child")
-                treeRoot.append_childnode(childNode)
+                childNode = treeRoot.append_childnode(tree.TreeNode("Child"))
 
                 treeRoot.remove_childnode_by_name("Child")
 
@@ -94,8 +84,7 @@ class TestTreeNode(unittest.TestCase):
 
         def test_remove_childnode_should_remove_the_given_childnode(self):
                 treeRoot = tree.TreeNode("Root")
-                childNode = tree.TreeNode("Child")
-                treeRoot.append_childnode(childNode)
+                childNode = treeRoot.append_childnode(tree.TreeNode("Child"))
 
                 treeRoot.remove_childnode(childNode)
 
@@ -104,18 +93,15 @@ class TestTreeNode(unittest.TestCase):
 
         def test_merge_from_node_should_raise_an_exception_if_targetnode_is_a_descendant_of_self(self):
                 treeRoot = tree.TreeNode("Root")
-                childNode = tree.TreeNode("Child")
-                treeRoot.append_childnode(childNode)
+                childNode = treeRoot.append_childnode(tree.TreeNode("Child"))
 
                 self.assertRaisesRegex(tree.TargetNodeIsPartOfSourceNodeSubTreeException, "('Root', 'Child')",
                         childNode.merge_from_node, treeRoot)
 
         def test_merge_from_node_should_remove_source_node(self):
                 treeRoot = tree.TreeNode("Root")
-                source = tree.TreeNode("Source")
-                target = tree.TreeNode("Target")
-                treeRoot.append_childnode(source)
-                treeRoot.append_childnode(target)
+                source = treeRoot.append_childnode(tree.TreeNode("Source"))
+                target = treeRoot.append_childnode(tree.TreeNode("Target"))
 
                 target.merge_from_node(source)
 
@@ -124,18 +110,12 @@ class TestTreeNode(unittest.TestCase):
 
         def test_merge_from_node_should_merge_all_descendant_categories_of_source_node_with_descendand_categories_of_the_target_node(self):
                 treeRoot= tree.TreeNode("Root")
-                source = tree.TreeNode("Source")
-                sourcechild = tree.TreeNode("SourceChild")
-                sourcecommonchild = tree.TreeNode("CommonChild")
-                target = tree.TreeNode("Target")
-                targetchild = tree.TreeNode("TargetChild")
-                targetcommonchild = tree.TreeNode("CommonChild")
-                treeRoot.append_childnode(source)
-                treeRoot.append_childnode(target)
-                source.append_childnode(sourcechild)
-                source.append_childnode(sourcecommonchild)
-                target.append_childnode(targetchild)
-                target.append_childnode(targetcommonchild)
+                source = treeRoot.append_childnode(tree.TreeNode("Source"))
+                sourcechild = source.append_childnode(tree.TreeNode("SourceChild"))
+                sourcecommonchild = source.append_childnode(tree.TreeNode("CommonChild"))
+                target = treeRoot.append_childnode(tree.TreeNode("Target"))
+                target.append_childnode(tree.TreeNode("TargetChild"))
+                target.append_childnode(tree.TreeNode("CommonChild"))
 
                 target.merge_from_node(source)
 
