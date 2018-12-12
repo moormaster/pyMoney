@@ -144,10 +144,13 @@ class TestTreeNode(unittest.TestCase):
                 self.assertIs(node2.parent, node1)
 
         def test_rename(self):
-                self.subchildnode1_1.rename("renamed")
+                treeRoot = tree.TreeNode("Root")
+                node = treeRoot.append_childnode(tree.TreeNode("Node"))
 
-                self.assertEqual(self.subchildnode1_1.name, "renamed")
-                self.assertIs(self.tree.find_first_node_by_relative_path("renamed"), self.subchildnode1_1)
+                node.rename("renamed")
+
+                self.assertEqual(node.name, "renamed")
+                self.assertIs(self.tree.find_first_node_by_relative_path("renamed"), node)
 
         def test_get_depth(self):
                 self.assertEqual(self.tree.get_depth(), 0)
