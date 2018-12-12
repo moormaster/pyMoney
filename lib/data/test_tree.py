@@ -153,14 +153,22 @@ class TestTreeNode(unittest.TestCase):
                 self.assertIs(self.tree.find_first_node_by_relative_path("renamed"), node)
 
         def test_get_depth(self):
-                self.assertEqual(self.tree.get_depth(), 0)
-                self.assertEqual(self.childnode1.get_depth(), 1)
-                self.assertEqual(self.subchildnode1_1.get_depth(), 2)
+                treeRoot = tree.TreeNode("Root")
+                child = treeRoot.append_childnode(tree.TreeNode("Child")
+                subchild = child.append_childnode(tree.TreeNode("SubChild")
+
+                self.assertEqual(treeRoot.get_depth(), 0)
+                self.assertEqual(child.get_depth(), 1)
+                self.assertEqual(subchild.get_depth(), 2)
 
         def test_get_root(self):
-                self.assertIs(self.tree.get_root(), self.tree)
-                self.assertIs(self.childnode1.get_root(), self.tree)
-                self.assertIs(self.subchildnode1_1.get_root(), self.tree)
+                treeRoot = tree.TreeNode("Root")
+                child = treeRoot.append_childnode(tree.TreeNode("Child")
+                subchild = child.append_childnode(tree.TreeNode("SubChild")
+
+                self.assertIs(treeRoot.get_root(), self.tree)
+                self.assertIs(child.get_root(), self.tree)
+                self.assertIs(subchild.get_root(), self.tree)
 
         def test_find_first_node_by_relative_path(self):
                 node = self.tree.find_first_node_by_relative_path("Child1.SubChild1")
