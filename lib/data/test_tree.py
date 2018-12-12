@@ -150,12 +150,12 @@ class TestTreeNode(unittest.TestCase):
                 node.rename("renamed")
 
                 self.assertEqual(node.name, "renamed")
-                self.assertIs(self.tree.find_first_node_by_relative_path("renamed"), node)
+                self.assertIs(treeRoot.find_first_node_by_relative_path("renamed"), node)
 
         def test_get_depth(self):
                 treeRoot = tree.TreeNode("Root")
-                child = treeRoot.append_childnode(tree.TreeNode("Child")
-                subchild = child.append_childnode(tree.TreeNode("SubChild")
+                child = treeRoot.append_childnode(tree.TreeNode("Child"))
+                subchild = child.append_childnode(tree.TreeNode("SubChild"))
 
                 self.assertEqual(treeRoot.get_depth(), 0)
                 self.assertEqual(child.get_depth(), 1)
@@ -163,21 +163,35 @@ class TestTreeNode(unittest.TestCase):
 
         def test_get_root(self):
                 treeRoot = tree.TreeNode("Root")
-                child = treeRoot.append_childnode(tree.TreeNode("Child")
-                subchild = child.append_childnode(tree.TreeNode("SubChild")
+                child = treeRoot.append_childnode(tree.TreeNode("Child"))
+                subchild = child.append_childnode(tree.TreeNode("SubChild"))
 
-                self.assertIs(treeRoot.get_root(), self.tree)
-                self.assertIs(child.get_root(), self.tree)
-                self.assertIs(subchild.get_root(), self.tree)
+                self.assertIs(treeRoot.get_root(), treeRoot)
+                self.assertIs(child.get_root(), treeRoot)
+                self.assertIs(subchild.get_root(), treeRoot)
 
-        def test_find_first_node_by_relative_path(self):
-                node = self.tree.find_first_node_by_relative_path("Child1.SubChild1")
-                selfnode = self.subchildnode1_1.find_first_node_by_relative_path("SubChild1")
-                notfoundnode = self.tree.find_first_node_by_relative_path("NoChild")
+        def test_find_first_node_by_relative_path_should_find_itself(self):
+                treeRoot = tree.TreeNode("Root")
 
-                self.assertIs(node, self.subchildnode1_1)
-                self.assertIs(selfnode, self.subchildnode1_1)
-                self.assertIs(notfoundnode, None)
+                node = treeRoot.find_first_node_by_relative_path("Root")
+
+                self.assertIs(node, treeRoot)
+
+        def test_find_first_node_by_relative_path_should_find_a_node_by_unique_path(self):
+                treeRoot = tree.TreeNode("Root")
+                child = treeRoot.append_childnode(tree.TreeNode("Child"))
+                subchild = child.append_childnode(tree.TreeNode("SubChild"))
+
+                node = treeRoot.find_first_node_by_relative_path("Child.SubChild")
+
+                self.assertIs(node, subchild)
+
+        def test_find_first_node_by_relative_path_should_return_None_when_a_node_was_not_found(self):
+                treeRoot = tree.TreeNode("Root")
+
+                node = treeRoot.find_first_node_by_relative_path("Unknown")
+
+                self.assertIsNone(node)
 
         def test_find_nodes_by_relative_path(self):
                 nodelist = self.tree.find_nodes_by_relative_path("SubChild1")
