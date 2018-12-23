@@ -193,16 +193,23 @@ class TestTreeNode(unittest.TestCase):
 
                 self.assertIsNone(node)
 
-        def test_find_nodes_by_relative_path(self):
-                nodelist = self.tree.find_nodes_by_relative_path("SubChild1")
-                selfnodelist = self.subchildnode1_1.find_nodes_by_relative_path("SubChild1")
-                notfoundnodelist = self.tree.find_nodes_by_relative_path("NoChild")
+        def test_find_nodes_by_relative_path_should_return_all_nodes_whose_paths_ends_with_the_given_relative_path(self):
+                treeRoot = tree.TreeNode("Root")
+                child1 = treeRoot.append_childnode(tree.TreeNode("Child1"))
+                child2 = treeRoot.append_childnode(tree.TreeNode("Child2"))
+                ambiguous1 = child1.append_childnode(tree.TreeNode("Ambiguous"))
+                ambiguous2 = child2.append_childnode(tree.TreeNode("Ambiguous"))
 
-                self.assertEqual(len(nodelist), 2)
-                self.assertSetEqual(set(nodelist), {self.subchildnode1_1, self.subchildnode2_1})
-                self.assertEqual(len(selfnodelist), 1)
-                self.assertIs(selfnodelist[0], self.subchildnode1_1)
-                self.assertEqual(len(notfoundnodelist), 0)
+                nodelist = treeRoot.find_nodes_by_relative_path("Ambiguous")
+
+                self.assertSetEqual(set(nodelist), {ambiguous1, ambiguous2})
+
+        def test_find_nodes_by_relative_path_should_return_an_empty_list_for_not_existing_node(self):
+                treeRoot = tree.TreeNode("Root")
+
+                nodelist = treeRoot.find_nodes_by_relative_path("Unknown")
+
+                self.assertEqual(nodelist, [])
 
         def test_find_nodes(self):
                 anode1 = self.tree.append_childnode(tree.TreeNode("ANode"))
