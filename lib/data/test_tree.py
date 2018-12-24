@@ -231,8 +231,12 @@ class TestTreeNode(unittest.TestCase):
 
                 self.assertSetEqual(set(nodelist), {node1, node2})
 
-        def test_get_full_name(self):
-                self.assertEqual(self.subchildnode1_1.get_full_name(), "All.Child1.SubChild1")
+        def test_get_full_name_should_return_absolute_path(self):
+                treeRoot = tree.TreeNode("Root")
+                child = treeRoot.append_childnode(tree.TreeNode("Child"))
+                node = child.append_childnode(tree.TreeNode("Node"))
+
+                self.assertEqual(node.get_full_name(), "Root.Child.Node")
 
         def test_is_contained_in_subtree(self):
                 self.assertTrue(self.subchildnode1_1.is_contained_in_subtree(self.subchildnode1_1))
