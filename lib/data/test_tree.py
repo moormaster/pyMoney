@@ -5,25 +5,6 @@ import unittest
 
 
 class TestTreeNode(unittest.TestCase):
-        def setUp(self):
-                self.tree = tree.TreeNode("All")
-
-                self.childnode1 = tree.TreeNode("Child1")
-                self.childnode2 = tree.TreeNode("Child2")
-                self.subchildnode1_1 = tree.TreeNode("SubChild1")
-                self.subchildnode1_2 = tree.TreeNode("SubChild2")
-                self.subchildnode2_1 = tree.TreeNode("SubChild1")
-                self.subchildnode2_2 = tree.TreeNode("SubChild2")
-
-                self.tree.append_childnode(self.childnode1)
-                self.tree.append_childnode(self.childnode2)
-
-                self.childnode1.append_childnode(self.subchildnode1_1)
-                self.childnode1.append_childnode(self.subchildnode1_2)
-
-                self.childnode2.append_childnode(self.subchildnode2_1)
-                self.childnode2.append_childnode(self.subchildnode2_2)
-
         def test___iter___should_iterate_using_in_order(self):
                 nodeA = tree.TreeNode("A")
                 nodeB = nodeA.append_childnode(tree.TreeNode("B"))
@@ -39,10 +20,15 @@ class TestTreeNode(unittest.TestCase):
                 self.assertEqual(expected_order, order)
 
         def test_format(self):
-                self.assertRegex(self.tree.format(), "[\t]{0}[^\t]*")
-                self.assertRegex(self.childnode1.format(), "[\t]{1}[^\t]*")
-                self.assertRegex(self.childnode2.format(), "[\t]{1}[^\t]*")
-                self.assertRegex(self.subchildnode1_1.format(), "[\t]{2}[^\t]*")
+                treeRoot = tree.TreeNode("Root")
+                child1 = treeRoot.append_childnode(tree.TreeNode("Child1"))
+                child2 = treeRoot.append_childnode(tree.TreeNode("Child2"))
+                node = child1.append_childnode(tree.TreeNode("Node"))
+
+                self.assertRegex(treeRoot.format(), "[\t]{0}[^\t]*")
+                self.assertRegex(child1.format(), "[\t]{1}[^\t]*")
+                self.assertRegex(child2.format(), "[\t]{1}[^\t]*")
+                self.assertRegex(node.format(), "[\t]{2}[^\t]*")
 
         def test_append_childnode_should_raise_an_exception_if_parameter_is_not_a_TreeNode_object(self):
                 treeRoot = tree.TreeNode("Root")
@@ -238,12 +224,21 @@ class TestTreeNode(unittest.TestCase):
 
                 self.assertEqual(node.get_full_name(), "Root.Child.Node")
 
-        def test_is_contained_in_subtree_should_return_false_for_siblings(self):
+        def test_is_contained_in_subtree_should_return_false_for_sibling(self):
                 treeRoot = tree.TreeNode("Root")
                 child1 = treeRoot.append_childnode(tree.TreeNode("Child1"))
                 child2 = treeRoot.append_childnode(tree.TreeNode("Child2"))
 
                 self.assertFalse(child1.is_contained_in_subtree(child2))
+
+        def test_is_contained_in_subtree_shoud_return_false_for_one_of_its_descendants(self):
+                treeRoot = tree.TreeNode("Root")
+                child = treeRoot.append_childnode(tree.TreeNode("Child"))
+                node = child.append_childnode(tree.TreeNode("Node"))
+
+                self.assertFalse(treeRoot.is_contained_in_subtree(node))
+                self.assertFalse(treeRoot.is_contained_in_subtree(child))
+
 
         def test_is_contained_in_subtree_should_return_true_for_one_of_its_parent(self):
                 treeRoot = tree.TreeNode("Root")
@@ -253,15 +248,28 @@ class TestTreeNode(unittest.TestCase):
                 self.assertTrue(node.is_contained_in_subtree(child))
                 self.assertTrue(node.is_contained_in_subtree(treeRoot))
 
-        def test_is_root_of(self):
-                self.assertTrue(self.tree.is_root_of(self.childnode1))
-                self.assertTrue(self.tree.is_root_of(self.subchildnode1_1))
+        def test_is_root_of_should_return_false_for_sibling(self):
+                treeRoot = tree.TreeNode("Root")
+                child1 = treeRoot.append_childnode(tree.TreeNode("Child1"))
+                child2 = treeRoot.append_childnode(tree.TreeNode("Child2"))
 
-                self.assertTrue(self.childnode1.is_root_of(self.subchildnode1_1))
-                self.assertFalse(self.childnode2.is_root_of(self.subchildnode1_1))
+                self.assertFalse(child1.is_root_of(child2))
 
-                self.assertFalse(self.childnode1.is_root_of(self.childnode2))
-                self.assertFalse(self.childnode2.is_root_of(self.childnode1))
+        def test_is_root_of_should_return_false_for_one_of_its_parents(self):
+                treeRoot = tree.TreeNode("Root")
+                child = treeRoot.append_childnode(tree.TreeNode("Child"))
+                node = child.append_childnode(tree.TreeNode("Node"))
+
+                self.assertFalse(node.is_root_of(child))
+                self.assertFalse(node.is_root_of(treeRoot))
+
+        def test_is_root_of_should_return_true_for_one_of_its_descendants(self):
+                treeRoot = tree.TreeNode("Root")
+                child = treeRoot.append_childnode(tree.TreeNode("Child"))
+                node = child.append_childnode(tree.TreeNode("Node"))
+
+                self.assertTrue(treeRoot.is_root_of(child))
+                self.assertTrue(treeRoot.is_root_of(node))
 
 
 if __name__ == '__main__':
