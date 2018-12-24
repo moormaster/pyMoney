@@ -231,14 +231,6 @@ class TestTreeNode(unittest.TestCase):
 
                 self.assertSetEqual(set(nodelist), {node1, node2})
 
-        def test_find_nodes(self):
-                anode1 = self.tree.append_childnode(tree.TreeNode("ANode"))
-                anode2 = self.subchildnode1_1.append_childnode(tree.TreeNode("ANode"))
-
-                l = self.tree.find_nodes("ANode")
-
-                self.assertEqual(set(l), {anode1, anode2})
-
         def test_get_full_name(self):
                 self.assertEqual(self.subchildnode1_1.get_full_name(), "All.Child1.SubChild1")
 
