@@ -199,10 +199,12 @@ class TestTreeNode(unittest.TestCase):
                 child2 = treeRoot.append_childnode(tree.TreeNode("Child2"))
                 ambiguous1 = child1.append_childnode(tree.TreeNode("Ambiguous"))
                 ambiguous2 = child2.append_childnode(tree.TreeNode("Ambiguous"))
+                path1 = ambiguous1.append_childnode(tree.TreeNode("Path"))
+                path2 = ambiguous2.append_childnode(tree.TreeNode("Path"))
 
-                nodelist = treeRoot.find_nodes_by_relative_path("Ambiguous")
+                nodelist = treeRoot.find_nodes_by_relative_path("Ambiguous.Path")
 
-                self.assertSetEqual(set(nodelist), {ambiguous1, ambiguous2})
+                self.assertSetEqual(set(nodelist), {path1, path2})
 
         def test_find_nodes_by_relative_path_should_return_an_empty_list_for_not_existing_node(self):
                 treeRoot = tree.TreeNode("Root")
