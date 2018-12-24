@@ -238,15 +238,20 @@ class TestTreeNode(unittest.TestCase):
 
                 self.assertEqual(node.get_full_name(), "Root.Child.Node")
 
-        def test_is_contained_in_subtree(self):
-                self.assertTrue(self.subchildnode1_1.is_contained_in_subtree(self.subchildnode1_1))
+        def test_is_contained_in_subtree_should_return_false_for_siblings(self):
+                treeRoot = tree.TreeNode("Root")
+                child1 = treeRoot.append_childnode(tree.TreeNode("Child1"))
+                child2 = treeRoot.append_childnode(tree.TreeNode("Child2"))
 
-                self.assertTrue(self.subchildnode1_1.is_contained_in_subtree(self.childnode1))
-                self.assertTrue(self.subchildnode1_2.is_contained_in_subtree(self.childnode1))
+                self.assertFalse(child1.is_contained_in_subtree(child2))
 
-                self.assertFalse(self.subchildnode1_1.is_contained_in_subtree(self.childnode2))
+        def test_is_contained_in_subtree_should_return_true_for_one_of_its_parent(self):
+                treeRoot = tree.TreeNode("Root")
+                child = treeRoot.append_childnode(tree.TreeNode("Child"))
+                node = child.append_childnode(tree.TreeNode("Node"))
 
-                self.assertTrue(self.childnode1.is_contained_in_subtree(self.tree))
+                self.assertTrue(node.is_contained_in_subtree(child))
+                self.assertTrue(node.is_contained_in_subtree(treeRoot))
 
         def test_is_root_of(self):
                 self.assertTrue(self.tree.is_root_of(self.childnode1))
