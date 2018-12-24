@@ -213,6 +213,24 @@ class TestTreeNode(unittest.TestCase):
 
                 self.assertEqual(nodelist, [])
 
+        def test_find_nodes_should_return_an_empty_list_for_not_existing_node(self):
+                treeRoot = tree.TreeNode("Root")
+
+                nodelist = treeRoot.find_nodes("Unknown")
+
+                self.assertEqual(nodelist, [])
+
+        def test_find_nodes_should_return_list_of_matching_nodes(self):
+                treeRoot = tree.TreeNode("Root")
+                child1 = treeRoot.append_childnode(tree.TreeNode("Child1"))
+                child2 = treeRoot.append_childnode(tree.TreeNode("Child2"))
+                node1 = child1.append_childnode(tree.TreeNode("Node"))
+                node2= child2.append_childnode(tree.TreeNode("Node"))
+
+                nodelist = treeRoot.find_nodes("Node")
+
+                self.assertSetEqual(set(nodelist), {node1, node2})
+
         def test_find_nodes(self):
                 anode1 = self.tree.append_childnode(tree.TreeNode("ANode"))
                 anode2 = self.subchildnode1_1.append_childnode(tree.TreeNode("ANode"))
