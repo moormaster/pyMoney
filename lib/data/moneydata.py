@@ -95,7 +95,7 @@ class MoneyData:
                 parentcategory = self.get_category(parentname)
 
                 if not category is None:
-                        category.parent.remove_childnode_by_name(name)
+                        raise DuplicateCategoryException(category)
 
                 newcategory = CategoryTreeNode(name)
                 parentcategory.append_childnode(newcategory)
@@ -119,8 +119,8 @@ class MoneyData:
                 newcategory = None
                 if not notfoundcategory is None:
                         newcategory = notfoundcategory.find_first_node_by_relative_path(newname)
-                        if not newcategory is None and not newcategory.parent is notfoundcategory:
-                                newcategory = None
+                        if not newcategory is None:
+                                raise DuplicateCategoryException(newcategory)
 
                 if not category.parent is None and newname in category.parent.children:
                         raise DuplicateCategoryException(category.parent.children[newname])
