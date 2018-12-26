@@ -46,6 +46,15 @@ class MoneyData:
 
                 return newtransaction
 
+        def edit_transaction(self, index, str_date, str_fromcategory, str_tocategory, str_amount, str_comment, dateformate="%Y-%m-%d"):
+                oldtransaction = self.transactions[index]
+
+                newtransaction = self.parse_transaction(str_date, str_fromcategory, str_tocategory, str_amount, str_comment)
+                self.transactions[index] = newtransaction
+                newtransaction.index = index
+
+                return newtransaction
+
         def delete_transaction(self, index):
                 del self.transactions[index]
 

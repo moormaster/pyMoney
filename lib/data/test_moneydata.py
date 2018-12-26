@@ -115,6 +115,49 @@ class TestMoneyData_Transactions(unittest.TestCase):
 
                 self.assertNotEqual(transaction3.index, transaction2.index)
 
+        def test_edit_transaction_should_raise_exception_for_invalid_index(self):
+                self.assertRaisesRegex(IndexError, "list index out of range",
+                        self.moneydata.edit_transaction, -1, "2000-01-01", "Category1", "Category2", "20.0", "")
+
+                self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+
+                self.assertRaisesRegex(IndexError, "list index out of range",
+                        self.moneydata.edit_transaction, 1, "2000-01-01", "Category1", "Category2", "20.0", "")
+
+        def test_edit_transaction_should_raise_exception_if_from_category_was_not_found(self):
+                self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+                
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory1",
+                        self.moneydata.edit_transaction, 0, "2000-01-01", "Category1", "UnknownCategory1", "20.0", "")
+
+        def test_edit_transaction_should_raise_exception_if_to_category_was_not_found(self):
+                self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory1",
+                        self.moneydata.edit_transaction, 0, "2000-01-01", "UnknownCategory1", "Category1", "20.0", "")
+
+        def test_edit_transaction_should_replace_category_strings_with_CategoryTreeNode(self):
+                self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+
+                newtransaction = self.moneydata.edit_transaction(0, "2000-01-02", "Category2", "Category3", "20.0", "Comment")
+
+                fromcategory = self.moneydata.get_category("Category2")
+                tocategory = self.moneydata.get_category("Category3")
+
+                self.assertEqual(newtransaction.date, datetime.date(2000, 1, 2))
+                self.assertIs(newtransaction.fromcategory, fromcategory)
+                self.assertIs(newtransaction.tocategory, tocategory)
+                self.assertEqual(newtransaction.amount, 20.0)
+                self.assertEqual(newtransaction.comment, "Comment")
+
+        def test_edit_transaction_should_keep_the_index(self):
+                self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+
+                newtransaction = self.moneydata.edit_transaction(0, "2000-01-02", "Category2", "Category3", "20.0", "Comment")
+
+                self.assertIs(newtransaction, self.moneydata.transactions[0])
+                self.assertEqual(newtransaction.index, 0)
+
         def test_delete_transaction_should_delete_first_transaction(self):
                 transaction1 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
                 transaction2 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "20.0", "")
