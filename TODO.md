@@ -63,8 +63,8 @@
 - [x] summary categories: add --maxlevel parameter to hide detailed categories
 - [x] summary categories: hide categories with 0 transaction count
                           add --showempty parameter to display all 
-- [ ] editing of transactions
-      transaction edit <id> [--date <YYYY-MM-DD>] [--from-category <category>] [--to-category <category>] [--amount <amount>]
+- [x] editing of transactions
+      transaction edit <id> <YYYY-MM-DD> <from-category>] <to-category> <amount> [comment]
 - [ ] introduce paymentplans:
       paymentplan add <name> <groupname> <from-category> <to-category> <amount>
       paymentplan edit <name> [--group <groupname>] [--from-category <category>] [--to-category <category>] [--amount <amount>]
