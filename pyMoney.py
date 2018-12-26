@@ -40,6 +40,14 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
+                        elif argv[1] == "edit":
+                                # from-category, to-category
+                                if len(argv) == 5 or len(argv) == 6:
+                                        categories = self.pyMoney.get_moneydata().get_categories_iterator()
+                                        categorynames = map(lambda c: c.get_unique_name(), categories)
+                                        categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+                                        return list(categorynames)
                         elif argv[1] == "list":
                                 parameters = ['category', 'fromcategory', 'tocategory']
 
@@ -57,7 +65,7 @@ class PyMoneyCompletion:
                                         else:
                                                 return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
                         elif len(argv) == 2:
-                                return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'list', 'delete']))
+                                return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'edit', 'delete', 'list']))
 
         def complete_category(self, text, line, begidx, endidx):
                 if endidx < len(line):
@@ -241,11 +249,19 @@ class PyMoneyConsole(cmd.Cmd):
 
         ### Cmd commands
         def do_transaction(self, args):
-                'Adds, deletes or lists transaction(s). Use transaction -h for more details.'
+                'Adds, edits, deletes or lists transaction(s). Use transaction -h for more details.'
                 def cmd_add(arguments):
                         try:
-                                self.pyMoney.get_moneydata().add_transaction(   arguments.__dict__["date"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"],
+                                self.pyMoney.get_moneydata().add_transaction(arguments.__dict__["date"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"],
                                                                 arguments.__dict__["comment"], arguments.__dict__["force"])
+                                self.writeOnQuit = True
+                        except Exception as e:
+                                self.print_error(e)
+
+                def cmd_edit(arguments):
+                        try:
+                                self.pyMoney.get_moneydata().edit_transaction(arguments.__dict__["index"], arguments.__dict__["date"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"],
+                                                                arguments.__dict__["amount"], arguments.__dict__["comment"])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
@@ -356,6 +372,16 @@ class PyMoneyConsole(cmd.Cmd):
                 p_transaction_add.add_argument("comment", default="", nargs='?')
                 p_transaction_add.add_argument("--force", action="store_true")
 
+                p_transaction_edit = sp_transaction.add_parser("edit")
+                p_transaction_edit.set_defaults(command="edit")
+                p_transaction_edit.set_defaults(parser=p_transaction_edit)
+                p_transaction_edit.add_argument("index", type=int)
+                p_transaction_edit.add_argument("date")
+                p_transaction_edit.add_argument("fromcategory")
+                p_transaction_edit.add_argument("tocategory")
+                p_transaction_edit.add_argument("amount", type=float)
+                p_transaction_edit.add_argument("comment", default="", nargs='?')
+
                 p_transaction_delete = sp_transaction.add_parser("delete")
                 p_transaction_delete.set_defaults(command="delete")
                 p_transaction_delete.set_defaults(parser=p_transaction_delete)
@@ -381,6 +407,7 @@ class PyMoneyConsole(cmd.Cmd):
                 d_commands = {
                         "add": cmd_add,
                         "delete": cmd_delete,
+                        "edit": cmd_edit,
                         "list": cmd_list
                 }
 

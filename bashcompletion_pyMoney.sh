@@ -52,6 +52,35 @@ _pymoney_transaction()
 			esac
 			;;
 
+		edit)
+			case ${COMP_CWORD} in
+				$(( $_ARGINDEX + 1 )) )
+					# index
+					;;
+
+				$(( $_ARGINDEX + 2 )) )
+					# date
+					;;
+
+				$(( $_ARGINDEX + 3 )) )
+					# fromcategory
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 4 )) )
+					# tocategory
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 5 )) )
+					# amount
+					;;
+
+				$(( $_ARGINDEX + 6 )) )
+					# comment
+			esac
+			;;
+
 		delete)
 			;;
 
@@ -68,7 +97,7 @@ _pymoney_transaction()
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "--fullnamecategories add delete list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "--fullnamecategories add edit delete list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
