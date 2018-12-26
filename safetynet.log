@@ -156,11 +156,13 @@ All.Expenses.OnDemand.Misc
 All.Liabilities
 
 
-$ ./pyMoney.py transaction add 2000-01-01 OpeningBalance Cash 400
+$ ./pyMoney.py transaction add 2000-01-01 OpeningBalance Cash 400.01
 
 $ ./pyMoney.py transaction add 2000-01-01 OpeningBalance Giro 3000
 
 $ ./pyMoney.py transaction add 2000-01-01 OpeningBalance DayMoney 10000
+
+$ ./pyMoney.py transaction edit 0 2000-01-01 OpeningBalance Cash 400
 
 $ ./pyMoney.py transaction add 2000-01-03 Giro Energy 50
 

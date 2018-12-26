@@ -70,9 +70,11 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["category", "list"])
                 self.pymoney(["category", "list", "--fullnamecategories"])
 
-                self.pymoney(["transaction", "add", "2000-01-01", "OpeningBalance", "Cash", "400"])
+                self.pymoney(["transaction", "add", "2000-01-01", "OpeningBalance", "Cash", "400.01"])
                 self.pymoney(["transaction", "add", "2000-01-01", "OpeningBalance", "Giro", "3000"])
                 self.pymoney(["transaction", "add", "2000-01-01", "OpeningBalance", "DayMoney", "10000"])
+
+                self.pymoney(["transaction", "edit", "0", "2000-01-01", "OpeningBalance", "Cash", "400"])
 
                 self.pymoney(["transaction", "add", "2000-01-03", "Giro", "Energy", "50"])
                 self.pymoney(["transaction", "add", "2000-01-03", "Cash", "Breakfast", "2.00", "Bakery"])
