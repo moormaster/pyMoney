@@ -1,0 +1,7 @@
+date,fromcategory,tocategory,amount,comment
+2010-01-01,Wages,Giro,1500.0,
+2010-01-01,Giro,Supermarket,23.45,
+2010-01-25,Giro,Rent,500.0,
+2010-01-10,Giro,Misc,15.0,
+2010-01-01,Giro,Cash,100.0,
+2010-01-11,Cash,Misc,10.0,"Coffee, Cake"
