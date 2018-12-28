@@ -3,56 +3,34 @@ import lib.data
 import lib.data.filterchain
 import lib.data.moneydata
 import lib.io
+import lib.io.serialization
 import lib.io.parser
 import lib.io.Categories
 import lib.io.Transactions
+import lib.io.Transactions_v1_3
 
 import os
 
 
 class PyMoney:
         def __init__(self, fileprefix="pymoney"):
-                self.fileprefix = ""
-                self.filenames = {}
-
-                self.set_fileprefix(fileprefix)
+                self.serialization = lib.io.serialization.MoneyDataSerialization(fileprefix)
 
                 self.moneydata = lib.data.moneydata.MoneyData()
                 self.filterFactory = FilterFactory(self.moneydata)
 
         def set_fileprefix(self, fileprefix):
-                self.fileprefix = fileprefix
-
-                self.filenames = {
-                        "transactions": self.fileprefix + ".transactions",
-                        "categories": self.fileprefix + ".categories"
-                }
+                return self.serialization.set_fileprefix(fileprefix)
 
         def get_moneydata(self):
                 return self.moneydata
 
         def read(self):
-                moneydata = lib.data.moneydata.MoneyData()
-
-                if os.access(self.filenames["categories"], os.F_OK):
-                        moneydata.categorytree = lib.io.Categories.read(self.filenames["categories"])
-
-                if os.access(self.filenames["transactions"], os.F_OK):
-                        transactionparser = lib.io.parser.TransactionParser(moneydata.categorytree, moneydata.notfoundcategoryname)
-                        transactions = lib.io.Transactions.read(self.filenames["transactions"], transactionparser)
-                        for t in transactions:
-                                moneydata.import_transaction(t)
-
-                self.moneydata = moneydata
-                self.filterFactory.set_moneydata(moneydata)
+                self.moneydata =  self.serialization.read()
+                self.filterFactory.set_moneydata(self.moneydata)
 
         def write(self, skipwritetransactions=False):
-                lib.io.Categories.write(self.filenames["categories"], self.moneydata.categorytree,
-                        self.moneydata.get_notfound_category())
-
-                if not skipwritetransactions:
-                        lib.io.Transactions.write(self.filenames["transactions"], self.moneydata.transactions,
-                                self.moneydata.get_notfound_category())
+                self.serialization.write(self.moneydata, skipwritetransactions)
 
 
 class FilterFactory:

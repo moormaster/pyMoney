@@ -9,7 +9,7 @@ import lib.io.Transactions
 import os
 
 
-class PyMoneySerialization:
+class MoneyDataSerialization:
         def __init__(self, fileprefix="pymoney"):
                 self.fileprefix = ""
                 self.filenames = {}
@@ -20,7 +20,7 @@ class PyMoneySerialization:
                 self.fileprefix = fileprefix
 
                 self.filenames = {
-                        "version": self.fileprefix + ".version"
+                        "version": self.fileprefix + ".version",
                         "transactions": self.fileprefix + ".transactions",
                         "categories": self.fileprefix + ".categories"
                 }
@@ -31,8 +31,9 @@ class PyMoneySerialization:
         def read(self):
                 moneydata = lib.data.moneydata.MoneyData()
 
-                if os.access(self.filenames["version"], of.F_OK):
-                        version = lib.io.Version.read(self.filenames["version"]
+                version = None
+                if os.access(self.filenames["version"], os.F_OK):
+                        version = lib.io.Version.read(self.filenames["version"])
 
                 if version is None:
                         version = [1, 3]
@@ -54,10 +55,10 @@ class PyMoneySerialization:
                 return moneydata
 
         def write(self, moneydata, skipwritetransactions=False):
-                lib.io.Categories.write(self.filenames["categories"], self.moneydata.categorytree,
-                        self.moneydata.get_notfound_category())
+                lib.io.Categories.write(self.filenames["categories"], moneydata.categorytree,
+                        moneydata.get_notfound_category())
 
                 if not skipwritetransactions:
-                        lib.io.Transactions.write(self.filenames["transactions"], self.moneydata.transactions,
-                                self.moneydata.get_notfound_category())
+                        lib.io.Transactions.write(self.filenames["transactions"], moneydata.transactions,
+                                moneydata.get_notfound_category())
 
