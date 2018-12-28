@@ -94,6 +94,13 @@ class TestMoneyDataSerialization(unittest.TestCase):
                         self.assertEqual(transaction.amount, originaltransaction.amount)
                         self.assertEqual(transaction.comment, originaltransaction.comment)
 
+        def test_read_v1_3(self):
+                read_serialization = serialization.MoneyDataSerialization("pymoney_v1_3")
+                readmoneydata = read_serialization.read()
+
+                self.assertGreater(len(list(readmoneydata.categorytree.__iter__())), 1)
+                self.assertGreater(len(readmoneydata.transactions), 0)
+
         def test_write_without_transactions_should_write_categories_only(self):
                 originalmoneydata = moneydata.MoneyData()
 
