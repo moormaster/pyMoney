@@ -424,6 +424,55 @@ class TestMoneyData_Categories(unittest.TestCase):
                 self.assertRaises(tree.TargetNodeIsPartOfSourceNodeSubTreeException, self.moneydata.move_category, "Category", "SubCategory")
 
 
+class TestMoneyData_PaymentPlans(unittest.TestCase):
+        def setUp(self):
+                self.moneydata = moneydata.MoneyData()
+
+        def test_get_paymentplan_should_raise_an_exeption_if_paymentplan_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchPaymentPlanException, "Unknown", self.moneydata.get_paymentplan, "Unknown")
+
+        def test_get_paymentplan_should_return_the_paymentplan_belonging_to_the_given_name(self):
+                self.moneydata.add_paymentplan("existingPlan", "group", "All", "All", 10-0, "Example plan")
+                self.moneydata.add_paymentplan("otherExistingPlan", "group", "All", "All", 10-0, "Example plan")
+
+                paymentplan = self.moneydata.get_paymentplan("existingPlan")
+
+                self.assertIsNotNone(paymentplan)
+                self.assertEqual(paymentplan.name, "existingPlan")
+
+        def test_add_paymentplan_should_raise_an_exception_if_a_plan_with_the_given_name_does_already_exist(self):
+                self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
+
+                self.assertRaisesRegex(moneydata.DuplicatePaymentPlanException, "plan", self.moneydata.add_paymentplan, "plan", "group", "All", "All", 10.0, "Example plan")
+
+        def test_add_paymentplan_should_raise_an_exception_if_fromcategory_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "Unknown", self.moneydata.add_paymentplan, "plan", "group", "Unknown", "All", 10.0, "Example plan")
+
+        def test_add_paymentplan_should_raise_an_exception_if_tocategory_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "Unknown", self.moneydata.add_paymentplan, "plan", "group", "All", "Unknown", 10.0, "Example plan")
+
+        def test_add_paymentplan_should_add_fromcategory_if_forced(self):
+                self.moneydata.add_paymentplan("plan", "group", "Unknown", "All", 10.0, "Example plan", True)
+
+                unknowncategory = self.moneydata.get_category("Unknown")
+                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(unknowncategory))
+
+        def test_add_paymentplan_should_add_tocategory_if_forced(self):
+                self.moneydata.add_paymentplan("plan", "group", "All", "Unknown", 10.0, "Example plan", True)
+
+                unknowncategory = self.moneydata.get_category("Unknown")
+                self.assertTrue(self.moneydata.category_is_contained_in_notfound_category(unknowncategory))
+
+        def test_add_paymentplan_should_replace_categorystrings_with_categories(self):
+                category1 = self.moneydata.add_category("All", "Category1")
+                category2 = self.moneydata.add_category("All", "Category2")
+
+                paymentplan = self.moneydata.add_paymentplan("plan", "group", "Category1", "Category2", 10.0, "Example plan", True)
+
+                self.assertIs(paymentplan.fromcategory, category1)
+                self.assertIs(paymentplan.tocategory, category2)
+
+
 class TestMoneyData_Summary(unittest.TestCase):
         def setUp(self):
                 self.moneydata = moneydata.MoneyData()

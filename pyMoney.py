@@ -552,22 +552,25 @@ class PyMoneyConsole(cmd.Cmd):
         def do_paymentplans(self, args):
                 'Adds, deletes, edits or executes payment plans'
                 def cmd_add():
-                    pass
+                        pass
 
                 def cmd_delete():
-                    pass
+                        pass
 
                 def cmd_edit():
-                    pass
+                        pass
 
                 def cmd_rename():
-                    pass
+                        pass
+
+                def cmd_move():
+                        pass
 
                 def cmd_list():
-                    pass
+                        pass
 
                 def cmd_execute():
-                    pass
+                        pass
 
                 parser = lib.argparse.ArgumentParser()
                 sp_paymentplan = parser.add_subparsers(title="command")
@@ -580,6 +583,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_add.add_argument("fromcategory")
                 p_paymentplan_add.add_argument("tocategory")
                 p_paymentplan_add.add_argument("amount", type=int)
+                p_paymentplan_add.add_argument("comment", default="", nargs='?')
 
                 p_paymentplan_delete = sp_paymentplan.add_parser("delete")
                 p_paymentplan_delete.set_defaults(command="delete")
@@ -594,12 +598,19 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_edit.add_argument("fromcategory")
                 p_paymentplan_edit.add_argument("tocategory")
                 p_paymentplan_edit.add_argument("amount", type=int)
+                p_paymentplan_edit.add_argument("comment", default="", nargs='?')
 
                 p_paymentplan_rename = sp_paymentplan.add_parser("rename")
                 p_paymentplan_rename.set_defaults(command="rename")
                 p_paymentplan_rename.set_defaults(parser=p_paymentplan_rename)
                 p_paymentplan_rename.add_argument("name")
                 p_paymentplan_rename.add_argument("newname")
+
+                p_paymentplan_move = sp_paymentplan.add_parser("move")
+                p_paymentplan_move.set_defaults(command="move")
+                p_paymentplan_move.set_defaults(parser=p_paymentplan_move)
+                p_paymentplan_move.add_argument("name")
+                p_paymentplan_move.add_argument("newgroupname")
 
                 p_paymentplan_rename = sp_paymentplan.add_parser("list")
                 p_paymentplan_rename.set_defaults(command="list")
@@ -622,6 +633,7 @@ class PyMoneyConsole(cmd.Cmd):
                         "delete": cmd_delete,
                         "edit": cmd_edit,
                         "rename": cmd_rename,
+                        "move": cmd_move,
                         "list": cmd_list,
                         "execute": cmd_execute
                 }

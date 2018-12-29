@@ -1,6 +1,7 @@
 # vim: expandtab softtabstop=0 list listchars=tab\:>-,space\:·:
 from lib.data.moneydata import CategoryTreeNode
 from lib.data.moneydata import Transaction
+from lib.data.moneydata import PaymentPlan
 from lib.data.moneydata import AmbiguousCategoryNameException
 from lib.data.moneydata import NoSuchCategoryException
 
@@ -42,13 +43,15 @@ class CategoryParser:
                 return node
 
 
-class TransactionParser:
-        def __init__(self, categorytree, notfoundcategoryname, dateformat="%Y-%m-%d"):
+class CategoryFinder:
+        def __init__(self, categorytree, notfoundcategoryname):
                 self.categorytree = categorytree
-                self.dateformat = dateformat
                 self.notfoundcategoryname = notfoundcategoryname
 
                 self.autocreatenotfoundcategory = True
+
+        def set_autocreatenotfoundcategory(self, autocreatenotfoundcategory):
+                self.autocreatenotfoundcategory = autocreatenotfoundcategory
 
         def get_category(self, name):
                 nodes = self.categorytree.find_nodes_by_relative_path(name)
@@ -76,12 +79,41 @@ class TransactionParser:
 
                 return category
 
+
+
+class TransactionParser:
+        def __init__(self, categorytree, notfoundcategoryname, dateformat="%Y-%m-%d"):
+                self.categoryfinder = CategoryFinder(categorytree, notfoundcategoryname)
+                self.dateformat = dateformat
+
+        def set_autocreatenotfoundcategory(self, autocreatenotfoundcategory):
+                self.categoryfinder.set_autocreatenotfoundcategory(autocreatenotfoundcategory)
+
         def parse(self, date, fromcategory, tocategory, amount, comment):
                 index = None
                 date = datetime.datetime.strptime(date, self.dateformat).date()
-                fromcategory = self.get_category(fromcategory)
-                tocategory = self.get_category(tocategory)
+                fromcategory = self.categoryfinder.get_category(fromcategory)
+                tocategory = self.categoryfinder.get_category(tocategory)
                 amount = float(amount)
                 comment = comment
 
                 return Transaction(index, date, fromcategory, tocategory, amount, comment)
+
+
+class PaymentPlanParser:
+        def __init__(self, categorytree, notfoundcategoryname):
+                self.categoryfinder = CategoryFinder(categorytree, notfoundcategoryname)
+
+        def set_autocreatenotfoundcategory(self, autocreatenotfoundcategory):
+                self.categoryfinder.set_autocreatenotfoundcategory(autocreatenotfoundcategory)
+
+        def parse(self, name, groupname, fromcategory, tocategory, amount, comment):
+                name = name
+                groupname = groupname
+                fromcategory = self.categoryfinder.get_category(fromcategory)
+                tocategory = self.categoryfinder.get_category(tocategory)
+                amount = float(amount)
+                comment = comment
+
+                return PaymentPlan(name, groupname, fromcategory, tocategory, amount, comment)
+

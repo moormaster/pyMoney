@@ -6,6 +6,7 @@ class MoneyData:
         def __init__(self):
                 self.categorytree = CategoryTreeNode("All")
                 self.transactions = []
+                self.paymentplans = {}
 
                 self.notfoundcategoryname = "NOTFOUND"
 
@@ -62,7 +63,7 @@ class MoneyData:
                         autocreatenotfoundcategory=False, dateformat="%Y-%m-%d"):
                 from lib.io.parser import TransactionParser
                 parser = TransactionParser(self.categorytree, self.notfoundcategoryname, dateformat)
-                parser.autocreatenotfoundcategory = autocreatenotfoundcategory
+                parser.set_autocreatenotfoundcategory(autocreatenotfoundcategory)
 
                 return parser.parse(str_date, str_categoryin, str_categoryout, str_amount, str_comment)
 
@@ -196,6 +197,40 @@ class MoneyData:
 
                 node.move_node_to(newparent)
 
+        def parse_paymentplan(self, str_name, str_groupname, str_fromcategory, str_tocategory, str_amount, str_comment,
+                        autocreatenotfoundcategory=False):
+                from lib.io.parser import PaymentPlanParser
+                parser = PaymentPlanParser(self.categorytree, self.notfoundcategoryname)
+                parser.set_autocreatenotfoundcategory(autocreatenotfoundcategory)
+
+                return parser.parse(str_name, str_groupname, str_fromcategory, str_tocategory, str_amount, str_comment)
+
+        def import_paymentplan(self, paymentplan):
+                self.paymentplans[paymentplan.name] = paymentplan
+
+        def add_paymentplan(self, str_name, str_groupname, str_fromcategory, str_tocategory, str_amount, str_comment, force=False):
+                try:
+                        self.get_category(str_fromcategory)
+                        self.get_category(str_tocategory)
+                except NoSuchCategoryException as e:
+                        if not force:
+                                raise e
+
+                if str_name in self.paymentplans:
+                        raise DuplicatePaymentPlanException(self.paymentplans[str_name])
+
+                newpaymentplan = self.parse_paymentplan(str_name, str_groupname, str_fromcategory, str_tocategory, str_amount, str_comment,
+                        force)
+                self.import_paymentplan(newpaymentplan)
+
+                return newpaymentplan
+
+        def get_paymentplan(self, name):
+                if not name in self.paymentplans:
+                        raise NoSuchPaymentPlanException(name)
+
+                return self.paymentplans[name]
+
         def create_summary(self, transactionfilter, d_summary=None):
                 if d_summary is None:
                         d_summary = {}  # resulting map unqique category name -> NodeSummary() object
@@ -258,6 +293,25 @@ class Transaction(object):
 
         def __str__(self):
                 return str(self.index) + " " + str(self.date) + " " + self.fromcategory.get_unique_name() + " " + self.tocategory.get_unique_name() + " " + str(self.amount) + " " + self.comment
+
+
+class PaymentPlan(object):
+        fields = ["name", "groupname", "fromcategory", "tocategory", "amount", "comment"]
+        __slots__ = fields
+
+        def __init__(self, name, groupname, fromcategory, tocategory, amount, comment):
+                assert(isinstance(fromcategory, CategoryTreeNode))
+                assert(isinstance(tocategory, CategoryTreeNode))
+
+                self.name = name
+                self.groupname = groupname
+                self.fromcategory = fromcategory
+                self.tocategory = tocategory
+                self.amount = amount
+                self.comment = comment
+
+        def __str__(self):
+                return self.name + " " + self.groupname + " " + self.fromcategory.get_unique_name() + " " + self.tocategory.get_unique_name() + " " + str(self.amount) + " " + self.comment
 
 
 class NodeSummary(object):
@@ -352,4 +406,21 @@ class CategoryIsTopCategoryException(Exception):
                 assert isinstance(category, CategoryTreeNode)
 
                 Exception.__init__(self, category.get_unique_name())
+
                 self.category = category
+
+
+class DuplicatePaymentPlanException(Exception):
+        def __init__(self, paymentplan):
+                assert isinstance(paymentplan, PaymentPlan)
+
+                Exception.__init__(self, paymentplan.name)
+
+                self.paymentplan = paymentplan
+
+
+class NoSuchPaymentPlanException(Exception):
+        def __init__(self, name):
+                Exception.__init__(self, name)
+
+                self.name = name
