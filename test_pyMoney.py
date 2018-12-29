@@ -11,21 +11,29 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.fileprefix = "safetynet_run"
 
                 self.outputfile = self.fileprefix + ".log"
-                self.transactionsfile = self.fileprefix + ".transactions"
                 self.categoriesfile = self.fileprefix + ".categories"
+                self.paymentplansfile = self.fileprefix + ".paymentplans"
+                self.transactionsfile = self.fileprefix + ".transactions"
+                self.versionfile = self.fileprefix + ".version"
 
                 self.fileprefixcompare = "safetynet"
 
                 self.outputfilecompare = self.fileprefixcompare + ".log"
-                self.transactionsfilecompare = self.fileprefixcompare + ".transactions"
                 self.categoriesfilecompare = self.fileprefixcompare + ".categories"
+                self.paymentplansfilecompare = self.fileprefixcompare + ".paymentplans"
+                self.transactionsfilecompare = self.fileprefixcompare + ".transactions"
+                self.versionfilecompare = self.fileprefixcompare + ".version"
 
                 if os.access(self.outputfile, os.F_OK):
                         os.remove(self.outputfile)
-                if os.access(self.transactionsfile, os.F_OK):
-                        os.remove(self.transactionsfile)
                 if os.access(self.categoriesfile, os.F_OK):
                         os.remove(self.categoriesfile)
+                if os.access(self.paymentplansfile, os.F_OK):
+                        os.remove(self.paymentplansfile)
+                if os.access(self.transactionsfile, os.F_OK):
+                        os.remove(self.transactionsfile)
+                if os.access(self.versionfile, os.F_OK):
+                        os.remove(self.versionfile)
 
                 self.outputfilestream = open(self.outputfile, "w")
                 self.execute()
@@ -34,10 +42,14 @@ class PymoneySafetyNet(unittest.TestCase):
         def tearDown(self):
                 if os.access(self.outputfile, os.F_OK):
                         os.remove(self.outputfile)
-                if os.access(self.transactionsfile, os.F_OK):
-                        os.remove(self.transactionsfile)
                 if os.access(self.categoriesfile, os.F_OK):
                         os.remove(self.categoriesfile)
+                if os.access(self.paymentplansfile, os.F_OK):
+                        os.remove(self.paymentplansfile)
+                if os.access(self.transactionsfile, os.F_OK):
+                        os.remove(self.transactionsfile)
+                if os.access(self.versionfile, os.F_OK):
+                        os.remove(self.versionfile)
 
         def execute(self):
                 self.pymoney(["category", "add", "All", "Equity"])
@@ -253,8 +265,10 @@ class PymoneySafetyNet(unittest.TestCase):
 
         def test_compare_safetynet(self):
                 self.assertFileEqual(self.outputfilecompare, self.outputfile, "output differs from " + self.outputfilecompare)
-                self.assertFileEqual(self.transactionsfilecompare, self.transactionsfile, "transactions file differs from " + self.transactionsfilecompare)
                 self.assertFileEqual(self.categoriesfilecompare, self.categoriesfile, "output differs from " + self.categoriesfilecompare)
+                self.assertFileEqual(self.paymentplansfilecompare, self.paymentplansfile, "output differs from " + self.paymentplansfilecompare)
+                self.assertFileEqual(self.transactionsfilecompare, self.transactionsfile, "transactions file differs from " + self.transactionsfilecompare)
+                self.assertFileEqual(self.versionfilecompare, self.versionfile, "output differs from " + self.versionfilecompare)
 
 
 if __name__ == "__main__":

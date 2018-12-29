@@ -5,6 +5,8 @@ import lib.io
 import lib.io.parser
 import lib.io.Categories
 import lib.io.Transactions
+import lib.io.PaymentPlans
+import lib.io.Version
 
 import os
 
@@ -20,9 +22,10 @@ class MoneyDataSerialization:
                 self.fileprefix = fileprefix
 
                 self.filenames = {
-                        "version": self.fileprefix + ".version",
+                        "categories": self.fileprefix + ".categories",
                         "transactions": self.fileprefix + ".transactions",
-                        "categories": self.fileprefix + ".categories"
+                        "paymentplans": self.fileprefix + ".paymentplans",
+                        "version": self.fileprefix + ".version"
                 }
 
         def get_moneydata(self):
@@ -42,20 +45,35 @@ class MoneyDataSerialization:
                         moneydata.categorytree = lib.io.Categories.read(self.filenames["categories"])
 
                 if os.access(self.filenames["transactions"], os.F_OK):
+                        transactions = []
                         if version[0] == 2 and version[1] >= 0:
                                 transactionparser = lib.io.parser.TransactionParser(moneydata.categorytree, moneydata.notfoundcategoryname)
                                 transactions = lib.io.Transactions.read(self.filenames["transactions"], transactionparser)
-                        elif version[0] == 1 and version[1] == 3:
+                        elif version[0] == 1 and version[1] >= 3:
                                 transactionparser = lib.io.parser.TransactionParser(moneydata.categorytree, moneydata.notfoundcategoryname)
                                 transactions = lib.io.Transactions_v1_3.read(self.filenames["transactions"], transactionparser)
 
                         for t in transactions:
                                 moneydata.import_transaction(t)
 
+                if os.access(self.filenames["paymentplans"], os.F_OK):
+                    paymentplans = []
+                    if version[0] == 2 and version[1] >= 0:
+                                paymentplanparser = lib.io.parser.PaymentPlanParser(moneydata.categorytree, moneydata.notfoundcategoryname)
+                                paymentplans = lib.io.PaymentPlans.read(self.filenames["paymentplans"], paymentplanparser)
+
+                    for pp in paymentplans:
+                        moneydata.import_paymentplan(pp)
+
                 return moneydata
 
         def write(self, moneydata, skipwritetransactions=False):
+                lib.io.Version.write(self.filenames["version"])
+
                 lib.io.Categories.write(self.filenames["categories"], moneydata.categorytree,
+                        moneydata.get_notfound_category())
+
+                lib.io.PaymentPlans.write(self.filenames["paymentplans"], list(moneydata.paymentplans.values()),
                         moneydata.get_notfound_category())
 
                 if not skipwritetransactions:

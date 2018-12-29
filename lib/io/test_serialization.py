@@ -8,18 +8,26 @@ import os
 
 class TestMoneyDataSerialization(unittest.TestCase):
         def setUp(self):
-                if os.access("pymoney.transactions", os.F_OK):
-                        os.remove("pymoney.transactions")
                 if os.access("pymoney.categories", os.F_OK):
                         os.remove("pymoney.categories")
+                if os.access("pymoney.paymentplans", os.F_OK):
+                        os.remove("pymoney.paymentplans")
+                if os.access("pymoney.transactions", os.F_OK):
+                        os.remove("pymoney.transactions")
+                if os.access("pymoney.version", os.F_OK):
+                        os.remove("pymoney.version")
 
                 self.serialization = serialization.MoneyDataSerialization()
 
         def tearDown(self):
-                if os.access("pymoney.transactions", os.F_OK):
-                        os.remove("pymoney.transactions")
                 if os.access("pymoney.categories", os.F_OK):
                         os.remove("pymoney.categories")
+                if os.access("pymoney.paymentplans", os.F_OK):
+                        os.remove("pymoney.paymentplans")
+                if os.access("pymoney.transactions", os.F_OK):
+                        os.remove("pymoney.transactions")
+                if os.access("pymoney.version", os.F_OK):
+                        os.remove("pymoney.version")
 
         def test_set_fileprefix(self):
                 self.serialization.set_fileprefix("myprefix")
@@ -42,6 +50,9 @@ class TestMoneyDataSerialization(unittest.TestCase):
                 originalmoneydata.add_category("Category1", "Subcategory1")
                 originalmoneydata.add_category("External.In", "Category2")
                 originalmoneydata.add_category("External", "Out")
+
+                originalmoneydata.add_paymentplan("plan1", "monthly", "Cash", "Category1", 25.0, "monthly payment in cash")
+                originalmoneydata.add_paymentplan("plan2", "monthly", "Cash", "Category1", 50.0, "monthly payment in cash")
 
                 originalmoneydata.add_transaction("2000-01-01", "Cash.Out", "Category1", 10.0, "A comment")
                 originalmoneydata.add_transaction("2000-01-02", "Cash.Out", "Subcategory1", 20.0,
@@ -84,6 +95,13 @@ class TestMoneyDataSerialization(unittest.TestCase):
                         else:
                                 self.assertEqual(category.parent, originalcategory.parent)
 
+                for name in originalmoneydata.paymentplans:
+                        originalpaymentplan = originalmoneydata.paymentplans[name]
+                        paymentplan = readmoneydata.paymentplans[name]
+
+                        self.assertIsNotNone(paymentplan)
+                        self.assertEqual(paymentplan.name, originalpaymentplan.name)
+
                 for i in range(len(originalmoneydata.transactions)):
                         originaltransaction = originalmoneydata.transactions[i]
                         transaction = readmoneydata.transactions[i]
@@ -100,6 +118,7 @@ class TestMoneyDataSerialization(unittest.TestCase):
 
                 self.assertGreater(len(list(readmoneydata.categorytree.__iter__())), 1)
                 self.assertGreater(len(readmoneydata.transactions), 0)
+                self.assertEqual(len(readmoneydata.paymentplans), 0)
 
         def test_write_without_transactions_should_write_categories_only(self):
                 originalmoneydata = moneydata.MoneyData()
