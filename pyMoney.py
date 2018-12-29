@@ -549,6 +549,93 @@ class PyMoneyConsole(cmd.Cmd):
                                 arguments.__dict__["parser"].print_help()
                                 return
 
+        def do_paymentplans(self, args):
+                'Adds, deletes, edits or executes payment plans'
+                def cmd_add():
+                    pass
+
+                def cmd_delete():
+                    pass
+
+                def cmd_edit():
+                    pass
+
+                def cmd_rename():
+                    pass
+
+                def cmd_list():
+                    pass
+
+                def cmd_execute():
+                    pass
+
+                parser = lib.argparse.ArgumentParser()
+                sp_paymentplan = parser.add_subparsers(title="command")
+
+                p_paymentplan_add = sp_paymentplan.add_parser("add")
+                p_paymentplan_add.set_defaults(command="add")
+                p_paymentplan_add.set_defaults(parser=p_paymentplan_add)
+                p_paymentplan_add.add_argument("name")
+                p_paymentplan_add.add_argument("groupname")
+                p_paymentplan_add.add_argument("fromcategory")
+                p_paymentplan_add.add_argument("tocategory")
+                p_paymentplan_add.add_argument("amount", type=int)
+
+                p_paymentplan_delete = sp_paymentplan.add_parser("delete")
+                p_paymentplan_delete.set_defaults(command="delete")
+                p_paymentplan_delete.set_defaults(parser=p_paymentplan_delete)
+                p_paymentplan_delete.add_argument("name")
+
+                p_paymentplan_edit = sp_paymentplan.add_parser("edit")
+                p_paymentplan_edit.set_defaults(command="edit")
+                p_paymentplan_edit.set_defaults(parser=p_paymentplan_edit)
+                p_paymentplan_edit.add_argument("name")
+                p_paymentplan_edit.add_argument("groupname")
+                p_paymentplan_edit.add_argument("fromcategory")
+                p_paymentplan_edit.add_argument("tocategory")
+                p_paymentplan_edit.add_argument("amount", type=int)
+
+                p_paymentplan_rename = sp_paymentplan.add_parser("rename")
+                p_paymentplan_rename.set_defaults(command="rename")
+                p_paymentplan_rename.set_defaults(parser=p_paymentplan_rename)
+                p_paymentplan_rename.add_argument("name")
+                p_paymentplan_rename.add_argument("newname")
+
+                p_paymentplan_rename = sp_paymentplan.add_parser("list")
+                p_paymentplan_rename.set_defaults(command="list")
+                p_paymentplan_rename.set_defaults(parser=p_paymentplan_rename)
+
+                p_paymentplan_execute = sp_paymentplan.add_parser("execute")
+                p_paymentplan_execute.set_defaults(command="execute")
+                p_paymentplan_execute.set_defaults(parser=p_paymentplan_execute)
+                p_paymentplan_execute.add_argument("name")
+
+                try:
+                        arguments = parser.parse_args(shlex.split(args))
+                except Exception as e:
+                        # parse errors already handled by parser (printed to user)
+                        # no further handling
+                        return
+
+                d_commands = {
+                        "add": cmd_add,
+                        "delete": cmd_delete,
+                        "edit": cmd_edit,
+                        "rename": cmd_rename,
+                        "list": cmd_list,
+                        "execute": cmd_execute
+                }
+
+                if not "command" in arguments.__dict__:
+                        parser.print_help()
+                else:
+                        try:
+                                d_commands[arguments.__dict__["command"]](arguments)
+                        except Exception as e:
+                                self.print_error(e)
+                                arguments.__dict__["parser"].print_help()
+                                return
+
         def do_summary(self, args):
                 'Prints a summarized report across categories / date intervals. Use summary -h for more details.'
                 def cmd_categories(arguments):
