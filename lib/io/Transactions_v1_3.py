@@ -1,6 +1,6 @@
 # vim: expandtab softtabstop=0 list listchars=tab\:>-,space\:·:
 from lib.data.moneydata import Transaction
-from lib.io.formatter import TransactionFormatter
+from lib.io.formatter import TransactionFormatter_v1_3
 
 import csv
 import os
@@ -36,6 +36,6 @@ def write(filename, transactions, notfoundcategory, append=False):
                         w.writeheader()
 
                 for t in transactions:
-                        w.writerow(TransactionFormatter.format(t, notfoundcategory))
+                        w.writerow(TransactionFormatter_v1_3.format(t, notfoundcategory))
 
                 f.close()
