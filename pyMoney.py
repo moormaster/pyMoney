@@ -226,6 +226,10 @@ class PyMoneyConsole(cmd.Cmd):
                         value = "category name " + error.name + " is ambiguous: " + str(list(map(lambda c: c.get_unique_name(), error.matching_categories)))
                 elif isinstance(error, lib.data.tree.TargetNodeIsPartOfSourceNodeSubTreeException):
                         value = "cannot move source node into its own subtree: " + str(error.sourcenode.get_unique_name())
+                elif isinstance(error, lib.data.moneydata.NoSuchPaymentPlanException):
+                        value = "payment plan not found: " + error.name
+                elif isinstance(error, lib.data.moneydata.DuplicatePaymentPlanException):
+                        value = "payment plan already exists: " + error.paymentplan.name + " (group: " + error.paymentplan.groupname + ")"
                 elif isinstance(error, ValueError):
                         value = str(error)
                 else:
@@ -316,7 +320,13 @@ class PyMoneyConsole(cmd.Cmd):
                                 _tocategory = tocategory_name_formatter.format(d.tocategory)
 
                                 _amount = d.amount
-                                _comment = d.comment
+
+                                if not d.paymentplan is None:
+                                    _comment = "Execution of payment plan " + d.paymentplan.name
+                                    if len(d.comment) > 0:
+                                        _comment = _comment + ": " + d.comment
+                                else:
+                                        _comment = d.comment
 
                                 tabledata.append([_index, _date, _fromcategory, _tocategory, _amount, _comment])
 
@@ -549,28 +559,87 @@ class PyMoneyConsole(cmd.Cmd):
                                 arguments.__dict__["parser"].print_help()
                                 return
 
-        def do_paymentplans(self, args):
+        def do_paymentplan(self, args):
                 'Adds, deletes, edits or executes payment plans'
-                def cmd_add():
-                        pass
+                def cmd_add(arguments):
+                        try:
+                                self.pyMoney.get_moneydata().add_paymentplan(arguments.__dict__["name"], arguments.__dict__["groupname"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"], arguments.__dict__["comment"])
+                                self.writeOnQuit = True
+                        except Exception as e:
+                                self.print_error(e)
 
-                def cmd_delete():
-                        pass
+                def cmd_edit(arguments):
+                        try:
+                                self.pyMoney.get_moneydata().edit_paymentplan(arguments.__dict__["name"], arguments.__dict__["groupname"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"], arguments.__dict__["comment"])
+                                self.writeOnQuit = True
+                        except Exception as e:
+                                self.print_error(e)
 
-                def cmd_edit():
-                        pass
+                def cmd_delete(arguments):
+                        try:
+                                self.pyMoney.get_moneydata().delete_paymentplan(arguments.__dict__["name"])
+                                self.writeOnQuit = True
+                        except Exception as e:
+                                self.print_error(e)
 
-                def cmd_rename():
-                        pass
+                def cmd_rename(arguments):
+                        try:
+                                self.pyMoney.get_moneydata().rename_paymentplan(arguments.__dict__["name"], arguments.__dict__["newname"])
+                                self.writeOnQuit = True
+                        except Exception as e:
+                                self.print_error(e)
 
-                def cmd_move():
-                        pass
+                def cmd_move(arguments):
+                        try:
+                                self.pyMoney.get_moneydata().move_paymentplan(arguments.__dict__["name"], arguments.__dict__["newgroupname"])
+                                self.writeOnQuit = True
+                        except Exception as e:
+                                self.print_error(e)
 
-                def cmd_list():
-                        pass
+                def cmd_list(arguments):
+                        headerdata = ["Group", "PaymentPlan", "FromCategory", "ToCategory", "Amount", "Comment"]
+                        tabledata = []
 
-                def cmd_execute():
-                        pass
+                        for paymentplan in self.pyMoney.get_moneydata().get_paymentplans_iterator():
+                                row = []
+
+                                row.append(paymentplan.groupname)
+                                row.append(paymentplan.name)
+                                row.append(paymentplan.fromcategory.get_unique_name())
+                                row.append(paymentplan.tocategory.get_unique_name())
+                                row.append(paymentplan.amount)
+                                row.append(paymentplan.comment)
+
+                                tabledata.append(row)
+
+                        tableformatter = lib.formatter.TableFormatter()
+                        tableformatter.add_column(0)
+                        tableformatter.add_column(1)
+                        tableformatter.add_column(2)
+                        tableformatter.add_column(3)
+                        column = tableformatter.add_column(4)
+                        column.set_alignment(">")
+                        column.set_precision(2)
+                        column.set_type("f")
+                        tableformatter.add_column(5)
+
+                        lines = tableformatter.get_formatted_lines(headerdata, tabledata)
+
+                        is_first_line = True
+                        for line in lines:
+                                self.print(line)
+                                if is_first_line:
+                                        self.print("")
+
+                                is_first_line = False
+
+                def cmd_execute(arguments):
+                        try:
+                                self.pyMoney.get_moneydata().execute_paymentplan(arguments.__dict__["name"], arguments.__dict__["date"])
+                                self.writeOnQuit = True
+                        except Exception as e:
+                                self.print_error(e)
+
 
                 parser = lib.argparse.ArgumentParser()
                 sp_paymentplan = parser.add_subparsers(title="command")
@@ -582,7 +651,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_add.add_argument("groupname")
                 p_paymentplan_add.add_argument("fromcategory")
                 p_paymentplan_add.add_argument("tocategory")
-                p_paymentplan_add.add_argument("amount", type=int)
+                p_paymentplan_add.add_argument("amount", type=float)
                 p_paymentplan_add.add_argument("comment", default="", nargs='?')
 
                 p_paymentplan_delete = sp_paymentplan.add_parser("delete")
@@ -597,7 +666,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_edit.add_argument("groupname")
                 p_paymentplan_edit.add_argument("fromcategory")
                 p_paymentplan_edit.add_argument("tocategory")
-                p_paymentplan_edit.add_argument("amount", type=int)
+                p_paymentplan_edit.add_argument("amount", type=float)
                 p_paymentplan_edit.add_argument("comment", default="", nargs='?')
 
                 p_paymentplan_rename = sp_paymentplan.add_parser("rename")
@@ -620,6 +689,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_execute.set_defaults(command="execute")
                 p_paymentplan_execute.set_defaults(parser=p_paymentplan_execute)
                 p_paymentplan_execute.add_argument("name")
+                p_paymentplan_execute.add_argument("date")
 
                 try:
                         arguments = parser.parse_args(shlex.split(args))

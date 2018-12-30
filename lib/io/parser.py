@@ -81,7 +81,7 @@ class CategoryFinder:
 
 
 
-class TransactionParser:
+class TransactionParser_v1_3:
         def __init__(self, categorytree, notfoundcategoryname, dateformat="%Y-%m-%d"):
                 self.categoryfinder = CategoryFinder(categorytree, notfoundcategoryname)
                 self.dateformat = dateformat
@@ -94,6 +94,32 @@ class TransactionParser:
                 date = datetime.datetime.strptime(date, self.dateformat).date()
                 fromcategory = self.categoryfinder.get_category(fromcategory)
                 tocategory = self.categoryfinder.get_category(tocategory)
+                paymentplan = None
+                amount = float(amount)
+                comment = comment
+
+                return Transaction(index, date, fromcategory, tocategory, amount, comment)
+
+class TransactionParser:
+        def __init__(self, categorytree, notfoundcategoryname, paymentplans, dateformat="%Y-%m-%d"):
+                assert(isinstance(paymentplans,dict))
+
+                self.categoryfinder = CategoryFinder(categorytree, notfoundcategoryname)
+                self.paymentplans = paymentplans
+                self.dateformat = dateformat
+
+        def set_autocreatenotfoundcategory(self, autocreatenotfoundcategory):
+                self.categoryfinder.set_autocreatenotfoundcategory(autocreatenotfoundcategory)
+
+        def parse(self, date, fromcategory, tocategory, paymentplan, amount, comment):
+                index = None
+                date = datetime.datetime.strptime(date, self.dateformat).date()
+                fromcategory = self.categoryfinder.get_category(fromcategory)
+                tocategory = self.categoryfinder.get_category(tocategory)
+                if len(paymentplan) == 0:
+                        paymentplan = None
+                else:
+                        paymentplan = self.paymentplans[paymentplan]
                 amount = float(amount)
                 comment = comment
 

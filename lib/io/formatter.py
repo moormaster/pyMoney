@@ -31,9 +31,14 @@ class TransactionFormatter:
                 else:
                         str_tocategory = transaction.tocategory.get_unique_name()
 
+                str_paymentplan = ""
+                if not transaction.paymentplan is None:
+                    str_paymentplan = transaction.paymentplan.name
+
                 return {"date": str(transaction.date),
                                 "fromcategory": str_fromcategory,
                                 "tocategory": str_tocategory,
+                                "paymentplan": str_paymentplan,
                                 "amount": str(transaction.amount),
                                 "comment": transaction.comment}
 

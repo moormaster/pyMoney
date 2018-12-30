@@ -18,6 +18,9 @@ class MoneyData:
         def get_transactions_iterator(self):
                 return self.transactions.__iter__()
 
+        def get_paymentplans_iterator(self):
+                return self.paymentplans.values().__iter__()
+
         def filter_transactions(self, filter_func):
                 return filter(filter_func, self.transactions.__iter__())
 
@@ -62,10 +65,12 @@ class MoneyData:
         def parse_transaction(self, str_date, str_categoryin, str_categoryout, str_amount, str_comment,
                         autocreatenotfoundcategory=False, dateformat="%Y-%m-%d"):
                 from lib.io.parser import TransactionParser
-                parser = TransactionParser(self.categorytree, self.notfoundcategoryname, dateformat)
+                parser = TransactionParser(self.categorytree, self.notfoundcategoryname, self.paymentplans, dateformat)
                 parser.set_autocreatenotfoundcategory(autocreatenotfoundcategory)
 
-                return parser.parse(str_date, str_categoryin, str_categoryout, str_amount, str_comment)
+                str_paymentplan = ""
+
+                return parser.parse(str_date, str_categoryin, str_categoryout, str_paymentplan, str_amount, str_comment)
 
         def filter_categories(self, filter_func):
                 return filter(filter_func, self.categorytree.__iter__())
@@ -249,14 +254,21 @@ class MoneyData:
                 if not name in self.paymentplans:
                         raise NoSuchPaymentPlanException(name)
 
-                self.paymentplans[name] = None
+                paymentplan = self.paymentplans.pop(name)
+
+                for t in self.transactions:
+                        if t.paymentplan is paymentplan:
+                                t.paymentplan = None
 
         def rename_paymentplan(self, name, newname):
                 if not name in self.paymentplans:
                         raise NoSuchPaymentPlanException(name)
 
+                if newname in self.paymentplans and name != newname:
+                        raise DuplicatePaymentPlanException(self.paymentplans[newname])
+
                 paymentplan = self.paymentplans[name]
-                self.paymentplans[name] = None
+                del self.paymentplans[name]
 
                 paymentplan.name = newname
                 self.paymentplans[newname] = paymentplan
@@ -277,11 +289,8 @@ class MoneyData:
                         raise NoSuchPaymentPlanException(name)
 
                 paymentplan = self.paymentplans[name]
-                comment = "Execution of payment plan " + paymentplan.name
-                if len(paymentplan.comment) > 0:
-                        comment = comment + ": " + paymentplan.comment
 
-                transaction = self.parse_transaction(str_date, paymentplan.fromcategory.get_unique_name(), paymentplan.tocategory.get_unique_name(), paymentplan.amount, comment)
+                transaction = self.parse_transaction(str_date, paymentplan.fromcategory.get_unique_name(), paymentplan.tocategory.get_unique_name(), paymentplan.amount, paymentplan.comment)
                 transaction.paymentplan = paymentplan
                 self.import_transaction(transaction)
 
@@ -344,6 +353,7 @@ class Transaction(object):
                 self.date = date
                 self.fromcategory = fromcategory
                 self.tocategory = tocategory
+                self.paymentplan = None
                 self.amount = amount
                 self.comment = comment
 
