@@ -47,10 +47,10 @@ class MoneyDataSerialization:
                 if os.access(self.filenames["transactions"], os.F_OK):
                         transactions = []
                         if version[0] == 2 and version[1] >= 0:
-                                transactionparser = lib.io.parser.TransactionParser(moneydata.categorytree, moneydata.notfoundcategoryname)
+                                transactionparser = lib.io.parser.TransactionParser(moneydata.categorytree, moneydata.notfoundcategoryname, moneydata.paymentplans)
                                 transactions = lib.io.Transactions.read(self.filenames["transactions"], transactionparser)
                         elif version[0] == 1 and version[1] >= 3:
-                                transactionparser = lib.io.parser.TransactionParser(moneydata.categorytree, moneydata.notfoundcategoryname)
+                                transactionparser = lib.io.parser.TransactionParser_v1_3(moneydata.categorytree, moneydata.notfoundcategoryname)
                                 transactions = lib.io.Transactions_v1_3.read(self.filenames["transactions"], transactionparser)
 
                         for t in transactions:

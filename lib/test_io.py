@@ -58,7 +58,7 @@ class TestTransactions(unittest.TestCase):
                 self.assertEqual(categorycount + 1, len(list(self.moneydata.categorytree)))
 
                 transactionparser = lib.io.parser.TransactionParser(self.moneydata.categorytree,
-                        self.moneydata.notfoundcategoryname)
+                        self.moneydata.notfoundcategoryname, self.moneydata.paymentplans)
                 t = lib.io.Transactions.read("pymoney.transactions", transactionparser)
 
                 foreigncategory = self.moneydata.get_category("AnotherCategory")

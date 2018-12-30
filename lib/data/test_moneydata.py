@@ -481,8 +481,16 @@ class TestMoneyData_PaymentPlans(unittest.TestCase):
 
                 self.moneydata.delete_paymentplan("plan1")
 
-                self.assertIsNone(self.moneydata.get_paymentplan("plan1"))
+                self.assertRaisesRegex(moneydata.NoSuchPaymentPlanException, "plan1", self.moneydata.get_paymentplan, "plan1")
                 self.assertIsNotNone(self.moneydata.get_paymentplan("plan2"))
+
+        def test_delete_paymentplan_should_remove_references_to_transactions(self):
+                self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
+                transaction = self.moneydata.execute_paymentplan("plan", "2000-01-01")
+
+                self.moneydata.delete_paymentplan("plan")
+
+                self.assertIsNone(transaction.paymentplan)
 
         def test_edit_paymentplan_should_raise_an_exception_if_paymentplan_was_not_found(self):
                 self.assertRaisesRegex(moneydata.NoSuchPaymentPlanException, "plan", self.moneydata.edit_paymentplan, "plan", "group", "All", "All", 10.0, "Example plan")
@@ -526,6 +534,12 @@ class TestMoneyData_PaymentPlans(unittest.TestCase):
         def test_rename_paymentplan_should_raise_an_exception_if_paymentplan_was_not_found(self):
                 self.assertRaisesRegex(moneydata.NoSuchPaymentPlanException, "plan", self.moneydata.rename_paymentplan, "plan", "newname")
 
+        def test_rename_paymentplan_should_raise_an_exception_if_a_paymentplan_with_the_new_name_already_exists(self):
+                paymentplan = self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
+                paymentplan = self.moneydata.add_paymentplan("existing", "group", "All", "All", 10.0, "Example plan")
+
+                self.assertRaisesRegex(moneydata.DuplicatePaymentPlanException, "existing", self.moneydata.rename_paymentplan, "plan", "existing")
+
         def test_rename_paymentplan_should_change_name_of_existing_plan(self):
                 paymentplan = self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
 
@@ -560,19 +574,15 @@ class TestMoneyData_PaymentPlans(unittest.TestCase):
                 category1 = self.moneydata.add_category("All", "Category1")
                 category2 = self.moneydata.add_category("All", "Category2")
                 self.moneydata.add_paymentplan("planname", "group", "Category1", "Category2", 10.0, "Example plan")
-                self.moneydata.add_paymentplan("planwithoutcomment", "group", "Category1", "Category2", 10.0, "")
 
                 transaction1 = self.moneydata.execute_paymentplan("planname", "2000-01-01")
-                transaction2 = self.moneydata.execute_paymentplan("planwithoutcomment", "2000-01-01")
 
                 self.assertEqual(transaction1.index, 0)
                 self.assertEqual(transaction1.date, datetime.date(2000, 1, 1))
                 self.assertIs(transaction1.fromcategory, category1)
                 self.assertIs(transaction1.tocategory, category2)
                 self.assertEqual(transaction1.amount, 10.0)
-                self.assertEqual(transaction1.comment, "Execution of payment plan planname: Example plan")
-
-                self.assertEqual(transaction2.comment, "Execution of payment plan planwithoutcomment") 
+                self.assertEqual(transaction1.comment, "Example plan")
 
 
 class TestMoneyData_Summary(unittest.TestCase):
