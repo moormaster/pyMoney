@@ -123,7 +123,10 @@ class TransactionParser:
                 amount = float(amount)
                 comment = comment
 
-                return Transaction(index, date, fromcategory, tocategory, amount, comment)
+                transaction = Transaction(index, date, fromcategory, tocategory, amount, comment)
+                transaction.paymentplan = paymentplan
+
+                return transaction
 
 
 class PaymentPlanParser:

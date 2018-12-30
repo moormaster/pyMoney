@@ -397,6 +397,29 @@ class TestMoneyData_Categories(unittest.TestCase):
                 for transaction in transactions_to_assets:
                         self.assertEqual(transaction.fromcategory.name, "Category2")
 
+        def test_merge_to_category_should_replace_source_category_with_target_category_in_paymentplans_involved(self):
+                self.moneydata.add_category("All", "Assets")
+                self.moneydata.add_category("All", "Category1")
+                self.moneydata.add_category("All", "Category2")
+
+                paymentplans_from_assets = [
+                        self.moneydata.add_paymentplan("ToCategory1", "Plans", "Assets", "Category1", "10.0", ""),
+                        self.moneydata.add_paymentplan("ToCategory2", "Plans", "Assets", "Category2", "20.0", "")
+                ]
+
+                paymentplans_to_assets = [
+                        self.moneydata.add_paymentplan("FromCategory1", "Plans", "Category1", "Assets", "30.0", ""),
+                        self.moneydata.add_paymentplan("FromCategory2", "Plans", "Category2", "Assets", "40.0", "")
+                ]
+
+                self.moneydata.merge_to_category("Category1", "Category2")
+
+                for paymentplan in paymentplans_from_assets:
+                        self.assertEqual(paymentplan.tocategory.name, "Category2")
+
+                for paymentplan in paymentplans_to_assets:
+                        self.assertEqual(paymentplan.fromcategory.name, "Category2")
+
         def test_move_category_should_change_parent_of_source_category(self):
                 category1 = self.moneydata.add_category("All", "Category1")
                 category2 = self.moneydata.add_category("All", "Category2")

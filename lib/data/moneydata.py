@@ -189,6 +189,14 @@ class MoneyData:
                                 if t.tocategory is category:
                                         t.tocategory = targetcategory
 
+                        for name in self.paymentplans:
+                                pp = self.paymentplans[name]
+
+                                if pp.fromcategory is category:
+                                        pp.fromcategory = targetcategory
+                                if pp.tocategory is category:
+                                        pp.tocategory = targetcategory
+
                         i = i + 1
 
                 category = categories[0]
