@@ -44,6 +44,15 @@ class MoneyDataSerialization:
                 if os.access(self.filenames["categories"], os.F_OK):
                         moneydata.categorytree = lib.io.Categories.read(self.filenames["categories"])
 
+                if os.access(self.filenames["paymentplans"], os.F_OK):
+                    paymentplans = []
+                    if version[0] == 2 and version[1] >= 0:
+                                paymentplanparser = lib.io.parser.PaymentPlanParser(moneydata.categorytree, moneydata.notfoundcategoryname)
+                                paymentplans = lib.io.PaymentPlans.read(self.filenames["paymentplans"], paymentplanparser)
+
+                    for pp in paymentplans:
+                        moneydata.import_paymentplan(pp)
+
                 if os.access(self.filenames["transactions"], os.F_OK):
                         transactions = []
                         if version[0] == 2 and version[1] >= 0:
@@ -55,15 +64,6 @@ class MoneyDataSerialization:
 
                         for t in transactions:
                                 moneydata.import_transaction(t)
-
-                if os.access(self.filenames["paymentplans"], os.F_OK):
-                    paymentplans = []
-                    if version[0] == 2 and version[1] >= 0:
-                                paymentplanparser = lib.io.parser.PaymentPlanParser(moneydata.categorytree, moneydata.notfoundcategoryname)
-                                paymentplans = lib.io.PaymentPlans.read(self.filenames["paymentplans"], paymentplanparser)
-
-                    for pp in paymentplans:
-                        moneydata.import_paymentplan(pp)
 
                 return moneydata
 
