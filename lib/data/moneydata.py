@@ -47,7 +47,7 @@ class MoneyData:
 
                 return newtransaction
 
-        def edit_transaction(self, index, str_date, str_fromcategory, str_tocategory, str_amount, str_comment, dateformate="%Y-%m-%d"):
+        def edit_transaction(self, index, str_date, str_fromcategory, str_tocategory, str_amount, str_comment):
                 oldtransaction = self.transactions[index]
 
                 newtransaction = self.parse_transaction(str_date, str_fromcategory, str_tocategory, str_amount, str_comment)
@@ -225,11 +225,67 @@ class MoneyData:
 
                 return newpaymentplan
 
+        def edit_paymentplan(self, name, str_groupname, str_fromcategory, str_tocategory, str_amount, str_comment):
+                if not name in self.paymentplans:
+                        raise NoSuchPaymentPlanException(name)
+
+                oldpaymentplan = self.paymentplans[name]
+                paymentplan = self.parse_paymentplan(name, str_groupname, str_fromcategory, str_tocategory, str_amount, str_comment)
+
+                for t in self.transactions:
+                        if t.paymentplan is oldpaymentplan:
+                                t.paymentplan = paymentplan
+                self.paymentplans[name] = paymentplan
+
+                return paymentplan
+
         def get_paymentplan(self, name):
                 if not name in self.paymentplans:
                         raise NoSuchPaymentPlanException(name)
 
                 return self.paymentplans[name]
+
+        def delete_paymentplan(self, name):
+                if not name in self.paymentplans:
+                        raise NoSuchPaymentPlanException(name)
+
+                self.paymentplans[name] = None
+
+        def rename_paymentplan(self, name, newname):
+                if not name in self.paymentplans:
+                        raise NoSuchPaymentPlanException(name)
+
+                paymentplan = self.paymentplans[name]
+                self.paymentplans[name] = None
+
+                paymentplan.name = newname
+                self.paymentplans[newname] = paymentplan
+
+                return paymentplan
+
+        def move_paymentplan(self, name, newgroupname):
+                if not name in self.paymentplans:
+                        raise NoSuchPaymentPlanException(name)
+
+                paymentplan = self.paymentplans[name]
+                paymentplan.groupname = newgroupname
+
+                return paymentplan
+
+        def execute_paymentplan(self, name, str_date):
+                if not name in self.paymentplans:
+                        raise NoSuchPaymentPlanException(name)
+
+                paymentplan = self.paymentplans[name]
+                comment = "Execution of payment plan " + paymentplan.name
+                if len(paymentplan.comment) > 0:
+                        comment = comment + ": " + paymentplan.comment
+
+                transaction = self.parse_transaction(str_date, paymentplan.fromcategory.get_unique_name(), paymentplan.tocategory.get_unique_name(), paymentplan.amount, comment)
+                transaction.paymentplan = paymentplan
+                self.import_transaction(transaction)
+
+                return transaction
 
         def create_summary(self, transactionfilter, d_summary=None):
                 if d_summary is None:
@@ -277,7 +333,7 @@ class MoneyData:
 
 
 class Transaction(object):
-        fields = ["index", "date", "fromcategory", "tocategory", "amount", "comment"]
+        fields = ["index", "date", "fromcategory", "tocategory", "paymentplan", "amount", "comment"]
         __slots__ = fields
 
         def __init__(self, index, date, fromcategory, tocategory, amount, comment):
