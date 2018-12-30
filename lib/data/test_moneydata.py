@@ -467,10 +467,112 @@ class TestMoneyData_PaymentPlans(unittest.TestCase):
                 category1 = self.moneydata.add_category("All", "Category1")
                 category2 = self.moneydata.add_category("All", "Category2")
 
-                paymentplan = self.moneydata.add_paymentplan("plan", "group", "Category1", "Category2", 10.0, "Example plan", True)
+                paymentplan = self.moneydata.add_paymentplan("plan", "group", "Category1", "Category2", 10.0, "Example plan")
 
                 self.assertIs(paymentplan.fromcategory, category1)
                 self.assertIs(paymentplan.tocategory, category2)
+
+        def test_delete_paymentplan_should_raise_an_exception_if_paymentplan_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchPaymentPlanException, "plan", self.moneydata.delete_paymentplan, "plan")
+
+        def test_delete_paymentplan_should_remove_the_given_paymentplan(self):
+                self.moneydata.add_paymentplan("plan1", "group", "All", "All", 10.0, "Example plan")
+                self.moneydata.add_paymentplan("plan2", "group", "All", "All", 20.0, "Example plan")
+
+                self.moneydata.delete_paymentplan("plan1")
+
+                self.assertIsNone(self.moneydata.get_paymentplan("plan1"))
+                self.assertIsNotNone(self.moneydata.get_paymentplan("plan2"))
+
+        def test_edit_paymentplan_should_raise_an_exception_if_paymentplan_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchPaymentPlanException, "plan", self.moneydata.edit_paymentplan, "plan", "group", "All", "All", 10.0, "Example plan")
+
+        def test_edit_paymentplan_should_raise_an_exception_if_fromcategory_was_not_found(self):
+                self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
+
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "Unknown", self.moneydata.edit_paymentplan, "plan", "group", "Unknown", "All", 10.0, "Example plan")
+
+        def test_edit_paymentplan_should_raise_an_exception_if_fromcategory_was_not_found(self):
+                self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
+
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "Unknown", self.moneydata.edit_paymentplan, "plan", "group", "All", "Unknown", 10.0, "Example plan")
+
+        def test_edit_paymentplan_should_change_existing_plan(self):
+                category1 = self.moneydata.add_category("All", "Category1")
+                category2 = self.moneydata.add_category("All", "Category2")
+                self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
+
+                self.moneydata.edit_paymentplan("plan", "newgroup", "Category1", "Category2", 20.0, "Changed comment")
+
+                paymentplan = self.moneydata.get_paymentplan("plan")
+
+                self.assertEqual(paymentplan.name, "plan")
+                self.assertEqual(paymentplan.groupname, "newgroup")
+                self.assertIs(paymentplan.fromcategory, category1)
+                self.assertIs(paymentplan.tocategory, category2)
+                self.assertEqual(paymentplan.amount, 20.0)
+                self.assertEqual(paymentplan.comment, "Changed comment")
+
+        def test_edit_paymentplan_should_update_references_on_transactions(self):
+                category1 = self.moneydata.add_category("All", "Category1")
+                category2 = self.moneydata.add_category("All", "Category2")
+                self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
+                transaction = self.moneydata.execute_paymentplan("plan", "2000-01-01")
+
+                paymentplan = self.moneydata.edit_paymentplan("plan", "newgroup", "Category1", "Category2", 20.0, "Changed comment")
+
+                self.assertIs(transaction.paymentplan, paymentplan)
+
+        def test_rename_paymentplan_should_raise_an_exception_if_paymentplan_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchPaymentPlanException, "plan", self.moneydata.rename_paymentplan, "plan", "newname")
+
+        def test_rename_paymentplan_should_change_name_of_existing_plan(self):
+                paymentplan = self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
+
+                self.moneydata.rename_paymentplan("plan", "newname")
+
+                self.assertEqual(paymentplan.name, "newname")
+
+        def test_rename_paymentplan_should_update_references_on_transactions(self):
+                paymentplan = self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
+                transaction = self.moneydata.execute_paymentplan("plan", "2000-01-01")
+
+                self.moneydata.rename_paymentplan("plan", "newname")
+
+                paymentplan = self.moneydata.get_paymentplan("newname")
+                self.assertIs(transaction.paymentplan, paymentplan)
+
+        def test_move_paymentplan_should_raise_an_exception_if_paymentplan_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchPaymentPlanException, "plan", self.moneydata.move_paymentplan, "plan", "newgroup")
+
+        def test_move_paymentplan_should_change_groupname(self):
+                paymentplan = self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
+
+                self.moneydata.move_paymentplan("plan", "newgroup")
+
+                paymentplan = self.moneydata.get_paymentplan("plan")
+                self.assertEqual(paymentplan.groupname, "newgroup")
+
+        def test_execute_paymentplan_should_raise_an_exception_if_paymentplan_was_not_found(self):
+                self.assertRaisesRegex(moneydata.NoSuchPaymentPlanException, "plan", self.moneydata.execute_paymentplan, "plan", "2000-01-01")
+
+        def test_execute_paymentplan(self):
+                category1 = self.moneydata.add_category("All", "Category1")
+                category2 = self.moneydata.add_category("All", "Category2")
+                self.moneydata.add_paymentplan("planname", "group", "Category1", "Category2", 10.0, "Example plan")
+                self.moneydata.add_paymentplan("planwithoutcomment", "group", "Category1", "Category2", 10.0, "")
+
+                transaction1 = self.moneydata.execute_paymentplan("planname", "2000-01-01")
+                transaction2 = self.moneydata.execute_paymentplan("planwithoutcomment", "2000-01-01")
+
+                self.assertEqual(transaction1.index, 0)
+                self.assertEqual(transaction1.date, datetime.date(2000, 1, 1))
+                self.assertIs(transaction1.fromcategory, category1)
+                self.assertIs(transaction1.tocategory, category2)
+                self.assertEqual(transaction1.amount, 10.0)
+                self.assertEqual(transaction1.comment, "Execution of payment plan planname: Example plan")
+
+                self.assertEqual(transaction2.comment, "Execution of payment plan planwithoutcomment") 
 
 
 class TestMoneyData_Summary(unittest.TestCase):
