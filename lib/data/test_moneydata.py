@@ -305,12 +305,14 @@ class TestMoneyData_Categories(unittest.TestCase):
                 c1 = self.moneydata.add_category("Category1.A.B", "C")
                 c2 = self.moneydata.add_category("Category2.A.B", "C")
 
-                transaction = self.moneydata.add_transaction("2000-01-01", "All", "Category1.A.B", 10.0, "")
+                transaction1 = self.moneydata.add_transaction("2000-01-01", "All", "Category1.A.B", 10.0, "")
+                transaction2 = self.moneydata.add_transaction("2000-01-01", "All", "Category1.A.B", 10.0, "")
 
                 self.moneydata.delete_category("Category1.A")
 
-                self.assertIs(self.moneydata.get_category("NOTFOUND.Category1.A.B"), transaction.tocategory)
-                self.assertIsNone(self.moneydata.get_category("NOTFOUND.Category1.A.B.C"))
+                self.assertIs(self.moneydata.get_category("NOTFOUND.Category1.A.B"), transaction1.tocategory)
+                self.assertIs(self.moneydata.get_category("NOTFOUND.Category1.A.B"), transaction2.tocategory)
+                self.assertRaisesRegex(moneydata.NoSuchCategoryException, "NOTFOUND.Category1.A.B.C", self.moneydata.get_category, "NOTFOUND.Category1.A.B.C")
 
         def test_rename_category_should_raise_an_exception_if_category_was_not_found(self):
                 self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",

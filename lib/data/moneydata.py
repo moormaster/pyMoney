@@ -120,6 +120,27 @@ class MoneyData:
                 if not node.parent:
                         raise CategoryIsTopCategoryException(node)
 
+                # be sure that transactions keep their references to a valid category tree node
+                original_unique_name = {}
+
+                for t in self.transactions:
+                        if t.fromcategory.is_contained_in_subtree(node):
+                                original_unique_name[id(t.fromcategory)] = t.fromcategory.get_unique_name()
+
+                        if t.tocategory.is_contained_in_subtree(node):
+                                original_unique_name[id(t.tocategory)] = t.tocategory.get_unique_name()
+
+                notfoundcategory = self.get_notfound_category()
+                if len(original_unique_name) > 0 and notfoundcategory is None:
+                        notfoundcategory = self.categorytree.append_childnode(CategoryTreeNode(self.notfoundcategoryname))
+
+                for t in self.transactions:
+                        if t.fromcategory.is_contained_in_subtree(node):
+                                t.fromcategory = notfoundcategory.append_by_relative_path(original_unique_name[id(t.fromcategory)])
+
+                        if t.tocategory.is_contained_in_subtree(node):
+                                t.tocategory = notfoundcategory.append_by_relative_path(original_unique_name[id(t.tocategory)])
+
                 node.parent.remove_childnode(node)
 
         def rename_category(self, name, newname):

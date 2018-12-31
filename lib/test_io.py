@@ -54,7 +54,8 @@ class TestTransactions(unittest.TestCase):
                 categorycount = len(list(self.moneydata.categorytree))
                 self.moneydata.delete_category("AnotherCategory")
 
-                self.assertEqual(categorycount - 1, len(list(self.moneydata.categorytree)))
+                # NOTFOUND base category shall be appeared
+                self.assertEqual(categorycount + 1, len(list(self.moneydata.categorytree)))
 
                 transactionparser = lib.io.parser.TransactionParser(self.moneydata.categorytree,
                         self.moneydata.notfoundcategoryname)
