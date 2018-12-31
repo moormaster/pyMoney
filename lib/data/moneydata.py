@@ -262,6 +262,21 @@ class CategoryTreeNode(tree.TreeNode):
         def __init__(self, name):
                 tree.TreeNode.__init__(self, name)
 
+        def append_by_relative_path(self, path):
+                if len(path) == 0:
+                        return self
+
+                node_names = path.split(".")
+
+                category = self
+                for i in range(len(node_names)):
+                        if node_names[i] in category.children:
+                                category = category.children[node_names[i]]
+                        else:
+                                category = category.append_childnode(CategoryTreeNode(node_names[i]))
+
+                return category
+
         def append_childnode(self, node):
                 assert isinstance(node, CategoryTreeNode)
 

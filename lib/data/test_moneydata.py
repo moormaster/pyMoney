@@ -24,6 +24,22 @@ class TestCategoryTreeNode(unittest.TestCase):
 
                 self.assertTrue(node is not None)
 
+        def test_append_by_relative_path_should_create_all_nodes_contained_in_path(self):
+                childnode = self.tree.append_by_relative_path("Node.ChildNode")
+                node = self.tree.find_first_node_by_relative_path("Node")
+
+                self.assertIsNotNone(childnode)
+                self.assertIsNotNone(node)
+                self.assertIs(childnode.parent, node)
+
+        def test_append_by_relative_path_should_use_existing_nodes_along_the_path(self):
+                node = self.tree.append_childnode(moneydata.CategoryTreeNode("Node"))
+
+                childnode = self.tree.append_by_relative_path("Node.ChildNode")
+
+                self.assertIsNotNone(childnode)
+                self.assertIs(childnode.parent, node)
+
         def test_format_should_not_increment_root_node(self):
                 self.assertEqual(self.tree.format(False), "All")
 
@@ -275,6 +291,26 @@ class TestMoneyData_Categories(unittest.TestCase):
 
                 self.assertFalse(self.moneydata.categorytree.find_first_node_by_relative_path("Subcategory"))
                 self.assertFalse(self.moneydata.categorytree.find_first_node_by_relative_path("Category"))
+
+        def test_delete_category_should_keep_category_if_transactions_are_attached_to_it(self):
+                category1 = self.moneydata.add_category("All", "Category1")
+                category2 = self.moneydata.add_category("All", "Category2")
+
+                a1 = self.moneydata.add_category("Category1", "A")
+                a2 = self.moneydata.add_category("Category2", "A")
+
+                b1 = self.moneydata.add_category("Category1.A", "B")
+                b2 = self.moneydata.add_category("Category2.A", "B")
+
+                c1 = self.moneydata.add_category("Category1.A.B", "C")
+                c2 = self.moneydata.add_category("Category2.A.B", "C")
+
+                transaction = self.moneydata.add_transaction("2000-01-01", "All", "Category1.A.B", 10.0, "")
+
+                self.moneydata.delete_category("Category1.A")
+
+                self.assertIs(self.moneydata.get_category("NOTFOUND.Category1.A.B"), transaction.tocategory)
+                self.assertIsNone(self.moneydata.get_category("NOTFOUND.Category1.A.B.C"))
 
         def test_rename_category_should_raise_an_exception_if_category_was_not_found(self):
                 self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",

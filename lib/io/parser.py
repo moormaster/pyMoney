@@ -56,14 +56,8 @@ class TransactionParser:
                 if len(nodes) == 0:
                         if self.autocreatenotfoundcategory:
                                 notfoundcategory = self.get_notfound_category(autocreate=True)
-                                node_names = name.split(".")
+                                newcategory = notfoundcategory.append_by_relative_path(name)
 
-                                newcategory = notfoundcategory
-                                for i in range(len(node_names)):
-                                        if node_names[i] in newcategory.children:
-                                                newcategory = newcategory.children[node_names[i]]
-                                        else:
-                                                newcategory = newcategory.append_childnode(CategoryTreeNode(node_names[i]))
                                 nodes = [newcategory]
                         else:
                                 raise NoSuchCategoryException(name)
