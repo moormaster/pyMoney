@@ -272,6 +272,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                 def cmd_list(arguments):
                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
+                        paymentplanfilter = lambda pp: True
 
                         summarycategory = None
 
@@ -330,7 +331,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                                 tabledata.append([_index, _date, _fromcategory, _tocategory, _amount, _comment])
 
-                        d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter)
+                        d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, paymentplanfilter)
 
                         if summarycategory:
                                 _summarycategory = tocategory_name_formatter.format(summarycategory)
@@ -722,6 +723,7 @@ class PyMoneyConsole(cmd.Cmd):
                 'Prints a summarized report across categories / date intervals. Use summary -h for more details.'
                 def cmd_categories(arguments):
                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
+                        paymentplanfilter = lambda pp: True
 
                         if arguments.__dict__["cashflowcategory"]:
                                 try:
@@ -739,7 +741,7 @@ class PyMoneyConsole(cmd.Cmd):
                         if arguments.__dict__["category"]:
                                 categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_subtree_categoryfilter(arguments.__dict__["category"]))
 
-                        d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter)
+                        d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, paymentplanfilter)
                         category_name_formatter = lib.formatter.CategoryNameFormatter()
                         category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
                         category_name_formatter.set_indent_with_tree_level(True)
@@ -805,11 +807,12 @@ class PyMoneyConsole(cmd.Cmd):
                                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(str(year), None, None)
                                 else:
                                         raise Exception("diff_months value not supported: " + str(diff_months))
+                                paymentplanfilter = lambda pp: True
 
                                 if calculate_balance:
-                                        d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, d_summary)
+                                        d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, paymentplanfilter, d_summary)
                                 else:
-                                        d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, None)
+                                        d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, paymentplanfilter, None)
 
                                 displayday = calendar.monthrange(year, month)[1]
                                 if diff_months != 12:
@@ -951,6 +954,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                 def cmd_export(arguments):
                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
+                        paymentplanfilter = lambda pp: True
 
                         if arguments.__dict__["category"]:
                                 try:

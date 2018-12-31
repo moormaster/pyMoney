@@ -304,7 +304,7 @@ class MoneyData:
 
                 return transaction
 
-        def create_summary(self, transactionfilter, d_summary=None):
+        def create_summary(self, transactionfilter, paymentplanfilter, d_summary=None):
                 if d_summary is None:
                         d_summary = {}  # resulting map unqique category name -> NodeSummary() object
                 d_unique_name = {}  # cached category.get_unique_name() results
@@ -344,6 +344,26 @@ class MoneyData:
                                 d_summary[key].sumcount = d_summary[key].sumcount + 1
                                 d_summary[key].sumin += t.amount
                                 d_summary[key].sum += t.amount
+                                c = c.parent
+
+                for name in self.paymentplans:
+                        pp = self.paymentplans[name]
+
+                        if not paymentplanfilter(pp):
+                                continue
+
+                        c = pp.fromcategory
+                        while not c is None:
+                                key = d_unique_name[id(c)]
+                                d_summary[key].paymentplancountout = d_summary[key].paymentplancountout + 1
+                                d_summary[key].paymentplancount = d_summary[key].paymentplancount + 1
+                                c = c.parent
+
+                        c = pp.tocategory
+                        while not c is None:
+                                key = d_unique_name[id(c)]
+                                d_summary[key].paymentplancountin = d_summary[key].paymentplancountin + 1
+                                d_summary[key].paymentplancount = d_summary[key].paymentplancount + 1
                                 c = c.parent
 
                 return d_summary
@@ -389,7 +409,7 @@ class PaymentPlan(object):
 
 
 class NodeSummary(object):
-        __slots__ = ["amountin", "amountout", "amount", "sumcountin", "sumcountout", "sumcount", "sumin", "sumout", "sum"]
+        __slots__ = ["amountin", "amountout", "amount", "sumcountin", "sumcountout", "sumcount", "paymentplancountin", "paymentplancountout", "paymentplancount", "sumin", "sumout", "sum"]
 
         def __init__(self):
                 self.amountin = 0
@@ -399,6 +419,10 @@ class NodeSummary(object):
                 self.sumcountin = 0
                 self.sumcountout = 0
                 self.sumcount = 0
+
+                self.paymentplancountin = 0
+                self.paymentplancountout = 0
+                self.paymentplancount = 0
 
                 self.sumin = 0
                 self.sumout = 0

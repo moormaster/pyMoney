@@ -616,12 +616,16 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.moneydata.add_category("All", "Source")
                 self.moneydata.add_category("All", "Target")
 
-                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "10.0", "")
-                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "20.0", "")
-                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "30.0", "")
+                self.moneydata.add_paymentplan("plan1", "group", "Source", "Target", "10.0", "")
+                self.moneydata.add_paymentplan("plan2", "group", "Source", "Target", "20.0", "")
+                self.moneydata.add_paymentplan("plan3", "group", "Source", "Target", "30.0", "")
+
+                self.moneydata.execute_paymentplan("plan1", "2000-01-01")
+                self.moneydata.execute_paymentplan("plan2", "2000-01-01")
+                self.moneydata.execute_paymentplan("plan3", "2000-01-01")
 
                 filter_func = lambda t: True
-                summary = self.moneydata.create_summary(filter_func)
+                summary = self.moneydata.create_summary(filter_func, filter_func)
 
                 self.assertEqual(summary["Source"].amountin, 0.0)
                 self.assertEqual(summary["Source"].amountout, -60.0)
@@ -630,6 +634,10 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertEqual(summary["Source"].sumcountin, 0)
                 self.assertEqual(summary["Source"].sumcountout, 3)
                 self.assertEqual(summary["Source"].sumcount, 3)
+
+                self.assertEqual(summary["Source"].paymentplancountin, 0)
+                self.assertEqual(summary["Source"].paymentplancountout, 3)
+                self.assertEqual(summary["Source"].paymentplancount, 3)
 
                 self.assertEqual(summary["Source"].sumin, 0.0)
                 self.assertEqual(summary["Source"].sumout, -60.0)
@@ -644,6 +652,10 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertEqual(summary["Target"].sumcountout, 0)
                 self.assertEqual(summary["Target"].sumcount, 3)
 
+                self.assertEqual(summary["Target"].paymentplancountin, 3)
+                self.assertEqual(summary["Target"].paymentplancountout, 0)
+                self.assertEqual(summary["Target"].paymentplancount, 3)
+
                 self.assertEqual(summary["Target"].sumin, 60.0)
                 self.assertEqual(summary["Target"].sumout, 0.0)
                 self.assertEqual(summary["Target"].sum, 60.0)
@@ -652,12 +664,16 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.moneydata.add_category("All", "Source")
                 self.moneydata.add_category("All", "Target")
 
-                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "10.0", "")
-                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "20.0", "")
-                self.moneydata.add_transaction("2000-01-01", "Source", "Target", "30.0", "")
+                self.moneydata.add_paymentplan("plan1", "group", "Source", "Target", "10.0", "")
+                self.moneydata.add_paymentplan("plan2", "group", "Source", "Target", "20.0", "")
+                self.moneydata.add_paymentplan("plan3", "group", "Source", "Target", "30.0", "")
+
+                self.moneydata.execute_paymentplan("plan1", "2000-01-01")
+                self.moneydata.execute_paymentplan("plan2", "2000-01-01")
+                self.moneydata.execute_paymentplan("plan3", "2000-01-01")
 
                 filter_func = lambda t: True
-                summary = self.moneydata.create_summary(filter_func)
+                summary = self.moneydata.create_summary(filter_func, filter_func)
 
                 self.assertEqual(summary["All"].amountin, 0)
                 self.assertEqual(summary["All"].amountout, 0)
@@ -666,6 +682,10 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertEqual(summary["All"].sumcountin, 3)
                 self.assertEqual(summary["All"].sumcountout, 3)
                 self.assertEqual(summary["All"].sumcount, 6)
+
+                self.assertEqual(summary["All"].paymentplancountin, 3)
+                self.assertEqual(summary["All"].paymentplancountout, 3)
+                self.assertEqual(summary["All"].paymentplancount, 6)
 
                 self.assertEqual(summary["All"].sumin, 60.0)
                 self.assertEqual(summary["All"].sumout, -60.0)
