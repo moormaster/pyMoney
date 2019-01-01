@@ -258,6 +258,23 @@ class MoneyData:
 
                 return self.paymentplans[name]
 
+        def get_paymentplannames(self):
+                return list(self.paymentplans)
+
+        def get_paymentplangroupnames(self):
+                groupnames = []
+                is_part_of_groupnames_list = {}
+
+                for name in self.paymentplans:
+                        paymentplan = self.paymentplans[name]
+                        groupname = paymentplan.groupname
+
+                        if not groupname in is_part_of_groupnames_list:
+                            groupnames.append(groupname)
+                            is_part_of_groupnames_list[groupname] = True
+
+                return groupnames
+
         def delete_paymentplan(self, name):
                 if not name in self.paymentplans:
                         raise NoSuchPaymentPlanException(name)

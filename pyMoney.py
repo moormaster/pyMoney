@@ -114,6 +114,89 @@ class PyMoneyCompletion:
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'delete', 'list', 'merge', 'move', 'rename', 'tree']))
 
+        def complete_paymentplan(self, text, line, begidx, endidx):
+                if endidx < len(line):
+                        return
+
+                argv = shlex.split(line)
+
+                if len(argv) == 1 or line.endswith(" "):
+                        argv.append("")
+
+                if len(argv) >= 2:
+                        if argv[1] == "add":
+                                # groupname
+                                if len(argv) == 4:
+                                        groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+                                        groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
+
+                                        return groupnames
+
+                                # from-category, to-category
+                                if len(argv) == 5 or len(argv) == 6:
+                                        categories = self.pyMoney.get_moneydata().get_categories_iterator()
+                                        categorynames = map(lambda c: c.get_unique_name(), categories)
+                                        categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+                                        return list(categorynames)
+                        elif argv[1] == "edit":
+                                # name
+                                if len(argv) == 3:
+                                        names = self.pyMoney.get_moneydata().get_paymentplannames()
+                                        names = list(filter(lambda v: v.startswith(argv[-1]), names))
+
+                                        return names
+                                 # groupname
+                                if len(argv) == 4:
+                                        groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+                                        groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
+
+                                        return groupnames
+
+                                # from-category, to-category
+                                if len(argv) == 5 or len(argv) == 6:
+                                        categories = self.pyMoney.get_moneydata().get_categories_iterator()
+                                        categorynames = map(lambda c: c.get_unique_name(), categories)
+                                        categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+                                        return list(categorynames)
+                        elif argv[1] == "delete":
+                                # name
+                                if len(argv) == 3:
+                                        names = self.pyMoney.get_moneydata().get_paymentplannames()
+                                        names = list(filter(lambda v: v.startswith(argv[-1]), names))
+
+                                        return names
+                        elif argv[1] == "rename":
+                                # name
+                                if len(argv) == 3:
+                                        names = self.pyMoney.get_moneydata().get_paymentplannames()
+                                        names = list(filter(lambda v: v.startswith(argv[-1]), names))
+
+                                        return names
+                        elif argv[1] == "move":
+                                # name
+                                if len(argv) == 3:
+                                        names = self.pyMoney.get_moneydata().get_paymentplannames()
+                                        names = list(filter(lambda v: v.startswith(argv[-1]), names))
+
+                                        return names
+                                # groupname
+                                if len(argv) == 4:
+                                        groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+                                        groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
+
+                                        return groupnames
+                        elif argv[1] == "execute":
+                                # name
+                                if len(argv) == 3:
+                                        names = self.pyMoney.get_moneydata().get_paymentplannames()
+                                        names = list(filter(lambda v: v.startswith(argv[-1]), names))
+
+                                        return names
+                        elif len(argv) == 2:
+                                return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'edit', 'rename', 'move', 'execute', 'delete', 'list', 'listnames', 'listgroupnames']))
+
         def complete_summary(self, text, line, begidx, endidx):
                 if endidx < len(line):
                         return
@@ -125,7 +208,7 @@ class PyMoneyCompletion:
 
                 if len(argv) >= 2:
                         if argv[1] == "categories":
-                                parameters = ['category', 'cashflowcategory', 'showempty',  'maxlevel']
+                                parameters = ['category', 'cashflowcategory', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
 
                                 if argv[-2] in ["--category", "--cashflowcategory"]:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -133,20 +216,41 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
+                                elif argv[-2] == "--paymentplan":
+                                        names = self.pyMoney.get_moneydata().get_paymentplannames()
+                                        names = list(filter(lambda v: v.startswith(argv[-1]), names))
+
+                                        return names
+                                elif argv[-2] == "--paymentplangroup":
+                                        groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+                                        groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
+
+                                        return groupnames
                                 elif len(argv) >= 3:
                                         if argv[-1].startswith("--"):
                                                 return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
                                         else:
                                                 return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
                         elif argv[1] == "monthly" or argv[1] == "yearly":
+                                parameters = ['balance', 'paymentplan', 'paymentplangroup']
+
                                 if len(argv) == 3:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
                                         categorynames = map(lambda c: c.get_unique_name(), categories)
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                                if len(argv) == 4:
-                                        parameters = ['balance']
+                                elif argv[-2] == "--paymentplan":
+                                        names = self.pyMoney.get_moneydata().get_paymentplannames()
+                                        names = list(filter(lambda v: v.startswith(argv[-1]), names))
+
+                                        return names
+                                elif argv[-2] == "--paymentplangroup":
+                                        groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+                                        groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
+
+                                        return groupnames
+                                elif len(argv) >= 4:
 
                                         if argv[-1].startswith("--"):
                                                 return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
@@ -247,6 +351,9 @@ class PyMoneyConsole(cmd.Cmd):
 
         def complete_category(self, text, line, beginidx, endidx):
                 return self.completion.complete_category(text, line, beginidx, endidx)
+
+        def complete_paymentplan(self, text, line, beginidx, endidx):
+                return self.completion.complete_paymentplan(text, line, beginidx, endidx)
 
         def complete_summary(self, text, line, beginidx, endidx):
                 return self.completion.complete_summary(text, line, beginidx, endidx)
@@ -634,6 +741,16 @@ class PyMoneyConsole(cmd.Cmd):
 
                                 is_first_line = False
 
+                def cmd_listnames(arguments):
+                    for paymentplan in self.pyMoney.get_moneydata().get_paymentplans_iterator():
+                        self.print(paymentplan.name)
+
+                def cmd_listgroupnames(arguments):
+                    groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+
+                    for groupname in groupnames:
+                        self.print(groupname)
+
                 def cmd_execute(arguments):
                         try:
                                 self.pyMoney.get_moneydata().execute_paymentplan(arguments.__dict__["name"], arguments.__dict__["date"])
@@ -682,9 +799,17 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_move.add_argument("name")
                 p_paymentplan_move.add_argument("newgroupname")
 
-                p_paymentplan_rename = sp_paymentplan.add_parser("list")
-                p_paymentplan_rename.set_defaults(command="list")
-                p_paymentplan_rename.set_defaults(parser=p_paymentplan_rename)
+                p_paymentplan_list = sp_paymentplan.add_parser("list")
+                p_paymentplan_list.set_defaults(command="list")
+                p_paymentplan_list.set_defaults(parser=p_paymentplan_list)
+
+                p_paymentplan_listnames = sp_paymentplan.add_parser("listnames")
+                p_paymentplan_listnames.set_defaults(command="listnames")
+                p_paymentplan_listnames.set_defaults(parser=p_paymentplan_listnames)
+
+                p_paymentplan_listgroupnames = sp_paymentplan.add_parser("listgroupnames")
+                p_paymentplan_listgroupnames.set_defaults(command="listgroupnames")
+                p_paymentplan_listgroupnames.set_defaults(parser=p_paymentplan_listgroupnames)
 
                 p_paymentplan_execute = sp_paymentplan.add_parser("execute")
                 p_paymentplan_execute.set_defaults(command="execute")
@@ -706,6 +831,8 @@ class PyMoneyConsole(cmd.Cmd):
                         "rename": cmd_rename,
                         "move": cmd_move,
                         "list": cmd_list,
+                        "listnames": cmd_listnames,
+                        "listgroupnames": cmd_listgroupnames,
                         "execute": cmd_execute
                 }
 
