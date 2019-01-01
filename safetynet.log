@@ -246,6 +246,15 @@ node           amount sum + sum -   sum
       Energy    50.00 50.00  0.00 50.00
       Internet   0.00  0.00  0.00  0.00
 
+$ ./pyMoney.py summary categories 2000 01 --paymentplangroup Monthly --category Expenses --showempty
+node           amount sum + sum -   sum
+
+  Expenses       0.00 50.00  0.00 50.00
+    Frequent     0.00 50.00  0.00 50.00
+      Rent       0.00  0.00  0.00  0.00
+      Energy    50.00 50.00  0.00 50.00
+      Internet   0.00  0.00  0.00  0.00
+
 $ ./pyMoney.py transaction add 2000-01-21 Cash Breakfast 2.00 Bakery
 
 $ ./pyMoney.py transaction add 2000-01-21 Cash Lunch 8
@@ -355,6 +364,15 @@ $ ./pyMoney.py transaction add 2000-02-18 Cash Lunch 8
 $ ./pyMoney.py summary categories 2000 02 --category Frequent --showempty
 node           amount sum + sum -   sum
 
+    Frequent     0.00 50.00  0.00 50.00
+      Rent       0.00  0.00  0.00  0.00
+      Energy    50.00 50.00  0.00 50.00
+      Internet   0.00  0.00  0.00  0.00
+
+$ ./pyMoney.py summary categories 2000 02 --paymentplangroup Monthly --category Expenses --showempty
+node           amount sum + sum -   sum
+
+  Expenses       0.00 50.00  0.00 50.00
     Frequent     0.00 50.00  0.00 50.00
       Rent       0.00  0.00  0.00  0.00
       Energy    50.00 50.00  0.00 50.00
@@ -476,17 +494,41 @@ All             0.00 600.00 -600.00    0.00
     Frequent    0.00 600.00    0.00  600.00
       Rent    600.00 600.00    0.00  600.00
 
+$ ./pyMoney.py summary categories 2000 01 --paymentplangroup Monthly --category Expenses
+node           amount  sum + sum -    sum
+
+  Expenses       0.00 680.00  0.00 680.00
+    Frequent     0.00 680.00  0.00 680.00
+      Rent     600.00 600.00  0.00 600.00
+      Energy    50.00  50.00  0.00  50.00
+      Internet  30.00  30.00  0.00  30.00
+
+$ ./pyMoney.py summary categories 2000 02 --paymentplangroup Monthly --category Expenses
+node           amount  sum + sum -    sum
+
+  Expenses       0.00 680.00  0.00 680.00
+    Frequent     0.00 680.00  0.00 680.00
+      Rent     600.00 600.00  0.00 600.00
+      Energy    50.00  50.00  0.00  50.00
+      Internet  30.00  30.00  0.00  30.00
+
 $ ./pyMoney.py summary monthly --balance Giro
 date       node  amount   sum +    sum -     sum
 
 2000-01-31 Giro 3420.00 5000.00 -1580.00 3420.00
 2000-02-29 Giro 3840.00 7000.00 -3160.00 3840.00
 
-$ ./pyMoney.py summary monthly Frequent
+$ ./pyMoney.py summary monthly --paymentplangroup Monthly Expenses
 date       node     amount  sum + sum -    sum
 
-2000-01-31 Frequent   0.00 680.00  0.00 680.00
-2000-02-29 Frequent   0.00 680.00  0.00 680.00
+2000-01-31 Expenses   0.00 680.00  0.00 680.00
+2000-02-29 Expenses   0.00 680.00  0.00 680.00
+
+$ ./pyMoney.py summary monthly Expenses
+date       node     amount  sum + sum -    sum
+
+2000-01-31 Expenses   0.00 890.00  0.00 890.00
+2000-02-29 Expenses   0.00 890.00  0.00 890.00
 
 $ ./pyMoney.py summary yearly Expenses
 date       node     amount   sum + sum -     sum

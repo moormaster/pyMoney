@@ -126,6 +126,7 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["transaction", "add", "2000-01-20", "Cash", "Lunch", "8"])
 
                 self.pymoney(["summary", "categories", "2000", "01", "--category", "Frequent", "--showempty"])
+                self.pymoney(["summary", "categories", "2000", "01", "--paymentplangroup", "Monthly", "--category", "Expenses", "--showempty"])
 
                 self.pymoney(["transaction", "add", "2000-01-21", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-01-21", "Cash", "Lunch", "8"])
@@ -180,6 +181,7 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["transaction", "add", "2000-02-18", "Cash", "Lunch", "8"])
 
                 self.pymoney(["summary", "categories", "2000", "02", "--category", "Frequent", "--showempty"])
+                self.pymoney(["summary", "categories", "2000", "02", "--paymentplangroup", "Monthly", "--category", "Expenses", "--showempty"])
 
                 self.pymoney(["transaction", "add", "2000-02-21", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-02-21", "Cash", "Lunch", "8"])
@@ -208,8 +210,12 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["summary", "categories", "2000", "01", "--maxlevel", "2"])
                 self.pymoney(["summary", "categories", "2000", "01", "--cashflowcategory", "Rent"])
 
+                self.pymoney(["summary", "categories", "2000", "01", "--paymentplangroup", "Monthly", "--category", "Expenses"])
+                self.pymoney(["summary", "categories", "2000", "02", "--paymentplangroup", "Monthly", "--category", "Expenses"])
+
                 self.pymoney(["summary", "monthly", "--balance", "Giro"])
-                self.pymoney(["summary", "monthly", "Frequent"])
+                self.pymoney(["summary", "monthly", "--paymentplangroup", "Monthly", "Expenses"])
+                self.pymoney(["summary", "monthly", "Expenses"])
                 self.pymoney(["summary", "yearly", "Expenses"])
 
                 self.pymoney(["transaction", "list", "2000", "01"])

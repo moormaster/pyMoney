@@ -723,7 +723,26 @@ class PyMoneyConsole(cmd.Cmd):
                 'Prints a summarized report across categories / date intervals. Use summary -h for more details.'
                 def cmd_categories(arguments):
                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
-                        paymentplanfilter = lambda pp: True
+                        paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
+                        is_paymentplanfilter_active = False
+
+                        if arguments.__dict__["paymentplan"]:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.name == arguments.__dict__["paymentplan"])
+                                        )
+                                        is_paymentplanfilter_active = True
+                                except Exception as e:
+                                        self.print_error(e)
+
+                        if arguments.__dict__["paymentplangroup"]:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.groupname == arguments.__dict__["paymentplangroup"])
+                                        )
+                                        is_paymentplanfilter_active = True
+                                except Exception as e:
+                                        self.print_error(e)
 
                         if arguments.__dict__["cashflowcategory"]:
                                 try:
@@ -741,6 +760,11 @@ class PyMoneyConsole(cmd.Cmd):
                         if arguments.__dict__["category"]:
                                 categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_subtree_categoryfilter(arguments.__dict__["category"]))
 
+                        # also apply paymentplan filter to transactions
+                        transactionfilter = transactionfilter.and_concat(
+                                lib.data.filterchain.Filter(lambda t: paymentplanfilter(t.paymentplan))
+                        )
+
                         d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, paymentplanfilter)
                         category_name_formatter = lib.formatter.CategoryNameFormatter()
                         category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
@@ -752,6 +776,10 @@ class PyMoneyConsole(cmd.Cmd):
                         for category in filter(categoryfilter, self.pyMoney.get_moneydata().get_categories_iterator()):
                                 key = category.get_unique_name()
                                 name = category_name_formatter.format(category)
+
+                                if is_paymentplanfilter_active and d_summary[key].paymentplancount == 0:
+                                        continue
+
                                 if not arguments.__dict__["showempty"] and d_summary[key].sumcount == 0:
                                         continue
 
@@ -786,7 +814,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                                 is_first_line = False
 
-                def sub_time_interval_summary(category, start_year, start_month, diff_months, maxdate, calculate_balance):
+                def sub_time_interval_summary(category, paymentplanfilter, start_year, start_month, diff_months, maxdate, calculate_balance):
                         assert isinstance(category, lib.data.moneydata.CategoryTreeNode)
 
                         category_name_formatter = lib.formatter.CategoryNameFormatter()
@@ -807,7 +835,11 @@ class PyMoneyConsole(cmd.Cmd):
                                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(str(year), None, None)
                                 else:
                                         raise Exception("diff_months value not supported: " + str(diff_months))
-                                paymentplanfilter = lambda pp: True
+
+                                # also apply paymentplan filter to transactions
+                                transactionfilter = transactionfilter.and_concat(
+                                        lib.data.filterchain.Filter(lambda t: paymentplanfilter(t.paymentplan))
+                                )
 
                                 if calculate_balance:
                                         d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, paymentplanfilter, d_summary)
@@ -874,13 +906,37 @@ class PyMoneyConsole(cmd.Cmd):
                                 if not maxdate or transaction.date > maxdate:
                                         maxdate = transaction.date
 
+                        if mindate is None:
+                            return
+
+                        if maxdate is None:
+                            return
+
                         try:
                                 category = self.pyMoney.get_moneydata().get_category(arguments.__dict__["category"])
                         except Exception as e:
                                 self.print_error(e)
                                 return
 
-                        sub_time_interval_summary(category, mindate.year, mindate.month, 1, maxdate, arguments.__dict__["balance"])
+                        paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
+
+                        if arguments.__dict__["paymentplan"]:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.name == arguments.__dict__["paymentplan"])
+                                        )
+                                except Exception as e:
+                                        self.print_error(e)
+
+                        if arguments.__dict__["paymentplangroup"]:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.groupname == arguments.__dict__["paymentplangroup"])
+                                        )
+                                except Exception as e:
+                                        self.print_error(e)
+
+                        sub_time_interval_summary(category, paymentplanfilter, mindate.year, mindate.month, 1, maxdate, arguments.__dict__["balance"])
 
                 def cmd_yearly(arguments):
                         mindate = None
@@ -892,13 +948,37 @@ class PyMoneyConsole(cmd.Cmd):
                                 if not maxdate or transaction.date > maxdate:
                                         maxdate = transaction.date
 
+                        if mindate is None:
+                            return
+
+                        if maxdate is None:
+                            return
+
                         try:
                                 category = self.pyMoney.get_moneydata().get_category(arguments.__dict__["category"])
                         except Exception as e:
                                 self.print_error(e)
                                 return
 
-                        sub_time_interval_summary(category, mindate.year, 1, 12, maxdate, arguments.__dict__["balance"])
+                        paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
+
+                        if arguments.__dict__["paymentplan"]:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.name == arguments.__dict__["paymentplan"])
+                                        )
+                                except Exception as e:
+                                        self.print_error(e)
+
+                        if arguments.__dict__["paymentplangroup"]:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.groupname == arguments.__dict__["paymentplangroup"])
+                                        )
+                                except Exception as e:
+                                        self.print_error(e)
+
+                        sub_time_interval_summary(category, paymentplanfilter, mindate.year, 1, 12, maxdate, arguments.__dict__["balance"])
 
                 parser = lib.argparse.ArgumentParser()
                 sp_summary = parser.add_subparsers(title="command")
@@ -910,6 +990,8 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_categories.add_argument("--showempty", action='store_true')
                 p_summary_categories.add_argument("--cashflowcategory")
                 p_summary_categories.add_argument("--category")
+                p_summary_categories.add_argument("--paymentplan")
+                p_summary_categories.add_argument("--paymentplangroup")
                 p_summary_categories.add_argument("year", nargs='?')
                 p_summary_categories.add_argument("month", type=int, nargs='?')
                 p_summary_categories.add_argument("day", type=int, nargs='?')
@@ -918,12 +1000,16 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_monthly.set_defaults(command="monthly")
                 p_summary_monthly.set_defaults(parser=p_summary_monthly)
                 p_summary_monthly.add_argument("--balance", action='store_true')
+                p_summary_monthly.add_argument("--paymentplan")
+                p_summary_monthly.add_argument("--paymentplangroup")
                 p_summary_monthly.add_argument("category")
 
                 p_summary_yearly = sp_summary.add_parser("yearly")
                 p_summary_yearly.set_defaults(command="yearly")
                 p_summary_yearly.set_defaults(parser=p_summary_yearly)
                 p_summary_yearly.add_argument("--balance", action='store_true')
+                p_summary_yearly.add_argument("--paymentplan")
+                p_summary_yearly.add_argument("--paymentplangroup")
                 p_summary_yearly.add_argument("category")
 
                 try:
