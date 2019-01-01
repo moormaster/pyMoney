@@ -1167,12 +1167,16 @@ class PyMoneyConsole(cmd.Cmd):
 
                 def cmd_export(arguments):
                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
-                        paymentplanfilter = lambda pp: True
+                        paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
                         if arguments.__dict__["category"]:
                                 try:
+                                        category = self.pyMoney.moneydata.get_category(arguments.__dict__["category"])
                                         transactionfilter = transactionfilter.and_concat(
                                                 self.pyMoney.filterFactory.create_or_category_transactionfilter(arguments.__dict__["category"], arguments.__dict__["category"])
+                                        )
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                lib.data.filterchain.Filter(lambda pp: pp.fromcategory.is_contained_in_subtree(category) or pp.tocategory.is_contained_in_subtree(category))
                                         )
                                 except Exception as e:
                                         self.print_error(e)
@@ -1180,6 +1184,17 @@ class PyMoneyConsole(cmd.Cmd):
 
                         if arguments.__dict__["fromcategory"] or arguments.__dict__["tocategory"]:
                                 try:
+                                        if arguments.__dict__["fromcategory"]:
+                                                fromcategory = self.pyMoney.moneydata.get_category(arguments.__dict__["fromcategory"])
+                                                paymentplanfilter = paymentplanfilter.and_concat(
+                                                        lib.data.filterchain.Filter(lambda pp: pp.fromcategory.is_contained_in_subtree(fromcategory))
+                                                )
+                                        if arguments.__dict__["tocategory"]:
+                                                tocategory = self.pyMoney.moneydata.get_category(arguments.__dict__["tocategory"])
+                                                paymentplanfilter = paymentplanfilter.and_concat(
+                                                        lib.data.filterchain.Filter(lambda pp: pp.tocategory.is_contained_in_subtree(tocategory))
+                                                )
+
                                         transactionfilter = transactionfilter.and_concat(
                                                 self.pyMoney.filterFactory.create_and_category_transactionfilter(arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"])
                                         )
@@ -1189,6 +1204,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                         categories_iterator = self.pyMoney.get_moneydata().get_categories_iterator()
                         transactions_iterator = self.pyMoney.get_moneydata().filter_transactions(transactionfilter)
+                        paymentplans_iterator = self.pyMoney.get_moneydata().get_paymentplans_iterator()
 
                         for c in categories_iterator:
                                 assert isinstance(c, lib.data.moneydata.CategoryTreeNode)
@@ -1202,14 +1218,27 @@ class PyMoneyConsole(cmd.Cmd):
 
                                 self.print("category add \"" + parent_category_name + "\" \"" + category_name + "\"")
 
+                        for pp in paymentplans_iterator:
+                                assert isinstance(pp, lib.data.moneydata.PaymentPlan)
+                                assert isinstance(pp.fromcategory, lib.data.moneydata.CategoryTreeNode)
+                                assert isinstance(pp.tocategory, lib.data.moneydata.CategoryTreeNode)
+
+                                if not paymentplanfilter(pp):
+                                        continue
+
+                                self.print("paymentplan add \"" + pp.name + "\" \"" + pp.groupname + "\" \"" + pp.fromcategory.get_full_name() + "\" \"" + pp.tocategory.get_full_name() + "\" " + str(pp.amount) + " \"" + pp.comment + "\"")
+
                         for t in transactions_iterator:
                                 assert isinstance(t, lib.data.moneydata.Transaction)
                                 assert isinstance(t.fromcategory, lib.data.moneydata.CategoryTreeNode)
                                 assert isinstance(t.tocategory, lib.data.moneydata.CategoryTreeNode)
 
-                                self.print("transaction add " + str(t.date) + " \"" + t.fromcategory.get_full_name() + "\" \"" + t.tocategory.get_full_name() + "\" " + str(t.amount) + " \"" + t.comment + "\"")
+                                if t.paymentplan is None:
+                                        self.print("transaction add " + str(t.date) + " \"" + t.fromcategory.get_full_name() + "\" \"" + t.tocategory.get_full_name() + "\" " + str(t.amount) + " \"" + t.comment + "\"")
+                                else:
+                                        assert isinstance(t.paymentplan, lib.data.moneydata.PaymentPlan)
+                                        self.print("paymentplan execute " + str(t.date) + " \"" + t.paymentplan.name + "\"")
 
-                        pass
 
                 parser = lib.argparse.ArgumentParser()
                 parser.add_argument("year", nargs='?')
