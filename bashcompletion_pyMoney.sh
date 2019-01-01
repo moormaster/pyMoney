@@ -19,6 +19,48 @@ _pymoney_category_list()
 	tail -n +2 "$cachefile"
 }
 
+_pymoney_paymentplan_list()
+{
+	pymoneycmd="$*"
+	now=$( date +%s )
+	cachetimestamp=""
+	mincacheageseconds=60
+	cachefile=pymoney.completioncache.paymentplans
+
+	if [ -e "$cachefile" ]
+	then
+		cachetimestamp=$( head -n 1 "$cachefile" )
+	fi
+
+	if ! [ -e "$cachefile" ] || [ "$cachetimestamp" == "" ] || [ $(( $now - $cachetimestamp )) -ge $mincacheageseconds ] && [ "$cachefile" -ot "pymoney.paymentplans" ]
+	then
+		( date +%s; "$pymoneycmd" paymentplan listnames) > "$cachefile"
+	fi
+
+	tail -n +2 "$cachefile"
+}
+
+_pymoney_paymentplangroup_list()
+{
+	pymoneycmd="$*"
+	now=$( date +%s )
+	cachetimestamp=""
+	mincacheageseconds=60
+	cachefile=pymoney.completioncache.paymentplangroups
+
+	if [ -e "$cachefile" ]
+	then
+		cachetimestamp=$( head -n 1 "$cachefile" )
+	fi
+
+	if ! [ -e "$cachefile" ] || [ "$cachetimestamp" == "" ] || [ $(( $now - $cachetimestamp )) -ge $mincacheageseconds ] && [ "$cachefile" -ot "pymoney.paymentplans" ]
+	then
+		( date +%s; "$pymoneycmd" paymentplan listgroupnames) > "$cachefile"
+	fi
+
+	tail -n +2 "$cachefile"
+}
+
 _pymoney_transaction()
 {
 	_ARGINDEX=$1
@@ -147,6 +189,125 @@ _pymoney_category()
 	esac
 }
 
+_pymoney_paymentplan()
+{
+	_ARGINDEX=$1
+	case ${COMP_WORDS[$_ARGINDEX]} in
+		add)
+			case ${COMP_CWORD} in
+				$(( $_ARGINDEX + 1 )) )
+					# name
+					;;
+
+				$(( $_ARGINDEX + 2 )) )
+					# group
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 3 )) )
+					# fromcategory
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 4 )) )
+					# tocategory
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 5 )) )
+					# amount
+					;;
+
+				$(( $_ARGINDEX + 6 )) )
+					# comment
+			esac
+			;;
+
+		edit)
+			case ${COMP_CWORD} in
+				$(( $_ARGINDEX + 1 )) )
+					# name
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplan_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 2 )) )
+					# group
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 3 )) )
+					# fromcategory
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 4 )) )
+					# tocategory
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 5 )) )
+					# amount
+					;;
+
+				$(( $_ARGINDEX + 6 )) )
+					# comment
+			esac
+			;;
+
+		move)
+			case ${COMP_CWORD} in
+				$(( $_ARGINDEX + 1 )) )
+					# name
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplan_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 2 )) )
+					# new group
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+			esac
+			;;
+
+		rename)
+			case ${COMP_CWORD} in
+				$(( $_ARGINDEX + 1 )) )
+					# name
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplan_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+				$(( $_ARGINDEX + 2 )) )
+					# newname
+					;;
+			esac
+			;;
+
+		execute)
+			case ${COMP_CWORD} in
+				$(( $_ARGINDEX + 1 )) )
+					# name
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplan_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				$(( $_ARGINDEX + 2 )) )
+					# date
+					;;
+			esac
+			;;
+
+		delete)
+			case ${COMP_CWORD} in
+				$(( $_ARGINDEX + 1 )) )
+					# name
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplan_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+			esac
+			;;
+
+		*)
+			COMPREPLY=( $( compgen -W "add edit rename move execute delete list listnames listgroupnames" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			;;
+	esac
+}
+
 _pymoney_summary()
 {
 	_ARGINDEX=$1
@@ -157,34 +318,66 @@ _pymoney_summary()
 					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
+				--paymentplan)
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplan_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				--paymentplangroup)
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
 				*)
-					COMPREPLY=( $( compgen -W "--category --cashflowcategory --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--category --cashflowcategory --paymentplan --paymentplangroup --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;
 
 		monthly)
-			case $COMP_CWORD in
-				$(( $_ARGINDEX + 1 )) )
-					# category
-					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
+				--paymentplan)
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplan_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				--paymentplangroup)
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--balance" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					case $COMP_CWORD in
+						$(( $_ARGINDEX + 1 )) )
+							# category
+							COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+							;;
+
+						*)
+							COMPREPLY=( $( compgen -W "--balance --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+							;;
+					esac
 					;;
 			esac
 			;;
 
 		yearly)
-			case $COMP_CWORD in
-				$(( $_ARGINDEX + 1 )) )
-					# category
-					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
+				--paymentplan)
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplan_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				--paymentplangroup)
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--balance" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					case $COMP_CWORD in
+						$(( $_ARGINDEX + 1 )) )
+							# category
+							COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+							;;
+
+						*)
+							COMPREPLY=( $( compgen -W "--balance --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+							;;
+					esac
 					;;
 			esac
 			;;
@@ -220,6 +413,10 @@ _pymoney()
 			_pymoney_category 2
 			;;
 
+		paymentplan)
+			_pymoney_paymentplan 2
+			;;
+
 		summary)
 			_pymoney_summary 2
 			;;
@@ -235,7 +432,7 @@ _pymoney()
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "transaction category summary export --script --cli" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "transaction category paymentplan summary export --script --cli" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
