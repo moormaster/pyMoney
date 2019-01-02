@@ -238,7 +238,7 @@ class PyMoneyCompletion:
 
                 if len(argv) >= 2:
                         if argv[1] == "categories":
-                                parameters = ['category', 'cashflowcategory', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
+                                parameters = ['category', 'cashflowcategory', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
 
                                 if argv[-2] in ["--category", "--cashflowcategory"]:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -262,7 +262,7 @@ class PyMoneyCompletion:
                                         else:
                                                 return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
                         elif argv[1] == "monthly" or argv[1] == "yearly":
-                                parameters = ['balance', 'paymentplan', 'paymentplangroup']
+                                parameters = ['balance', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
                                 if len(argv) == 3:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -905,21 +905,25 @@ class PyMoneyConsole(cmd.Cmd):
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
                         is_paymentplanfilter_active = False
 
+                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroups"]:
+                                paymentplanfilter = paymentplanfilter.and_concat(
+                                        lib.data.filterchain.Filter(lambda pp: not pp is None)
+                                )
+                                is_paymentplanfilter_active = True
+
                         if arguments.__dict__["paymentplan"]:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.name == arguments.__dict__["paymentplan"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__["paymentplan"])
                                         )
-                                        is_paymentplanfilter_active = True
                                 except Exception as e:
                                         self.print_error(e)
 
                         if arguments.__dict__["paymentplangroup"]:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.groupname == arguments.__dict__["paymentplangroup"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["paymentplangroup"])
                                         )
-                                        is_paymentplanfilter_active = True
                                 except Exception as e:
                                         self.print_error(e)
 
@@ -1099,10 +1103,15 @@ class PyMoneyConsole(cmd.Cmd):
 
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
+                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroups"]:
+                                paymentplanfilter = paymentplanfilter.and_concat(
+                                        lib.data.filterchain.Filter(lambda pp: not pp is None)
+                                )
+
                         if arguments.__dict__["paymentplan"]:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.name == arguments.__dict__["paymentplan"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__["paymentplan"])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
@@ -1110,7 +1119,7 @@ class PyMoneyConsole(cmd.Cmd):
                         if arguments.__dict__["paymentplangroup"]:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.groupname == arguments.__dict__["paymentplangroup"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["paymentplangroup"])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
@@ -1141,10 +1150,15 @@ class PyMoneyConsole(cmd.Cmd):
 
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
+                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroups"]:
+                                paymentplanfilter = paymentplanfilter.and_concat(
+                                        lib.data.filterchain.Filter(lambda pp: not pp is None)
+                                )
+
                         if arguments.__dict__["paymentplan"]:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.name == arguments.__dict__["paymentplan"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__["paymentplan"])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
@@ -1152,7 +1166,7 @@ class PyMoneyConsole(cmd.Cmd):
                         if arguments.__dict__["paymentplangroup"]:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: not pp is None and pp.groupname == arguments.__dict__["paymentplangroup"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["paymentplangroup"])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
@@ -1169,6 +1183,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_categories.add_argument("--showempty", action='store_true')
                 p_summary_categories.add_argument("--cashflowcategory")
                 p_summary_categories.add_argument("--category")
+                p_summary_categories.add_argument("--paymentplansonly", action='store_true')
                 p_summary_categories.add_argument("--paymentplan")
                 p_summary_categories.add_argument("--paymentplangroup")
                 p_summary_categories.add_argument("year", nargs='?')
@@ -1179,6 +1194,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_monthly.set_defaults(command="monthly")
                 p_summary_monthly.set_defaults(parser=p_summary_monthly)
                 p_summary_monthly.add_argument("--balance", action='store_true')
+                p_summary_monthly.add_argument("--paymentplansonly", action='store_true')
                 p_summary_monthly.add_argument("--paymentplan")
                 p_summary_monthly.add_argument("--paymentplangroup")
                 p_summary_monthly.add_argument("category")
@@ -1187,6 +1203,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_yearly.set_defaults(command="yearly")
                 p_summary_yearly.set_defaults(parser=p_summary_yearly)
                 p_summary_yearly.add_argument("--balance", action='store_true')
+                p_summary_yearly.add_argument("--paymentplansonly", action='store_true')
                 p_summary_yearly.add_argument("--paymentplan")
                 p_summary_yearly.add_argument("--paymentplangroup")
                 p_summary_yearly.add_argument("category")
