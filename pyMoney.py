@@ -49,7 +49,7 @@ class PyMoneyCompletion:
 
                                         return list(categorynames)
                         elif argv[1] == "list":
-                                parameters = ['category', 'fromcategory', 'tocategory']
+                                parameters = ['category', 'fromcategory', 'tocategory', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
                                 if argv[-2] in ["--category", "--fromcategory", "--tocategory"]:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -57,6 +57,16 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
+                                elif argv[-2] == "--paymentplan":
+                                        names = self.pyMoney.get_moneydata().get_paymentplannames()
+                                        names = list(filter(lambda v: v.startswith(argv[-1]), names))
+
+                                        return names
+                                elif argv[-2] == "--paymentplangroup":
+                                        groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+                                        groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
+
+                                        return groupnames
                                 elif len(argv) >= 3:
                                         if argv[-1].startswith("--"):
                                                 return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
@@ -409,7 +419,29 @@ class PyMoneyConsole(cmd.Cmd):
 
                 def cmd_list(arguments):
                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
-                        paymentplanfilter = lambda pp: True
+                        paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
+
+                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroup"]:
+                                paymentplanfilter = paymentplanfilter.and_concat(
+                                        lib.data.filterchain.Filter(lambda pp: not pp is None)
+                                )
+
+                        if arguments.__dict__["paymentplan"]:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__["paymentplan"])
+                                        )
+                                except Exception as e:
+                                        self.print_error(e)
+
+                        if arguments.__dict__["paymentplangroup"]:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["paymentplangroup"])
+                                        )
+                                except Exception as e:
+                                        self.print_error(e)
+
 
                         summarycategory = None
 
@@ -436,6 +468,11 @@ class PyMoneyConsole(cmd.Cmd):
                                 except Exception as e:
                                         self.print_error(e)
                                         return
+
+                        # also apply paymentplan filter to transactions
+                        transactionfilter = transactionfilter.and_concat(
+                                lib.data.filterchain.Filter(lambda t: paymentplanfilter(t.paymentplan))
+                        )
 
                         headerdata = ["Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"]
                         tabledata = []
@@ -544,6 +581,9 @@ class PyMoneyConsole(cmd.Cmd):
                 p_transaction_list.add_argument("--category")
                 p_transaction_list.add_argument("--fromcategory")
                 p_transaction_list.add_argument("--tocategory")
+                p_transaction_list.add_argument("--paymentplansonly", action='store_true')
+                p_transaction_list.add_argument("--paymentplan")
+                p_transaction_list.add_argument("--paymentplangroup")
 
                 try:
                         arguments = parser.parse_args(shlex.split(args))
@@ -905,7 +945,7 @@ class PyMoneyConsole(cmd.Cmd):
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
                         is_paymentplanfilter_active = False
 
-                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroups"]:
+                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroup"]:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: not pp is None)
                                 )
@@ -1103,7 +1143,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
-                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroups"]:
+                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroup"]:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: not pp is None)
                                 )
@@ -1150,7 +1190,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
-                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroups"]:
+                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroup"]:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: not pp is None)
                                 )
