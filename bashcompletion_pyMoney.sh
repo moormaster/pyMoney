@@ -141,7 +141,7 @@ _pymoney_transaction()
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--category --fromcategory --tocategory --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--category --fromcategory --tocategory --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;
@@ -359,7 +359,7 @@ _pymoney_summary()
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--category --cashflowcategory --paymentplansonly --paymentplan --paymentplangroup --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--category --cashflowcategory --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;
@@ -382,7 +382,7 @@ _pymoney_summary()
 							;;
 
 						*)
-							COMPREPLY=( $( compgen -W "--balance --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+							COMPREPLY=( $( compgen -W "--balance --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 							;;
 					esac
 					;;
@@ -407,7 +407,7 @@ _pymoney_summary()
 							;;
 
 						*)
-							COMPREPLY=( $( compgen -W "--balance --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+							COMPREPLY=( $( compgen -W "--balance --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 							;;
 					esac
 					;;
