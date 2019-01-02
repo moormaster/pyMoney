@@ -194,6 +194,36 @@ class PyMoneyCompletion:
                                         names = list(filter(lambda v: v.startswith(argv[-1]), names))
 
                                         return names
+                        elif argv[1] == "list":
+                                parameters = ['group']
+
+                                if argv[-2] == "--group":
+                                        groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+                                        groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
+
+                                        return groupnames
+                                else:
+                                        if argv[-1].startswith("--"):
+                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+                                        elif argv[-1].startswith("-"):
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
+                                        else:
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
+                        elif argv[1] == "listnames":
+                                parameters = ['group']
+
+                                if argv[-2] == "--group":
+                                        groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+                                        groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
+
+                                        return groupnames
+                                else:
+                                        if argv[-1].startswith("--"):
+                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+                                        elif argv[-1].startswith("-"):
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
+                                        else:
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'edit', 'rename', 'move', 'execute', 'delete', 'list', 'listnames', 'listgroupnames']))
 
@@ -708,7 +738,17 @@ class PyMoneyConsole(cmd.Cmd):
                         headerdata = ["Group", "PaymentPlan", "FromCategory", "ToCategory", "Amount", "Comment"]
                         tabledata = []
 
+                        paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
+
+                        if arguments.__dict__["group"]:
+                                paymentplanfilter = paymentplanfilter.and_concat(
+                                        lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["group"])
+                                )
+
                         for paymentplan in self.pyMoney.get_moneydata().get_paymentplans_iterator():
+                                if not paymentplanfilter(paymentplan):
+                                        continue
+
                                 row = []
 
                                 row.append(paymentplan.groupname)
@@ -742,14 +782,24 @@ class PyMoneyConsole(cmd.Cmd):
                                 is_first_line = False
 
                 def cmd_listnames(arguments):
-                    for paymentplan in self.pyMoney.get_moneydata().get_paymentplans_iterator():
-                        self.print(paymentplan.name)
+                        paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
+
+                        if arguments.__dict__["group"]:
+                                paymentplanfilter = paymentplanfilter.and_concat(
+                                        lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["group"])
+                                )
+
+                        for paymentplan in self.pyMoney.get_moneydata().get_paymentplans_iterator():
+                                if not paymentplanfilter(paymentplan):
+                                        continue
+
+                                self.print(paymentplan.name)
 
                 def cmd_listgroupnames(arguments):
-                    groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+                        groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
 
-                    for groupname in groupnames:
-                        self.print(groupname)
+                        for groupname in groupnames:
+                                self.print(groupname)
 
                 def cmd_execute(arguments):
                         try:
@@ -802,10 +852,12 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_list = sp_paymentplan.add_parser("list")
                 p_paymentplan_list.set_defaults(command="list")
                 p_paymentplan_list.set_defaults(parser=p_paymentplan_list)
+                p_paymentplan_list.add_argument("--group")
 
                 p_paymentplan_listnames = sp_paymentplan.add_parser("listnames")
                 p_paymentplan_listnames.set_defaults(command="listnames")
                 p_paymentplan_listnames.set_defaults(parser=p_paymentplan_listnames)
+                p_paymentplan_listnames.add_argument("--group")
 
                 p_paymentplan_listgroupnames = sp_paymentplan.add_parser("listgroupnames")
                 p_paymentplan_listgroupnames.set_defaults(command="listgroupnames")

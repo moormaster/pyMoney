@@ -302,6 +302,30 @@ _pymoney_paymentplan()
 			esac
 			;;
 
+		list)
+			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
+				--group)
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				*)
+					COMPREPLY=( $( compgen -W "--group" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+			esac
+			;;
+
+		listnames)
+			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
+				--group)
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				*)
+					COMPREPLY=( $( compgen -W "--group" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+			esac
+			;;
+
 		*)
 			COMPREPLY=( $( compgen -W "add edit rename move execute delete list listnames listgroupnames" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
