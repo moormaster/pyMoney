@@ -849,7 +849,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                 def cmd_execute(arguments):
                         try:
-                                self.pyMoney.get_moneydata().execute_paymentplan(arguments.__dict__["name"], arguments.__dict__["date"])
+                                self.pyMoney.get_moneydata().execute_paymentplan(arguments.__dict__["name"], arguments.__dict__["date"], arguments.__dict__["amount"], arguments.__dict__["comment"])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
@@ -914,6 +914,8 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_execute.set_defaults(parser=p_paymentplan_execute)
                 p_paymentplan_execute.add_argument("name")
                 p_paymentplan_execute.add_argument("date")
+                p_paymentplan_execute.add_argument("amount", default=None, type=float, nargs='?')
+                p_paymentplan_execute.add_argument("comment", default="", nargs='?')
 
                 try:
                         arguments = parser.parse_args(shlex.split(args))

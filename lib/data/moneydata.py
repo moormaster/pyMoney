@@ -309,13 +309,19 @@ class MoneyData:
 
                 return paymentplan
 
-        def execute_paymentplan(self, name, str_date):
+        def execute_paymentplan(self, name, str_date, amount=None, str_comment=None):
                 if not name in self.paymentplans:
                         raise NoSuchPaymentPlanException(name)
 
                 paymentplan = self.paymentplans[name]
 
-                transaction = self.parse_transaction(str_date, paymentplan.fromcategory.get_unique_name(), paymentplan.tocategory.get_unique_name(), paymentplan.amount, paymentplan.comment)
+                if amount is None:
+                    amount = paymentplan.amount
+
+                if str_comment is None or len(str_comment) == 0:
+                    str_comment = paymentplan.comment
+
+                transaction = self.parse_transaction(str_date, paymentplan.fromcategory.get_unique_name(), paymentplan.tocategory.get_unique_name(), amount, str_comment)
                 transaction.paymentplan = paymentplan
                 self.import_transaction(transaction)
 
