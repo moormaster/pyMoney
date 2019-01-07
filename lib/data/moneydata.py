@@ -22,7 +22,7 @@ class MoneyData:
                 return self.paymentplans.values().__iter__()
 
         def filter_transactions(self, filter_func):
-                return filter(filter_func, self.transactions.__iter__())
+                return filter(filter_func, self.get_transactions_iterator())
 
         def create_new_index(self):
                 if self.nextfreeindex is None:
@@ -61,6 +61,9 @@ class MoneyData:
 
         def delete_transaction(self, index):
                 del self.transactions[index]
+
+                for i in range(index, len(self.transactions)):
+                        self.transactions[i].index = i
 
         def parse_transaction(self, str_date, str_categoryin, str_categoryout, str_amount, str_comment,
                         autocreatenotfoundcategory=False, dateformat="%Y-%m-%d"):
@@ -129,7 +132,7 @@ class MoneyData:
                 # be sure that transactions keep their references to a valid category tree node
                 original_unique_name = {}
 
-                for t in self.transactions:
+                for t in self.get_transactions_iterator():
                         if t.fromcategory.is_contained_in_subtree(node):
                                 original_unique_name[id(t.fromcategory)] = t.fromcategory.get_unique_name()
 
@@ -140,7 +143,7 @@ class MoneyData:
                 if len(original_unique_name) > 0 and notfoundcategory is None:
                         notfoundcategory = self.categorytree.append_childnode(CategoryTreeNode(self.notfoundcategoryname))
 
-                for t in self.transactions:
+                for t in self.get_transactions_iterator():
                         if t.fromcategory.is_contained_in_subtree(node):
                                 t.fromcategory = notfoundcategory.append_by_relative_path(original_unique_name[id(t.fromcategory)])
 
@@ -183,7 +186,7 @@ class MoneyData:
                                         categories.append(category.children[child])
                                         targetcategories.append(targetcategory.children[child])
 
-                        for t in self.transactions:
+                        for t in self.get_transactions_iterator():
                                 if t.fromcategory is category:
                                         t.fromcategory = targetcategory
                                 if t.tocategory is category:
@@ -245,7 +248,7 @@ class MoneyData:
                 oldpaymentplan = self.paymentplans[name]
                 paymentplan = self.parse_paymentplan(name, str_groupname, str_fromcategory, str_tocategory, str_amount, str_comment)
 
-                for t in self.transactions:
+                for t in self.get_transactions_iterator():
                         if t.paymentplan is oldpaymentplan:
                                 t.paymentplan = paymentplan
                 self.paymentplans[name] = paymentplan
@@ -281,7 +284,7 @@ class MoneyData:
 
                 paymentplan = self.paymentplans.pop(name)
 
-                for t in self.transactions:
+                for t in self.get_transactions_iterator():
                         if t.paymentplan is paymentplan:
                                 t.paymentplan = None
 
@@ -338,7 +341,7 @@ class MoneyData:
                         if not unique_name in d_summary:
                                 d_summary[unique_name] = NodeSummary()
 
-                for t in self.transactions:
+                for t in self.get_transactions_iterator():
                         if not transactionfilter(t):
                                 continue
 

@@ -183,6 +183,16 @@ class TestMoneyData_Transactions(unittest.TestCase):
                 self.assertEqual(len(self.moneydata.transactions), 1)
                 self.assertEqual(self.moneydata.transactions[0].amount, 20.0, "second transaction should not have been deleted")
 
+        def test_delete_transaction_should_update_indices(self):
+                transaction1 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+                transaction2 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "20.0", "")
+                transaction3 = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "30.0", "")
+
+                self.moneydata.delete_transaction(transaction1.index)
+
+                self.assertEqual(transaction2.index, 0)
+                self.assertEqual(transaction3.index, 1)
+
         def test_parse_transaction_should_raise_exception_if_fromcategory_was_not_found(self):
                 self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
                         self.moneydata.parse_transaction, "2000-01-01", "Category1", "UnknownCategory", "10.0", "A comment")
