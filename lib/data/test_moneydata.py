@@ -4,6 +4,7 @@ from lib.data import tree
 
 import unittest
 import datetime
+import functools
 
 
 class TestCategoryTreeNode(unittest.TestCase):
@@ -669,6 +670,25 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertEqual(summary["Target"].sumin, 60.0)
                 self.assertEqual(summary["Target"].sumout, 0.0)
                 self.assertEqual(summary["Target"].sum, 60.0)
+
+        def test_create_summary_should_not_accumulate_floating_point_errors(self):
+                self.moneydata.add_category("All", "Source")
+                self.moneydata.add_category("All", "Target")
+
+                self.moneydata.add_paymentplan("plan", "group", "Source", "Target", "0.01", "")
+                self.moneydata.add_paymentplan("plan6", "group", "Target", "Source", "0.06", "")
+
+                for i in range(6):
+                        self.moneydata.execute_paymentplan("plan", "2000-01-01")
+                self.moneydata.execute_paymentplan("plan6", "2000-01-01")
+
+                almostZero = functools.reduce( lambda sum, val: sum+val, [0.01]*6 ) - 0.06
+                self.assertNotEqual(almostZero, 0, "python floating point arithmetic should fail to exactly sum up 0.01 six times")
+
+                filter_func = lambda t: True
+                summary = self.moneydata.create_summary(filter_func, filter_func)
+
+                self.assertEqual(summary["Target"].amount, 0, "create_summary() should make sure that adding 0.01 six times and subtracting 0.06 equals exactly 0")
 
         def test_create_summary_should_accumulate_values_of_subcategories(self):
                 self.moneydata.add_category("All", "Source")

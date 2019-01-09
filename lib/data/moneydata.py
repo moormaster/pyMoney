@@ -333,7 +333,19 @@ class MoneyData:
         def create_summary(self, transactionfilter, paymentplanfilter, d_summary=None):
                 if d_summary is None:
                         d_summary = {}  # resulting map unqique category name -> NodeSummary() object
-                d_unique_name = {}  # cached category.get_unique_name() results
+                d_unique_name = {}      # cached category.get_unique_name() results
+
+                fp_correction_factor = 100      # factor by which each summands gets multiplied before addition - and by which the sum gets divided again
+                                                # to prevent floating point errors (like sum([0.01]*6) being not equal to 0.06)
+
+                for key in d_summary:
+                        d_summary[key].amount *= fp_correction_factor
+                        d_summary[key].amountin *= fp_correction_factor
+                        d_summary[key].amountout *= fp_correction_factor
+
+                        d_summary[key].sum *= fp_correction_factor
+                        d_summary[key].sumin *= fp_correction_factor
+                        d_summary[key].sumout *= fp_correction_factor
 
                 for c in self.categorytree:
                         unique_name = c.get_unique_name()
@@ -348,19 +360,19 @@ class MoneyData:
                         fromkey = d_unique_name[id(t.fromcategory)]
                         tokey = d_unique_name[id(t.tocategory)]
 
-                        d_summary[fromkey].amountout -= t.amount
-                        d_summary[fromkey].amount -= t.amount
+                        d_summary[fromkey].amountout -= t.amount * fp_correction_factor
+                        d_summary[fromkey].amount -= t.amount * fp_correction_factor
 
-                        d_summary[tokey].amountin += t.amount
-                        d_summary[tokey].amount += t.amount
+                        d_summary[tokey].amountin += t.amount * fp_correction_factor
+                        d_summary[tokey].amount += t.amount * fp_correction_factor
 
                         c = t.fromcategory
                         while not c is None:
                                 key = d_unique_name[id(c)]
                                 d_summary[key].sumcountout = d_summary[key].sumcountout + 1
                                 d_summary[key].sumcount = d_summary[key].sumcount + 1
-                                d_summary[key].sumout -= t.amount
-                                d_summary[key].sum -= t.amount
+                                d_summary[key].sumout -= t.amount * fp_correction_factor
+                                d_summary[key].sum -= t.amount * fp_correction_factor
                                 c = c.parent
 
                         c = t.tocategory
@@ -368,8 +380,8 @@ class MoneyData:
                                 key = d_unique_name[id(c)]
                                 d_summary[key].sumcountin = d_summary[key].sumcountin + 1
                                 d_summary[key].sumcount = d_summary[key].sumcount + 1
-                                d_summary[key].sumin += t.amount
-                                d_summary[key].sum += t.amount
+                                d_summary[key].sumin += t.amount * fp_correction_factor
+                                d_summary[key].sum += t.amount * fp_correction_factor
                                 c = c.parent
 
                 for name in self.paymentplans:
@@ -391,6 +403,15 @@ class MoneyData:
                                 d_summary[key].paymentplancountin = d_summary[key].paymentplancountin + 1
                                 d_summary[key].paymentplancount = d_summary[key].paymentplancount + 1
                                 c = c.parent
+
+                for key in d_summary:
+                        d_summary[key].amount /= fp_correction_factor
+                        d_summary[key].amountin /= fp_correction_factor
+                        d_summary[key].amountout /= fp_correction_factor
+
+                        d_summary[key].sum /= fp_correction_factor
+                        d_summary[key].sumin /= fp_correction_factor
+                        d_summary[key].sumout /= fp_correction_factor
 
                 return d_summary
 
