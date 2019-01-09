@@ -709,6 +709,10 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertEqual(summary["All"].amountout, 0)
                 self.assertEqual(summary["All"].amount, 0)
 
+                self.assertEqual(summary["All"].sumin, 60.0)
+                self.assertEqual(summary["All"].sumout, -60.0)
+                self.assertEqual(summary["All"].sum, 0.0)
+
                 self.assertEqual(summary["All"].sumcountin, 3)
                 self.assertEqual(summary["All"].sumcountout, 3)
                 self.assertEqual(summary["All"].sumcount, 6)
@@ -717,8 +721,34 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertEqual(summary["All"].paymentplancountout, 3)
                 self.assertEqual(summary["All"].paymentplancount, 6)
 
-                self.assertEqual(summary["All"].sumin, 60.0)
-                self.assertEqual(summary["All"].sumout, -60.0)
+        def test_create_summary_should_use_the_given_initial_sums_based_on_previous_result(self):
+                self.moneydata.add_category("All", "Source")
+                self.moneydata.add_category("All", "Target")
+
+                self.moneydata.add_paymentplan("plan", "group", "Source", "Target", "10.0", "")
+
+                self.moneydata.execute_paymentplan("plan", "2000-01-01")
+
+                d_previous_summary = {"All": moneydata.NodeSummary()}
+
+                d_previous_summary["All"].amount = 0.0
+                d_previous_summary["All"].amountin = 10.0
+                d_previous_summary["All"].amountout = -10.0
+
+                d_previous_summary["All"].sum = 0.0
+                d_previous_summary["All"].sumin = 10.0
+                d_previous_summary["All"].sumout = -10.0
+
+
+                filter_func = lambda t: True
+                summary = self.moneydata.create_summary(filter_func, filter_func, d_previous_summary)
+
+                self.assertEqual(summary["All"].amountin, 10.0)
+                self.assertEqual(summary["All"].amountout, -10.0)
+                self.assertEqual(summary["All"].amount, 0)
+
+                self.assertEqual(summary["All"].sumin, 20.0)
+                self.assertEqual(summary["All"].sumout, -20.0)
                 self.assertEqual(summary["All"].sum, 0.0)
 
 
