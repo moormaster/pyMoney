@@ -332,6 +332,7 @@ class PyMoneyConsole(cmd.Cmd):
         def __init__(self, argv):
                 cmd.Cmd.__init__(self)
 
+                self.is_interactive = True
                 self.prompt = '(pyMoney) '
 
                 parser = self.get_argument_parser()
@@ -403,8 +404,24 @@ class PyMoneyConsole(cmd.Cmd):
                 'Adds, edits, deletes or lists transaction(s). Use transaction -h for more details.'
                 def cmd_add(arguments):
                         try:
-                                self.pyMoney.get_moneydata().add_transaction(arguments.__dict__["date"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"],
+                                if self.is_interactive:
+                                        similar_paymentplans = self.pyMoney.get_moneydata().find_similar_paymentplans(arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"])
+                                        if len(similar_paymentplans):
+                                                paymentplans = None
+                                                for paymentplan in similar_paymentplans:
+                                                        if paymentplans is None:
+                                                                paymentplans = paymentplan.name
+                                                        else:
+                                                                paymentplans += ", " + paymentplan.name
+
+                                                self.print("similar payment plan(s) found: " + paymentplans)
+
+                                transaction = self.pyMoney.get_moneydata().add_transaction(arguments.__dict__["date"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"],
                                                                 arguments.__dict__["comment"], arguments.__dict__["force"])
+
+                                if self.is_interactive:
+                                        self.print("added transaction " + str(transaction.index) + ": transferred amount " + str(transaction.amount) + " from " + transaction.fromcategory.get_unique_name() + " to " + transaction.tocategory.get_unique_name())
+
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
@@ -849,7 +866,11 @@ class PyMoneyConsole(cmd.Cmd):
 
                 def cmd_execute(arguments):
                         try:
-                                self.pyMoney.get_moneydata().execute_paymentplan(arguments.__dict__["name"], arguments.__dict__["date"], arguments.__dict__["amount"], arguments.__dict__["comment"])
+                                transaction = self.pyMoney.get_moneydata().execute_paymentplan(arguments.__dict__["name"], arguments.__dict__["date"], arguments.__dict__["amount"], arguments.__dict__["comment"])
+
+                                if self.is_interactive:
+                                        self.print("added transaction " + str(transaction.index) + ": transferred amount " + str(transaction.amount) + " from " + transaction.fromcategory.get_unique_name() + " to " + transaction.tocategory.get_unique_name())
+
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
@@ -1439,6 +1460,7 @@ class PyMoneyConsole(cmd.Cmd):
 
         def main(self):
                 if self.arguments.__dict__["script"]:
+                        self.is_interactive = False
                         self.prompt = "."
                         self.cmdloop()
                 elif self.arguments.__dict__["cli"]:

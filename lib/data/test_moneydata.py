@@ -474,6 +474,24 @@ class TestMoneyData_PaymentPlans(unittest.TestCase):
                 self.assertIsNotNone(paymentplan)
                 self.assertEqual(paymentplan.name, "existingPlan")
 
+        def test_find_similar_paymentplans_should_return_empty_result_if_no_such_payment_plan_exists(self):
+                paymentplans = self.moneydata.find_similar_paymentplans("All", "All", "10.0")
+
+                self.assertEqual(paymentplans, [])
+
+        def test_find_similar_paymentplans_should_return_a_list_of_all_similar_payment_plans(self):
+                self.moneydata.add_category("All", "Category1")
+                self.moneydata.add_category("All", "Category2")
+                self.moneydata.add_category("All", "Category3")
+
+                paymentplan1 = self.moneydata.add_paymentplan("plan1", "group", "Category1", "Category2", "10.0", "First similar plan")
+                paymentplan2 = self.moneydata.add_paymentplan("plan2", "group", "Category1", "Category2", "10.0", "Other similar plan")
+                paymentplan3 = self.moneydata.add_paymentplan("plan3", "group", "Category2", "Category3", "10.0", "Other plan")
+
+                paymentplans = self.moneydata.find_similar_paymentplans("Category1", "Category2", "10.0")
+
+                self.assertEqual(paymentplans, [paymentplan1, paymentplan2])
+
         def test_add_paymentplan_should_raise_an_exception_if_a_plan_with_the_given_name_does_already_exist(self):
                 self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
 

@@ -198,7 +198,7 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["transaction", "add", "2000-02-28", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-02-28", "Cash", "Lunch", "8"])
                 self.pymoney(["transaction", "add", "2000-02-28", "Wages", "Giro", "2000"])
-                self.pymoney(["paymentplan", "execute", "Save", "2000-02-28"])
+                self.pymoney(["transaction", "add", "2000-02-28", "Giro", "DayMoney", "500", "Accidentally manually transferring money of payment plan"])
                 self.pymoney(["transaction", "add", "2000-02-28", "Giro", "Cash", "400"])
                 self.pymoney(["transaction", "add", "2000-02-29", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-02-29", "Cash", "Lunch", "8"])

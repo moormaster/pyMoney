@@ -173,70 +173,102 @@ Monthly Rent        Giro         Rent       600.00
 Monthly Save        Giro         DayMoney   500.00 
 
 $ ./pyMoney.py transaction add 2000-01-01 OpeningBalance Cash 400.01
+added transaction 0: transferred amount 400.01 from OpeningBalance to Cash
 
 $ ./pyMoney.py transaction add 2000-01-01 OpeningBalance Giro 3000
+added transaction 1: transferred amount 3000.0 from OpeningBalance to Giro
 
 $ ./pyMoney.py transaction add 2000-01-01 OpeningBalance DayMoney 10000
+added transaction 2: transferred amount 10000.0 from OpeningBalance to DayMoney
 
 $ ./pyMoney.py transaction edit 0 2000-01-01 OpeningBalance Cash 400
 
 $ ./pyMoney.py paymentplan execute Energy 2000-01-03
+added transaction 3: transferred amount 50.0 from Giro to Energy
 
 $ ./pyMoney.py transaction add 2000-01-03 Cash Breakfast 2.00 Bakery
+added transaction 4: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-03 Cash Lunch 8
+added transaction 5: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-04 Cash Breakfast 2.00 Bakery
+added transaction 6: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-04 Cash Lunch 8
+added transaction 7: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-05 Cash Breakfast 2.00 Bakery
+added transaction 8: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-05 Cash Lunch 8
+added transaction 9: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-06 Cash Breakfast 2.00 Bakery
+added transaction 10: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-06 Cash Lunch 8
+added transaction 11: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-07 Cash Breakfast 2.00 Bakery
+added transaction 12: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-07 Cash Lunch 8
+added transaction 13: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-10 Cash Breakfast 2.00 Bakery
+added transaction 14: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-10 Cash Lunch 8
+added transaction 15: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-11 Cash Breakfast 2.00 Bakery
+added transaction 16: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-11 Cash Lunch 8
+added transaction 17: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-12 Cash Breakfast 2.00 Bakery
+added transaction 18: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-12 Cash Lunch 8
+added transaction 19: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-13 Cash Breakfast 2.00 Bakery
+added transaction 20: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-13 Cash Lunch 8
+added transaction 21: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-14 Cash Breakfast 2.00 Bakery
+added transaction 22: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-14 Cash Lunch 8
+added transaction 23: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-17 Cash Breakfast 2.00 Bakery
+added transaction 24: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-17 Cash Lunch 8
+added transaction 25: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-18 Cash Breakfast 2.00 Bakery
+added transaction 26: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-18 Cash Lunch 8
+added transaction 27: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-19 Cash Breakfast 2.00 Bakery
+added transaction 28: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-19 Cash Lunch 8
+added transaction 29: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-20 Cash Breakfast 2.00 Bakery
+added transaction 30: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-20 Cash Lunch 8
+added transaction 31: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py summary categories 2000 01 --category Frequent --showempty
 node           amount sum + sum -   sum
@@ -256,44 +288,64 @@ node           amount sum + sum -   sum
       Internet   0.00  0.00  0.00  0.00
 
 $ ./pyMoney.py transaction add 2000-01-21 Cash Breakfast 2.00 Bakery
+added transaction 32: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-21 Cash Lunch 8
+added transaction 33: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-24 Cash Breakfast 2.00 Bakery
+added transaction 34: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-24 Cash Lunch 8
+added transaction 35: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-25 Cash Breakfast 2.00 Bakery
+added transaction 36: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-25 Cash Lunch 8
+added transaction 37: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py paymentplan execute Rent 2000-01-25
+added transaction 38: transferred amount 600.0 from Giro to Rent
 
 $ ./pyMoney.py paymentplan execute Internet 2000-01-25
+added transaction 39: transferred amount 30.0 from Giro to Internet
 
 $ ./pyMoney.py transaction add 2000-01-26 Cash Breakfast 2.00 Bakery
+added transaction 40: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-26 Cash Lunch 8
+added transaction 41: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-27 Cash Breakfast 2.00 Bakery
+added transaction 42: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-27 Cash Lunch 8
+added transaction 43: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-28 Cash Breakfast 2.00 Bakery
+added transaction 44: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-28 Cash Lunch 8
+added transaction 45: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-28 Wages Giro 2000
+added transaction 46: transferred amount 2000.0 from Wages to Giro
 
 $ ./pyMoney.py paymentplan execute Save 2000-01-28
+added transaction 47: transferred amount 500.0 from Giro to DayMoney
 
 $ ./pyMoney.py transaction add 2000-01-28 Giro Cash 400
+added transaction 48: transferred amount 400.0 from Giro to Cash
 
 $ ./pyMoney.py transaction add 2000-01-31 Cash Breakfast 2.00 Bakery
+added transaction 49: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-01-31 Cash Lunch 8
+added transaction 50: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-01-31 Income.Misc Cash 10 Found
+added transaction 51: transferred amount 10.0 from Income.Misc to Cash
 
 $ ./pyMoney.py summary categories --category Assets
 node           amount    sum +    sum -      sum
@@ -304,62 +356,91 @@ node           amount    sum +    sum -      sum
     Giro      3420.00  5000.00 -1580.00  3420.00
 
 $ ./pyMoney.py paymentplan execute Energy 2000-02-01
+added transaction 52: transferred amount 50.0 from Giro to Energy
 
 $ ./pyMoney.py transaction add 2000-02-01 Cash Breakfast 2.00 Bakery
+added transaction 53: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-01 Cash Lunch 8
+added transaction 54: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-02 Cash Breakfast 2.00 Bakery
+added transaction 55: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-02 Cash Lunch 8
+added transaction 56: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-03 Cash Breakfast 2.00 Bakery
+added transaction 57: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-03 Cash Lunch 8
+added transaction 58: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-04 Cash Breakfast 2.00 Bakery
+added transaction 59: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-04 Cash Lunch 8
+added transaction 60: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-07 Cash Breakfast 2.00 Bakery
+added transaction 61: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-07 Cash Lunch 8
+added transaction 62: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-08 Cash Breakfast 2.00 Bakery
+added transaction 63: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-08 Cash Lunch 8
+added transaction 64: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-09 Cash Breakfast 2.00 Bakery
+added transaction 65: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-09 Cash Lunch 8
+added transaction 66: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-10 Cash Breakfast 2.00 Bakery
+added transaction 67: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-10 Cash Lunch 8
+added transaction 68: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-11 Cash Breakfast 2.00 Bakery
+added transaction 69: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-11 Cash Lunch 8
+added transaction 70: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-14 Cash Breakfast 2.00 Bakery
+added transaction 71: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-14 Cash Lunch 8
+added transaction 72: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-15 Cash Breakfast 2.00 Bakery
+added transaction 73: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-15 Cash Lunch 8
+added transaction 74: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-16 Cash Breakfast 2.00 Bakery
+added transaction 75: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-16 Cash Lunch 8
+added transaction 76: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-17 Cash Breakfast 2.00 Bakery
+added transaction 77: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-17 Cash Lunch 8
+added transaction 78: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-18 Cash Breakfast 2.00 Bakery
+added transaction 79: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-18 Cash Lunch 8
+added transaction 80: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py summary categories 2000 02 --category Frequent --showempty
 node           amount sum + sum -   sum
@@ -379,42 +460,62 @@ node           amount sum + sum -   sum
       Internet   0.00  0.00  0.00  0.00
 
 $ ./pyMoney.py transaction add 2000-02-21 Cash Breakfast 2.00 Bakery
+added transaction 81: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-21 Cash Lunch 8
+added transaction 82: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-22 Cash Breakfast 2.00 Bakery
+added transaction 83: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-22 Cash Lunch 8
+added transaction 84: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-23 Cash Breakfast 2.00 Bakery
+added transaction 85: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-23 Cash Lunch 8
+added transaction 86: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-24 Cash Breakfast 2.00 Bakery
+added transaction 87: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-24 Cash Lunch 8
+added transaction 88: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-25 Cash Breakfast 2.00 Bakery
+added transaction 89: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-25 Cash Lunch 8
+added transaction 90: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py paymentplan execute Rent 2000-02-25
+added transaction 91: transferred amount 600.0 from Giro to Rent
 
 $ ./pyMoney.py paymentplan execute Internet 2000-02-25
+added transaction 92: transferred amount 30.0 from Giro to Internet
 
 $ ./pyMoney.py transaction add 2000-02-28 Cash Breakfast 2.00 Bakery
+added transaction 93: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-28 Cash Lunch 8
+added transaction 94: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py transaction add 2000-02-28 Wages Giro 2000
+added transaction 95: transferred amount 2000.0 from Wages to Giro
 
-$ ./pyMoney.py paymentplan execute Save 2000-02-28
+$ ./pyMoney.py transaction add 2000-02-28 Giro DayMoney 500 Accidentally manually transferring money of payment plan
+similar payment plan(s) found: Save
+added transaction 96: transferred amount 500.0 from Giro to DayMoney
 
 $ ./pyMoney.py transaction add 2000-02-28 Giro Cash 400
+added transaction 97: transferred amount 400.0 from Giro to Cash
 
 $ ./pyMoney.py transaction add 2000-02-29 Cash Breakfast 2.00 Bakery
+added transaction 98: transferred amount 2.0 from Cash to Breakfast
 
 $ ./pyMoney.py transaction add 2000-02-29 Cash Lunch 8
+added transaction 99: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py summary categories --category Assets
 node           amount    sum +    sum -      sum
@@ -638,7 +739,7 @@ Index       Date FromCategory ToCategory  Amount Comment
    93 2000-02-28 Cash         Breakfast     2.00 Bakery
    94 2000-02-28 Cash         Lunch         8.00 
    95 2000-02-28 Wages        Giro       2000.00 
-   96 2000-02-28 Giro         DayMoney    500.00 Execution of payment plan Save
+   96 2000-02-28 Giro         DayMoney    500.00 Accidentally manually transferring money of payment plan
    97 2000-02-28 Giro         Cash        400.00 
    98 2000-02-29 Cash         Breakfast     2.00 Bakery
    99 2000-02-29 Cash         Lunch         8.00 
@@ -876,7 +977,7 @@ Index       Date FromCategory ToCategory  Amount Comment
    93 2000-02-28 Cash         Breakfast     2.00 Bakery
    94 2000-02-28 Cash         Lunch         8.00 
    95 2000-02-28 Wages        Giro       2000.00 
-   96 2000-02-28 Giro         DayMoney    500.00 Execution of payment plan Save
+   96 2000-02-28 Giro         DayMoney    500.00 Accidentally manually transferring money of payment plan
    97 2000-02-28 Giro         Cash        400.00 
    98 2000-02-29 Cash         Breakfast     2.00 Bakery
    99 2000-02-29 Cash         Lunch         8.00 
@@ -956,7 +1057,7 @@ Index       Date FromCategory ToCategory  Amount Comment
    93 2000-02-28 Cash         Breakfast     2.00 Bakery
    94 2000-02-28 Cash         Lunch         8.00 
    95 2000-02-28 Wages        Giro       2000.00 
-   96 2000-02-28 Giro         DayMoney    500.00 Execution of payment plan Save
+   96 2000-02-28 Giro         DayMoney    500.00 Accidentally manually transferring money of payment plan
    97 2000-02-28 Giro         Cash        400.00 
    98 2000-02-29 Cash         Breakfast     2.00 Bakery
    99 2000-02-29 Cash         Lunch         8.00 
@@ -1129,7 +1230,7 @@ Index       Date FromCategory   ToCategory   Amount Comment
    93 2000-02-28 Cash           Breakfast      2.00 Bakery
    94 2000-02-28 Cash           Lunch          8.00 
    95 2000-02-28 Wages          Giro        2000.00 
-   96 2000-02-28 Giro           DayMoney     500.00 Execution of payment plan Save
+   96 2000-02-28 Giro           DayMoney     500.00 Accidentally manually transferring money of payment plan
    97 2000-02-28 Giro           Cash         400.00 
    98 2000-02-29 Cash           Breakfast      2.00 Bakery
    99 2000-02-29 Cash           Lunch          8.00 
@@ -1292,7 +1393,7 @@ Index       Date FromCategory   ToCategory   Amount Comment
    93 2000-02-28 Cash           Breakfast      2.00 Bakery
    94 2000-02-28 Cash           Lunch          8.00 
    95 2000-02-28 Wages          Giro        2000.00 
-   96 2000-02-28 Giro           DayMoney     500.00 Execution of payment plan Save
+   96 2000-02-28 Giro           DayMoney     500.00 Accidentally manually transferring money of payment plan
    97 2000-02-28 Giro           Cash         400.00 
    98 2000-02-29 Cash           Breakfast      2.00 Bakery
    99 2000-02-29 Cash           Lunch          8.00 
@@ -1455,7 +1556,7 @@ Index       Date FromCategory   ToCategory   Amount Comment
    93 2000-02-28 Cash           Breakfast      2.00 Bakery
    94 2000-02-28 Cash           Lunch          8.00 
    95 2000-02-28 Wages          Giro        2000.00 
-   96 2000-02-28 Giro           DayMoney     500.00 Execution of payment plan Save
+   96 2000-02-28 Giro           DayMoney     500.00 Accidentally manually transferring money of payment plan
    97 2000-02-28 Giro           Cash         400.00 
    98 2000-02-29 Cash           Breakfast      2.00 Bakery
    99 2000-02-29 Cash           Lunch          8.00 
@@ -1616,7 +1717,7 @@ Index       Date FromCategory   ToCategory   Amount Comment
    93 2000-02-28 Cash           Breakfast      2.00 Bakery
    94 2000-02-28 Cash           Lunch          8.00 
    95 2000-02-28 Wages          Giro        2000.00 
-   96 2000-02-28 Giro           Giro         500.00 Execution of payment plan Save
+   96 2000-02-28 Giro           Giro         500.00 Accidentally manually transferring money of payment plan
    97 2000-02-28 Giro           Cash         400.00 
    98 2000-02-29 Cash           Breakfast      2.00 Bakery
    99 2000-02-29 Cash           Lunch          8.00 
@@ -1723,7 +1824,7 @@ Index       Date FromCategory   ToCategory   Amount Comment
    90 2000-02-28 Cash           Breakfast      2.00 Bakery
    91 2000-02-28 Cash           Lunch          8.00 
    92 2000-02-28 Wages          Giro        2000.00 
-   93 2000-02-28 Giro           Giro         500.00 Execution of payment plan Save
+   93 2000-02-28 Giro           Giro         500.00 Accidentally manually transferring money of payment plan
    94 2000-02-28 Giro           Cash         400.00 
    95 2000-02-29 Cash           Breakfast      2.00 Bakery
    96 2000-02-29 Cash           Lunch          8.00 
@@ -1929,7 +2030,7 @@ paymentplan execute 2000-02-25 "Internet"
 transaction add 2000-02-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-02-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-02-28 "All.Income.Wages" "All.Assets.Giro" 2000.0 ""
-paymentplan execute 2000-02-28 "Save"
+transaction add 2000-02-28 "All.Assets.Giro" "All.Assets.Giro" 500.0 "Accidentally manually transferring money of payment plan"
 transaction add 2000-02-28 "All.Assets.Giro" "All.Assets.Cash" 400.0 ""
 transaction add 2000-02-29 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-02-29 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""

@@ -278,6 +278,28 @@ class MoneyData:
 
                 return groupnames
 
+        def find_similar_paymentplans(self, str_fromcategory, str_tocategory, str_amount):
+                try:
+                        self.get_category(str_fromcategory)
+                        self.get_category(str_tocategory)
+                except NoSuchCategoryException as e:
+                        raise e
+
+                parsedpaymentplan = self.parse_paymentplan("noname", "nogroup", str_fromcategory, str_tocategory, str_amount, "", False)
+
+                result = []
+                for paymentplan in self.get_paymentplans_iterator():
+                        if not paymentplan.fromcategory is parsedpaymentplan.fromcategory:
+                                continue
+                        if not paymentplan.tocategory is parsedpaymentplan.tocategory:
+                                continue
+                        if not paymentplan.amount == parsedpaymentplan.amount:
+                                continue
+
+                        result.append(paymentplan)
+
+                return result
+
         def delete_paymentplan(self, name):
                 if not name in self.paymentplans:
                         raise NoSuchPaymentPlanException(name)
