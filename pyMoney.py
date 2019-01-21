@@ -1393,7 +1393,7 @@ class PyMoneyConsole(cmd.Cmd):
                                         self.print("transaction add " + str(t.date) + " \"" + t.fromcategory.get_full_name() + "\" \"" + t.tocategory.get_full_name() + "\" " + str(t.amount) + " \"" + t.comment + "\"")
                                 else:
                                         assert isinstance(t.paymentplan, lib.data.moneydata.PaymentPlan)
-                                        self.print("paymentplan execute " + str(t.date) + " \"" + t.paymentplan.name + "\"")
+                                        self.print("paymentplan execute \"" + t.paymentplan.name + "\" " + str(t.date))
 
 
                 parser = lib.argparse.ArgumentParser()

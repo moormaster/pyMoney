@@ -1861,7 +1861,7 @@ paymentplan add "Save" "Monthly" "All.Assets.Giro" "All.Assets.Giro" 500.0 ""
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Cash" 400.0 ""
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Giro" 3000.0 ""
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Giro" 10000.0 ""
-paymentplan execute 2000-01-03 "Energy"
+paymentplan execute "Energy" 2000-01-03
 transaction add 2000-01-03 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-03 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-04 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
@@ -1893,8 +1893,8 @@ transaction add 2000-01-24 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.B
 transaction add 2000-01-24 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-25 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-25 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
-paymentplan execute 2000-01-25 "Rent"
-paymentplan execute 2000-01-25 "Internet"
+paymentplan execute "Rent" 2000-01-25
+paymentplan execute "Internet" 2000-01-25
 transaction add 2000-01-26 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-26 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-27 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
@@ -1902,7 +1902,7 @@ transaction add 2000-01-27 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.L
 transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-28 "All.Income.Wages" "All.Assets.Giro" 2000.0 ""
-paymentplan execute 2000-01-28 "Save"
+paymentplan execute "Save" 2000-01-28
 transaction add 2000-01-28 "All.Assets.Giro" "All.Assets.Cash" 400.0 ""
 transaction add 2000-01-31 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-31 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
@@ -1940,7 +1940,7 @@ paymentplan add "Save" "Monthly" "All.Assets.Giro" "All.Assets.Giro" 500.0 ""
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Cash" 400.0 ""
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Giro" 3000.0 ""
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Giro" 10000.0 ""
-paymentplan execute 2000-01-03 "Energy"
+paymentplan execute "Energy" 2000-01-03
 transaction add 2000-01-03 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-03 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-04 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
@@ -1972,8 +1972,8 @@ transaction add 2000-01-24 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.B
 transaction add 2000-01-24 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-25 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-25 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
-paymentplan execute 2000-01-25 "Rent"
-paymentplan execute 2000-01-25 "Internet"
+paymentplan execute "Rent" 2000-01-25
+paymentplan execute "Internet" 2000-01-25
 transaction add 2000-01-26 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-26 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-27 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
@@ -1981,12 +1981,12 @@ transaction add 2000-01-27 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.L
 transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-28 "All.Income.Wages" "All.Assets.Giro" 2000.0 ""
-paymentplan execute 2000-01-28 "Save"
+paymentplan execute "Save" 2000-01-28
 transaction add 2000-01-28 "All.Assets.Giro" "All.Assets.Cash" 400.0 ""
 transaction add 2000-01-31 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-31 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-31 "All.Income.IncomingMisc" "All.Assets.Cash" 10.0 "Found"
-paymentplan execute 2000-02-01 "Energy"
+paymentplan execute "Energy" 2000-02-01
 transaction add 2000-02-01 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-02-01 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-02-02 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
@@ -2025,8 +2025,8 @@ transaction add 2000-02-24 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.B
 transaction add 2000-02-24 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-02-25 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-02-25 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
-paymentplan execute 2000-02-25 "Rent"
-paymentplan execute 2000-02-25 "Internet"
+paymentplan execute "Rent" 2000-02-25
+paymentplan execute "Internet" 2000-02-25
 transaction add 2000-02-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-02-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-02-28 "All.Income.Wages" "All.Assets.Giro" 2000.0 ""
