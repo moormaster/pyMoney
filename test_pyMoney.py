@@ -85,7 +85,7 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["paymentplan", "add", "Energy", "Monthly", "Giro", "Energy", "50"])
                 self.pymoney(["paymentplan", "add", "Internet", "Monthly", "Giro", "Internet", "30"])
                 self.pymoney(["paymentplan", "add", "Rent", "Monthly", "Giro", "Rent", "600"])
-                self.pymoney(["paymentplan", "add", "Save", "Monthly", "Giro", "DayMoney", "500"])
+                self.pymoney(["paymentplan", "add", "Save", "Monthly", "Giro", "DayMoney", "500", "Monthly saving"])
 
                 self.pymoney(["paymentplan", "list"])
 
@@ -150,6 +150,11 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["transaction", "add", "2000-01-31", "Income.Misc", "Cash", "10", "Found"])
                 self.pymoney(["summary", "categories", "--category", "Assets"])
 
+                self.pymoney(["category", "add", "Assets", "DayMoneyAccounts"])
+                self.pymoney(["category", "move", "DayMoney", "DayMoneyAccounts"])
+                self.pymoney(["category", "add", "DayMoneyAccounts", "OtherDayMoney"])
+                self.pymoney(["paymentplan", "edit", "Save", "Monthly", "Giro", "OtherDayMoney", "500", "Monthly saving now happening to other account"])
+
                 self.pymoney(["paymentplan", "execute", "Energy", "2000-02-01"])
                 self.pymoney(["transaction", "add", "2000-02-01", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-02-01", "Cash", "Lunch", "8"])
@@ -193,12 +198,12 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["transaction", "add", "2000-02-24", "Cash", "Lunch", "8"])
                 self.pymoney(["transaction", "add", "2000-02-25", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-02-25", "Cash", "Lunch", "8"])
-                self.pymoney(["paymentplan", "execute", "Rent", "2000-02-25"])
+                self.pymoney(["transaction", "add", "2000-02-25", "Giro", "Rent", "600", "Accidentally manually transferring money of payment plan"])
                 self.pymoney(["paymentplan", "execute", "Internet", "2000-02-25"])
                 self.pymoney(["transaction", "add", "2000-02-28", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-02-28", "Cash", "Lunch", "8"])
                 self.pymoney(["transaction", "add", "2000-02-28", "Wages", "Giro", "2000"])
-                self.pymoney(["transaction", "add", "2000-02-28", "Giro", "DayMoney", "500", "Accidentally manually transferring money of payment plan"])
+                self.pymoney(["paymentplan", "execute", "Save", "2000-01-28"])
                 self.pymoney(["transaction", "add", "2000-02-28", "Giro", "Cash", "400"])
                 self.pymoney(["transaction", "add", "2000-02-29", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-02-29", "Cash", "Lunch", "8"])

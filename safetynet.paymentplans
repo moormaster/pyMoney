@@ -2,4 +2,4 @@ name,groupname,fromcategory,tocategory,amount,comment
 Energy,Monthly,Giro,Energy,50.0,
 Internet,Monthly,Giro,Internet,30.0,
 Rent,Monthly,Giro,Rent,600.0,
-Save,Monthly,Giro,Giro,500.0,
+Save,Monthly,Giro,OtherDayMoney,500.0,Monthly saving now happening to other account

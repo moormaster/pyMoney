@@ -162,7 +162,7 @@ $ ./pyMoney.py paymentplan add Internet Monthly Giro Internet 30
 
 $ ./pyMoney.py paymentplan add Rent Monthly Giro Rent 600
 
-$ ./pyMoney.py paymentplan add Save Monthly Giro DayMoney 500
+$ ./pyMoney.py paymentplan add Save Monthly Giro DayMoney 500 Monthly saving
 
 $ ./pyMoney.py paymentplan list
 Group   PaymentPlan FromCategory ToCategory Amount Comment
@@ -170,7 +170,7 @@ Group   PaymentPlan FromCategory ToCategory Amount Comment
 Monthly Energy      Giro         Energy      50.00 
 Monthly Internet    Giro         Internet    30.00 
 Monthly Rent        Giro         Rent       600.00 
-Monthly Save        Giro         DayMoney   500.00 
+Monthly Save        Giro         DayMoney   500.00 Monthly saving
 
 $ ./pyMoney.py transaction add 2000-01-01 OpeningBalance Cash 400.01
 added transaction 0: transferred amount 400.01 from OpeningBalance to Cash
@@ -355,6 +355,14 @@ node           amount    sum +    sum -      sum
     DayMoney 10500.00 10500.00     0.00 10500.00
     Giro      3420.00  5000.00 -1580.00  3420.00
 
+$ ./pyMoney.py category add Assets DayMoneyAccounts
+
+$ ./pyMoney.py category move DayMoney DayMoneyAccounts
+
+$ ./pyMoney.py category add DayMoneyAccounts OtherDayMoney
+
+$ ./pyMoney.py paymentplan edit Save Monthly Giro OtherDayMoney 500 Monthly saving now happening to other account
+
 $ ./pyMoney.py paymentplan execute Energy 2000-02-01
 added transaction 52: transferred amount 50.0 from Giro to Energy
 
@@ -489,7 +497,8 @@ added transaction 89: transferred amount 2.0 from Cash to Breakfast
 $ ./pyMoney.py transaction add 2000-02-25 Cash Lunch 8
 added transaction 90: transferred amount 8.0 from Cash to Lunch
 
-$ ./pyMoney.py paymentplan execute Rent 2000-02-25
+$ ./pyMoney.py transaction add 2000-02-25 Giro Rent 600 Accidentally manually transferring money of payment plan
+similar payment plan(s) found: Rent
 added transaction 91: transferred amount 600.0 from Giro to Rent
 
 $ ./pyMoney.py paymentplan execute Internet 2000-02-25
@@ -504,9 +513,8 @@ added transaction 94: transferred amount 8.0 from Cash to Lunch
 $ ./pyMoney.py transaction add 2000-02-28 Wages Giro 2000
 added transaction 95: transferred amount 2000.0 from Wages to Giro
 
-$ ./pyMoney.py transaction add 2000-02-28 Giro DayMoney 500 Accidentally manually transferring money of payment plan
-similar payment plan(s) found: Save
-added transaction 96: transferred amount 500.0 from Giro to DayMoney
+$ ./pyMoney.py paymentplan execute Save 2000-01-28
+added transaction 96: transferred amount 500.0 from Giro to OtherDayMoney
 
 $ ./pyMoney.py transaction add 2000-02-28 Giro Cash 400
 added transaction 97: transferred amount 400.0 from Giro to Cash
@@ -518,44 +526,47 @@ $ ./pyMoney.py transaction add 2000-02-29 Cash Lunch 8
 added transaction 99: transferred amount 8.0 from Cash to Lunch
 
 $ ./pyMoney.py summary categories --category Assets
-node           amount    sum +    sum -      sum
+node                   amount    sum +    sum -      sum
 
-  Assets         0.00 19210.00 -3580.00 15630.00
-    Cash       790.00  1210.00  -420.00   790.00
-    DayMoney 11000.00 11000.00     0.00 11000.00
-    Giro      3840.00  7000.00 -3160.00  3840.00
+  Assets                 0.00 19210.00 -3580.00 15630.00
+    Cash               790.00  1210.00  -420.00   790.00
+    Giro              3840.00  7000.00 -3160.00  3840.00
+    DayMoneyAccounts     0.00 11000.00     0.00 11000.00
+      DayMoney       10500.00 10500.00     0.00 10500.00
+      OtherDayMoney    500.00   500.00     0.00   500.00
 
 $ ./pyMoney.py summary categories 2000 01
-node                  amount    sum +     sum -       sum
+node                    amount    sum +     sum -       sum
 
-All                     0.00 17200.00 -17200.00      0.00
-  Equity                0.00     0.00 -13400.00 -13400.00
-    OpeningBalance -13400.00     0.00 -13400.00 -13400.00
-  Assets                0.00 16310.00  -1790.00  14520.00
-    Cash              600.00   810.00   -210.00    600.00
-    DayMoney        10500.00 10500.00      0.00  10500.00
-    Giro             3420.00  5000.00  -1580.00   3420.00
-  Income                0.00     0.00  -2010.00  -2010.00
-    Wages           -2000.00     0.00  -2000.00  -2000.00
-    Misc              -10.00     0.00    -10.00    -10.00
-  Expenses              0.00   890.00      0.00    890.00
-    Frequent            0.00   680.00      0.00    680.00
-      Rent            600.00   600.00      0.00    600.00
-      Energy           50.00    50.00      0.00     50.00
-      Internet         30.00    30.00      0.00     30.00
-    OnDemand            0.00   210.00      0.00    210.00
-      Break             0.00   210.00      0.00    210.00
-        Breakfast      42.00    42.00      0.00     42.00
-        Lunch         168.00   168.00      0.00    168.00
+All                       0.00 17700.00 -17700.00      0.00
+  Equity                  0.00     0.00 -13400.00 -13400.00
+    OpeningBalance   -13400.00     0.00 -13400.00 -13400.00
+  Assets                  0.00 16810.00  -2290.00  14520.00
+    Cash                600.00   810.00   -210.00    600.00
+    Giro               2920.00  5000.00  -2080.00   2920.00
+    DayMoneyAccounts      0.00 11000.00      0.00  11000.00
+      DayMoney        10500.00 10500.00      0.00  10500.00
+      OtherDayMoney     500.00   500.00      0.00    500.00
+  Income                  0.00     0.00  -2010.00  -2010.00
+    Wages             -2000.00     0.00  -2000.00  -2000.00
+    Misc                -10.00     0.00    -10.00    -10.00
+  Expenses                0.00   890.00      0.00    890.00
+    Frequent              0.00   680.00      0.00    680.00
+      Rent              600.00   600.00      0.00    600.00
+      Energy             50.00    50.00      0.00     50.00
+      Internet           30.00    30.00      0.00     30.00
+    OnDemand              0.00   210.00      0.00    210.00
+      Break               0.00   210.00      0.00    210.00
+        Breakfast        42.00    42.00      0.00     42.00
+        Lunch           168.00   168.00      0.00    168.00
 
 $ ./pyMoney.py summary categories 2000 02
 node                amount   sum +    sum -      sum
 
-All                   0.00 3790.00 -3790.00     0.00
-  Assets              0.00 2900.00 -1790.00  1110.00
+All                   0.00 3290.00 -3290.00     0.00
+  Assets              0.00 2400.00 -1290.00  1110.00
     Cash            190.00  400.00  -210.00   190.00
-    DayMoney        500.00  500.00     0.00   500.00
-    Giro            420.00 2000.00 -1580.00   420.00
+    Giro            920.00 2000.00 -1080.00   920.00
   Income              0.00    0.00 -2000.00 -2000.00
     Wages         -2000.00    0.00 -2000.00 -2000.00
   Expenses            0.00  890.00     0.00   890.00
@@ -569,21 +580,21 @@ All                   0.00 3790.00 -3790.00     0.00
         Lunch       168.00  168.00     0.00   168.00
 
 $ ./pyMoney.py summary categories 2000 01 --maxlevel 2
-node                  amount    sum +     sum -       sum
+node                    amount    sum +     sum -       sum
 
-All                     0.00 17200.00 -17200.00      0.00
-  Equity                0.00     0.00 -13400.00 -13400.00
-    OpeningBalance -13400.00     0.00 -13400.00 -13400.00
-  Assets                0.00 16310.00  -1790.00  14520.00
-    Cash              600.00   810.00   -210.00    600.00
-    DayMoney        10500.00 10500.00      0.00  10500.00
-    Giro             3420.00  5000.00  -1580.00   3420.00
-  Income                0.00     0.00  -2010.00  -2010.00
-    Wages           -2000.00     0.00  -2000.00  -2000.00
-    Misc              -10.00     0.00    -10.00    -10.00
-  Expenses              0.00   890.00      0.00    890.00
-    Frequent            0.00   680.00      0.00    680.00
-    OnDemand            0.00   210.00      0.00    210.00
+All                       0.00 17700.00 -17700.00      0.00
+  Equity                  0.00     0.00 -13400.00 -13400.00
+    OpeningBalance   -13400.00     0.00 -13400.00 -13400.00
+  Assets                  0.00 16810.00  -2290.00  14520.00
+    Cash                600.00   810.00   -210.00    600.00
+    Giro               2920.00  5000.00  -2080.00   2920.00
+    DayMoneyAccounts      0.00 11000.00      0.00  11000.00
+  Income                  0.00     0.00  -2010.00  -2010.00
+    Wages             -2000.00     0.00  -2000.00  -2000.00
+    Misc                -10.00     0.00    -10.00    -10.00
+  Expenses                0.00   890.00      0.00    890.00
+    Frequent              0.00   680.00      0.00    680.00
+    OnDemand              0.00   210.00      0.00    210.00
 
 $ ./pyMoney.py summary categories 2000 01 --cashflowcategory Rent
 node          amount  sum +   sum -     sum
@@ -605,25 +616,24 @@ node           amount  sum + sum -    sum
       Internet  30.00  30.00  0.00  30.00
 
 $ ./pyMoney.py summary categories 2000 02 --paymentplangroup Monthly --category Expenses
-node           amount  sum + sum -    sum
+node           amount sum + sum -   sum
 
-  Expenses       0.00 680.00  0.00 680.00
-    Frequent     0.00 680.00  0.00 680.00
-      Rent     600.00 600.00  0.00 600.00
-      Energy    50.00  50.00  0.00  50.00
-      Internet  30.00  30.00  0.00  30.00
+  Expenses       0.00 80.00  0.00 80.00
+    Frequent     0.00 80.00  0.00 80.00
+      Energy    50.00 50.00  0.00 50.00
+      Internet  30.00 30.00  0.00 30.00
 
 $ ./pyMoney.py summary monthly --balance Giro
 date       node  amount   sum +    sum -     sum
 
-2000-01-31 Giro 3420.00 5000.00 -1580.00 3420.00
+2000-01-31 Giro 2920.00 5000.00 -2080.00 2920.00
 2000-02-29 Giro 3840.00 7000.00 -3160.00 3840.00
 
 $ ./pyMoney.py summary monthly --paymentplangroup Monthly Expenses
 date       node     amount  sum + sum -    sum
 
 2000-01-31 Expenses   0.00 680.00  0.00 680.00
-2000-02-29 Expenses   0.00 680.00  0.00 680.00
+2000-02-29 Expenses   0.00  80.00  0.00  80.00
 
 $ ./pyMoney.py summary monthly Expenses
 date       node     amount  sum + sum -    sum
@@ -637,436 +647,438 @@ date       node     amount   sum + sum -     sum
 2000-12-31 Expenses   0.00 1780.00  0.00 1780.00
 
 $ ./pyMoney.py transaction list 2000 01
-Index       Date FromCategory   ToCategory   Amount Comment
+Index       Date FromCategory   ToCategory      Amount Comment
 
-    0 2000-01-01 OpeningBalance Cash         400.00 
-    1 2000-01-01 OpeningBalance Giro        3000.00 
-    2 2000-01-01 OpeningBalance DayMoney   10000.00 
-    3 2000-01-03 Giro           Energy        50.00 Execution of payment plan Energy
-    4 2000-01-03 Cash           Breakfast      2.00 Bakery
-    5 2000-01-03 Cash           Lunch          8.00 
-    6 2000-01-04 Cash           Breakfast      2.00 Bakery
-    7 2000-01-04 Cash           Lunch          8.00 
-    8 2000-01-05 Cash           Breakfast      2.00 Bakery
-    9 2000-01-05 Cash           Lunch          8.00 
-   10 2000-01-06 Cash           Breakfast      2.00 Bakery
-   11 2000-01-06 Cash           Lunch          8.00 
-   12 2000-01-07 Cash           Breakfast      2.00 Bakery
-   13 2000-01-07 Cash           Lunch          8.00 
-   14 2000-01-10 Cash           Breakfast      2.00 Bakery
-   15 2000-01-10 Cash           Lunch          8.00 
-   16 2000-01-11 Cash           Breakfast      2.00 Bakery
-   17 2000-01-11 Cash           Lunch          8.00 
-   18 2000-01-12 Cash           Breakfast      2.00 Bakery
-   19 2000-01-12 Cash           Lunch          8.00 
-   20 2000-01-13 Cash           Breakfast      2.00 Bakery
-   21 2000-01-13 Cash           Lunch          8.00 
-   22 2000-01-14 Cash           Breakfast      2.00 Bakery
-   23 2000-01-14 Cash           Lunch          8.00 
-   24 2000-01-17 Cash           Breakfast      2.00 Bakery
-   25 2000-01-17 Cash           Lunch          8.00 
-   26 2000-01-18 Cash           Breakfast      2.00 Bakery
-   27 2000-01-18 Cash           Lunch          8.00 
-   28 2000-01-19 Cash           Breakfast      2.00 Bakery
-   29 2000-01-19 Cash           Lunch          8.00 
-   30 2000-01-20 Cash           Breakfast      2.00 Bakery
-   31 2000-01-20 Cash           Lunch          8.00 
-   32 2000-01-21 Cash           Breakfast      2.00 Bakery
-   33 2000-01-21 Cash           Lunch          8.00 
-   34 2000-01-24 Cash           Breakfast      2.00 Bakery
-   35 2000-01-24 Cash           Lunch          8.00 
-   36 2000-01-25 Cash           Breakfast      2.00 Bakery
-   37 2000-01-25 Cash           Lunch          8.00 
-   38 2000-01-25 Giro           Rent         600.00 Execution of payment plan Rent
-   39 2000-01-25 Giro           Internet      30.00 Execution of payment plan Internet
-   40 2000-01-26 Cash           Breakfast      2.00 Bakery
-   41 2000-01-26 Cash           Lunch          8.00 
-   42 2000-01-27 Cash           Breakfast      2.00 Bakery
-   43 2000-01-27 Cash           Lunch          8.00 
-   44 2000-01-28 Cash           Breakfast      2.00 Bakery
-   45 2000-01-28 Cash           Lunch          8.00 
-   46 2000-01-28 Wages          Giro        2000.00 
-   47 2000-01-28 Giro           DayMoney     500.00 Execution of payment plan Save
-   48 2000-01-28 Giro           Cash         400.00 
-   49 2000-01-31 Cash           Breakfast      2.00 Bakery
-   50 2000-01-31 Cash           Lunch          8.00 
-   51 2000-01-31 Income.Misc    Cash          10.00 Found
+    0 2000-01-01 OpeningBalance Cash            400.00 
+    1 2000-01-01 OpeningBalance Giro           3000.00 
+    2 2000-01-01 OpeningBalance DayMoney      10000.00 
+    3 2000-01-03 Giro           Energy           50.00 Execution of payment plan Energy
+    4 2000-01-03 Cash           Breakfast         2.00 Bakery
+    5 2000-01-03 Cash           Lunch             8.00 
+    6 2000-01-04 Cash           Breakfast         2.00 Bakery
+    7 2000-01-04 Cash           Lunch             8.00 
+    8 2000-01-05 Cash           Breakfast         2.00 Bakery
+    9 2000-01-05 Cash           Lunch             8.00 
+   10 2000-01-06 Cash           Breakfast         2.00 Bakery
+   11 2000-01-06 Cash           Lunch             8.00 
+   12 2000-01-07 Cash           Breakfast         2.00 Bakery
+   13 2000-01-07 Cash           Lunch             8.00 
+   14 2000-01-10 Cash           Breakfast         2.00 Bakery
+   15 2000-01-10 Cash           Lunch             8.00 
+   16 2000-01-11 Cash           Breakfast         2.00 Bakery
+   17 2000-01-11 Cash           Lunch             8.00 
+   18 2000-01-12 Cash           Breakfast         2.00 Bakery
+   19 2000-01-12 Cash           Lunch             8.00 
+   20 2000-01-13 Cash           Breakfast         2.00 Bakery
+   21 2000-01-13 Cash           Lunch             8.00 
+   22 2000-01-14 Cash           Breakfast         2.00 Bakery
+   23 2000-01-14 Cash           Lunch             8.00 
+   24 2000-01-17 Cash           Breakfast         2.00 Bakery
+   25 2000-01-17 Cash           Lunch             8.00 
+   26 2000-01-18 Cash           Breakfast         2.00 Bakery
+   27 2000-01-18 Cash           Lunch             8.00 
+   28 2000-01-19 Cash           Breakfast         2.00 Bakery
+   29 2000-01-19 Cash           Lunch             8.00 
+   30 2000-01-20 Cash           Breakfast         2.00 Bakery
+   31 2000-01-20 Cash           Lunch             8.00 
+   32 2000-01-21 Cash           Breakfast         2.00 Bakery
+   33 2000-01-21 Cash           Lunch             8.00 
+   34 2000-01-24 Cash           Breakfast         2.00 Bakery
+   35 2000-01-24 Cash           Lunch             8.00 
+   36 2000-01-25 Cash           Breakfast         2.00 Bakery
+   37 2000-01-25 Cash           Lunch             8.00 
+   38 2000-01-25 Giro           Rent            600.00 Execution of payment plan Rent
+   39 2000-01-25 Giro           Internet         30.00 Execution of payment plan Internet
+   40 2000-01-26 Cash           Breakfast         2.00 Bakery
+   41 2000-01-26 Cash           Lunch             8.00 
+   42 2000-01-27 Cash           Breakfast         2.00 Bakery
+   43 2000-01-27 Cash           Lunch             8.00 
+   44 2000-01-28 Cash           Breakfast         2.00 Bakery
+   45 2000-01-28 Cash           Lunch             8.00 
+   46 2000-01-28 Wages          Giro           2000.00 
+   47 2000-01-28 Giro           DayMoney        500.00 Execution of payment plan Save: Monthly saving
+   48 2000-01-28 Giro           Cash            400.00 
+   49 2000-01-28 Giro           OtherDayMoney   500.00 Execution of payment plan Save: Monthly saving now happening to other account
+   50 2000-01-31 Cash           Breakfast         2.00 Bakery
+   51 2000-01-31 Cash           Lunch             8.00 
+   52 2000-01-31 Income.Misc    Cash             10.00 Found
 
 $ ./pyMoney.py transaction list 2000 02
 Index       Date FromCategory ToCategory  Amount Comment
 
-   52 2000-02-01 Giro         Energy       50.00 Execution of payment plan Energy
-   53 2000-02-01 Cash         Breakfast     2.00 Bakery
-   54 2000-02-01 Cash         Lunch         8.00 
-   55 2000-02-02 Cash         Breakfast     2.00 Bakery
-   56 2000-02-02 Cash         Lunch         8.00 
-   57 2000-02-03 Cash         Breakfast     2.00 Bakery
-   58 2000-02-03 Cash         Lunch         8.00 
-   59 2000-02-04 Cash         Breakfast     2.00 Bakery
-   60 2000-02-04 Cash         Lunch         8.00 
-   61 2000-02-07 Cash         Breakfast     2.00 Bakery
-   62 2000-02-07 Cash         Lunch         8.00 
-   63 2000-02-08 Cash         Breakfast     2.00 Bakery
-   64 2000-02-08 Cash         Lunch         8.00 
-   65 2000-02-09 Cash         Breakfast     2.00 Bakery
-   66 2000-02-09 Cash         Lunch         8.00 
-   67 2000-02-10 Cash         Breakfast     2.00 Bakery
-   68 2000-02-10 Cash         Lunch         8.00 
-   69 2000-02-11 Cash         Breakfast     2.00 Bakery
-   70 2000-02-11 Cash         Lunch         8.00 
-   71 2000-02-14 Cash         Breakfast     2.00 Bakery
-   72 2000-02-14 Cash         Lunch         8.00 
-   73 2000-02-15 Cash         Breakfast     2.00 Bakery
-   74 2000-02-15 Cash         Lunch         8.00 
-   75 2000-02-16 Cash         Breakfast     2.00 Bakery
-   76 2000-02-16 Cash         Lunch         8.00 
-   77 2000-02-17 Cash         Breakfast     2.00 Bakery
-   78 2000-02-17 Cash         Lunch         8.00 
-   79 2000-02-18 Cash         Breakfast     2.00 Bakery
-   80 2000-02-18 Cash         Lunch         8.00 
-   81 2000-02-21 Cash         Breakfast     2.00 Bakery
-   82 2000-02-21 Cash         Lunch         8.00 
-   83 2000-02-22 Cash         Breakfast     2.00 Bakery
-   84 2000-02-22 Cash         Lunch         8.00 
-   85 2000-02-23 Cash         Breakfast     2.00 Bakery
-   86 2000-02-23 Cash         Lunch         8.00 
-   87 2000-02-24 Cash         Breakfast     2.00 Bakery
-   88 2000-02-24 Cash         Lunch         8.00 
-   89 2000-02-25 Cash         Breakfast     2.00 Bakery
-   90 2000-02-25 Cash         Lunch         8.00 
-   91 2000-02-25 Giro         Rent        600.00 Execution of payment plan Rent
-   92 2000-02-25 Giro         Internet     30.00 Execution of payment plan Internet
-   93 2000-02-28 Cash         Breakfast     2.00 Bakery
-   94 2000-02-28 Cash         Lunch         8.00 
-   95 2000-02-28 Wages        Giro       2000.00 
-   96 2000-02-28 Giro         DayMoney    500.00 Accidentally manually transferring money of payment plan
+   53 2000-02-01 Giro         Energy       50.00 Execution of payment plan Energy
+   54 2000-02-01 Cash         Breakfast     2.00 Bakery
+   55 2000-02-01 Cash         Lunch         8.00 
+   56 2000-02-02 Cash         Breakfast     2.00 Bakery
+   57 2000-02-02 Cash         Lunch         8.00 
+   58 2000-02-03 Cash         Breakfast     2.00 Bakery
+   59 2000-02-03 Cash         Lunch         8.00 
+   60 2000-02-04 Cash         Breakfast     2.00 Bakery
+   61 2000-02-04 Cash         Lunch         8.00 
+   62 2000-02-07 Cash         Breakfast     2.00 Bakery
+   63 2000-02-07 Cash         Lunch         8.00 
+   64 2000-02-08 Cash         Breakfast     2.00 Bakery
+   65 2000-02-08 Cash         Lunch         8.00 
+   66 2000-02-09 Cash         Breakfast     2.00 Bakery
+   67 2000-02-09 Cash         Lunch         8.00 
+   68 2000-02-10 Cash         Breakfast     2.00 Bakery
+   69 2000-02-10 Cash         Lunch         8.00 
+   70 2000-02-11 Cash         Breakfast     2.00 Bakery
+   71 2000-02-11 Cash         Lunch         8.00 
+   72 2000-02-14 Cash         Breakfast     2.00 Bakery
+   73 2000-02-14 Cash         Lunch         8.00 
+   74 2000-02-15 Cash         Breakfast     2.00 Bakery
+   75 2000-02-15 Cash         Lunch         8.00 
+   76 2000-02-16 Cash         Breakfast     2.00 Bakery
+   77 2000-02-16 Cash         Lunch         8.00 
+   78 2000-02-17 Cash         Breakfast     2.00 Bakery
+   79 2000-02-17 Cash         Lunch         8.00 
+   80 2000-02-18 Cash         Breakfast     2.00 Bakery
+   81 2000-02-18 Cash         Lunch         8.00 
+   82 2000-02-21 Cash         Breakfast     2.00 Bakery
+   83 2000-02-21 Cash         Lunch         8.00 
+   84 2000-02-22 Cash         Breakfast     2.00 Bakery
+   85 2000-02-22 Cash         Lunch         8.00 
+   86 2000-02-23 Cash         Breakfast     2.00 Bakery
+   87 2000-02-23 Cash         Lunch         8.00 
+   88 2000-02-24 Cash         Breakfast     2.00 Bakery
+   89 2000-02-24 Cash         Lunch         8.00 
+   90 2000-02-25 Cash         Breakfast     2.00 Bakery
+   91 2000-02-25 Cash         Lunch         8.00 
+   92 2000-02-25 Giro         Rent        600.00 Accidentally manually transferring money of payment plan
+   93 2000-02-25 Giro         Internet     30.00 Execution of payment plan Internet
+   94 2000-02-28 Cash         Breakfast     2.00 Bakery
+   95 2000-02-28 Cash         Lunch         8.00 
+   96 2000-02-28 Wages        Giro       2000.00 
    97 2000-02-28 Giro         Cash        400.00 
    98 2000-02-29 Cash         Breakfast     2.00 Bakery
    99 2000-02-29 Cash         Lunch         8.00 
 
 $ ./pyMoney.py transaction list <=2000 02 15
-Index       Date FromCategory   ToCategory   Amount Comment
+Index       Date FromCategory   ToCategory      Amount Comment
 
-    0 2000-01-01 OpeningBalance Cash         400.00 
-    1 2000-01-01 OpeningBalance Giro        3000.00 
-    2 2000-01-01 OpeningBalance DayMoney   10000.00 
-    3 2000-01-03 Giro           Energy        50.00 Execution of payment plan Energy
-    4 2000-01-03 Cash           Breakfast      2.00 Bakery
-    5 2000-01-03 Cash           Lunch          8.00 
-    6 2000-01-04 Cash           Breakfast      2.00 Bakery
-    7 2000-01-04 Cash           Lunch          8.00 
-    8 2000-01-05 Cash           Breakfast      2.00 Bakery
-    9 2000-01-05 Cash           Lunch          8.00 
-   10 2000-01-06 Cash           Breakfast      2.00 Bakery
-   11 2000-01-06 Cash           Lunch          8.00 
-   12 2000-01-07 Cash           Breakfast      2.00 Bakery
-   13 2000-01-07 Cash           Lunch          8.00 
-   14 2000-01-10 Cash           Breakfast      2.00 Bakery
-   15 2000-01-10 Cash           Lunch          8.00 
-   16 2000-01-11 Cash           Breakfast      2.00 Bakery
-   17 2000-01-11 Cash           Lunch          8.00 
-   18 2000-01-12 Cash           Breakfast      2.00 Bakery
-   19 2000-01-12 Cash           Lunch          8.00 
-   20 2000-01-13 Cash           Breakfast      2.00 Bakery
-   21 2000-01-13 Cash           Lunch          8.00 
-   22 2000-01-14 Cash           Breakfast      2.00 Bakery
-   23 2000-01-14 Cash           Lunch          8.00 
-   24 2000-01-17 Cash           Breakfast      2.00 Bakery
-   25 2000-01-17 Cash           Lunch          8.00 
-   26 2000-01-18 Cash           Breakfast      2.00 Bakery
-   27 2000-01-18 Cash           Lunch          8.00 
-   28 2000-01-19 Cash           Breakfast      2.00 Bakery
-   29 2000-01-19 Cash           Lunch          8.00 
-   30 2000-01-20 Cash           Breakfast      2.00 Bakery
-   31 2000-01-20 Cash           Lunch          8.00 
-   32 2000-01-21 Cash           Breakfast      2.00 Bakery
-   33 2000-01-21 Cash           Lunch          8.00 
-   34 2000-01-24 Cash           Breakfast      2.00 Bakery
-   35 2000-01-24 Cash           Lunch          8.00 
-   36 2000-01-25 Cash           Breakfast      2.00 Bakery
-   37 2000-01-25 Cash           Lunch          8.00 
-   38 2000-01-25 Giro           Rent         600.00 Execution of payment plan Rent
-   39 2000-01-25 Giro           Internet      30.00 Execution of payment plan Internet
-   40 2000-01-26 Cash           Breakfast      2.00 Bakery
-   41 2000-01-26 Cash           Lunch          8.00 
-   42 2000-01-27 Cash           Breakfast      2.00 Bakery
-   43 2000-01-27 Cash           Lunch          8.00 
-   44 2000-01-28 Cash           Breakfast      2.00 Bakery
-   45 2000-01-28 Cash           Lunch          8.00 
-   46 2000-01-28 Wages          Giro        2000.00 
-   47 2000-01-28 Giro           DayMoney     500.00 Execution of payment plan Save
-   48 2000-01-28 Giro           Cash         400.00 
-   49 2000-01-31 Cash           Breakfast      2.00 Bakery
-   50 2000-01-31 Cash           Lunch          8.00 
-   51 2000-01-31 Income.Misc    Cash          10.00 Found
-   52 2000-02-01 Giro           Energy        50.00 Execution of payment plan Energy
-   53 2000-02-01 Cash           Breakfast      2.00 Bakery
-   54 2000-02-01 Cash           Lunch          8.00 
-   55 2000-02-02 Cash           Breakfast      2.00 Bakery
-   56 2000-02-02 Cash           Lunch          8.00 
-   57 2000-02-03 Cash           Breakfast      2.00 Bakery
-   58 2000-02-03 Cash           Lunch          8.00 
-   59 2000-02-04 Cash           Breakfast      2.00 Bakery
-   60 2000-02-04 Cash           Lunch          8.00 
-   61 2000-02-07 Cash           Breakfast      2.00 Bakery
-   62 2000-02-07 Cash           Lunch          8.00 
-   63 2000-02-08 Cash           Breakfast      2.00 Bakery
-   64 2000-02-08 Cash           Lunch          8.00 
-   65 2000-02-09 Cash           Breakfast      2.00 Bakery
-   66 2000-02-09 Cash           Lunch          8.00 
-   67 2000-02-10 Cash           Breakfast      2.00 Bakery
-   68 2000-02-10 Cash           Lunch          8.00 
-   69 2000-02-11 Cash           Breakfast      2.00 Bakery
-   70 2000-02-11 Cash           Lunch          8.00 
-   71 2000-02-14 Cash           Breakfast      2.00 Bakery
-   72 2000-02-14 Cash           Lunch          8.00 
-   73 2000-02-15 Cash           Breakfast      2.00 Bakery
-   74 2000-02-15 Cash           Lunch          8.00 
+    0 2000-01-01 OpeningBalance Cash            400.00 
+    1 2000-01-01 OpeningBalance Giro           3000.00 
+    2 2000-01-01 OpeningBalance DayMoney      10000.00 
+    3 2000-01-03 Giro           Energy           50.00 Execution of payment plan Energy
+    4 2000-01-03 Cash           Breakfast         2.00 Bakery
+    5 2000-01-03 Cash           Lunch             8.00 
+    6 2000-01-04 Cash           Breakfast         2.00 Bakery
+    7 2000-01-04 Cash           Lunch             8.00 
+    8 2000-01-05 Cash           Breakfast         2.00 Bakery
+    9 2000-01-05 Cash           Lunch             8.00 
+   10 2000-01-06 Cash           Breakfast         2.00 Bakery
+   11 2000-01-06 Cash           Lunch             8.00 
+   12 2000-01-07 Cash           Breakfast         2.00 Bakery
+   13 2000-01-07 Cash           Lunch             8.00 
+   14 2000-01-10 Cash           Breakfast         2.00 Bakery
+   15 2000-01-10 Cash           Lunch             8.00 
+   16 2000-01-11 Cash           Breakfast         2.00 Bakery
+   17 2000-01-11 Cash           Lunch             8.00 
+   18 2000-01-12 Cash           Breakfast         2.00 Bakery
+   19 2000-01-12 Cash           Lunch             8.00 
+   20 2000-01-13 Cash           Breakfast         2.00 Bakery
+   21 2000-01-13 Cash           Lunch             8.00 
+   22 2000-01-14 Cash           Breakfast         2.00 Bakery
+   23 2000-01-14 Cash           Lunch             8.00 
+   24 2000-01-17 Cash           Breakfast         2.00 Bakery
+   25 2000-01-17 Cash           Lunch             8.00 
+   26 2000-01-18 Cash           Breakfast         2.00 Bakery
+   27 2000-01-18 Cash           Lunch             8.00 
+   28 2000-01-19 Cash           Breakfast         2.00 Bakery
+   29 2000-01-19 Cash           Lunch             8.00 
+   30 2000-01-20 Cash           Breakfast         2.00 Bakery
+   31 2000-01-20 Cash           Lunch             8.00 
+   32 2000-01-21 Cash           Breakfast         2.00 Bakery
+   33 2000-01-21 Cash           Lunch             8.00 
+   34 2000-01-24 Cash           Breakfast         2.00 Bakery
+   35 2000-01-24 Cash           Lunch             8.00 
+   36 2000-01-25 Cash           Breakfast         2.00 Bakery
+   37 2000-01-25 Cash           Lunch             8.00 
+   38 2000-01-25 Giro           Rent            600.00 Execution of payment plan Rent
+   39 2000-01-25 Giro           Internet         30.00 Execution of payment plan Internet
+   40 2000-01-26 Cash           Breakfast         2.00 Bakery
+   41 2000-01-26 Cash           Lunch             8.00 
+   42 2000-01-27 Cash           Breakfast         2.00 Bakery
+   43 2000-01-27 Cash           Lunch             8.00 
+   44 2000-01-28 Cash           Breakfast         2.00 Bakery
+   45 2000-01-28 Cash           Lunch             8.00 
+   46 2000-01-28 Wages          Giro           2000.00 
+   47 2000-01-28 Giro           DayMoney        500.00 Execution of payment plan Save: Monthly saving
+   48 2000-01-28 Giro           Cash            400.00 
+   49 2000-01-28 Giro           OtherDayMoney   500.00 Execution of payment plan Save: Monthly saving now happening to other account
+   50 2000-01-31 Cash           Breakfast         2.00 Bakery
+   51 2000-01-31 Cash           Lunch             8.00 
+   52 2000-01-31 Income.Misc    Cash             10.00 Found
+   53 2000-02-01 Giro           Energy           50.00 Execution of payment plan Energy
+   54 2000-02-01 Cash           Breakfast         2.00 Bakery
+   55 2000-02-01 Cash           Lunch             8.00 
+   56 2000-02-02 Cash           Breakfast         2.00 Bakery
+   57 2000-02-02 Cash           Lunch             8.00 
+   58 2000-02-03 Cash           Breakfast         2.00 Bakery
+   59 2000-02-03 Cash           Lunch             8.00 
+   60 2000-02-04 Cash           Breakfast         2.00 Bakery
+   61 2000-02-04 Cash           Lunch             8.00 
+   62 2000-02-07 Cash           Breakfast         2.00 Bakery
+   63 2000-02-07 Cash           Lunch             8.00 
+   64 2000-02-08 Cash           Breakfast         2.00 Bakery
+   65 2000-02-08 Cash           Lunch             8.00 
+   66 2000-02-09 Cash           Breakfast         2.00 Bakery
+   67 2000-02-09 Cash           Lunch             8.00 
+   68 2000-02-10 Cash           Breakfast         2.00 Bakery
+   69 2000-02-10 Cash           Lunch             8.00 
+   70 2000-02-11 Cash           Breakfast         2.00 Bakery
+   71 2000-02-11 Cash           Lunch             8.00 
+   72 2000-02-14 Cash           Breakfast         2.00 Bakery
+   73 2000-02-14 Cash           Lunch             8.00 
+   74 2000-02-15 Cash           Breakfast         2.00 Bakery
+   75 2000-02-15 Cash           Lunch             8.00 
 
 $ ./pyMoney.py transaction list <2000 02 16
-Index       Date FromCategory   ToCategory   Amount Comment
+Index       Date FromCategory   ToCategory      Amount Comment
 
-    0 2000-01-01 OpeningBalance Cash         400.00 
-    1 2000-01-01 OpeningBalance Giro        3000.00 
-    2 2000-01-01 OpeningBalance DayMoney   10000.00 
-    3 2000-01-03 Giro           Energy        50.00 Execution of payment plan Energy
-    4 2000-01-03 Cash           Breakfast      2.00 Bakery
-    5 2000-01-03 Cash           Lunch          8.00 
-    6 2000-01-04 Cash           Breakfast      2.00 Bakery
-    7 2000-01-04 Cash           Lunch          8.00 
-    8 2000-01-05 Cash           Breakfast      2.00 Bakery
-    9 2000-01-05 Cash           Lunch          8.00 
-   10 2000-01-06 Cash           Breakfast      2.00 Bakery
-   11 2000-01-06 Cash           Lunch          8.00 
-   12 2000-01-07 Cash           Breakfast      2.00 Bakery
-   13 2000-01-07 Cash           Lunch          8.00 
-   14 2000-01-10 Cash           Breakfast      2.00 Bakery
-   15 2000-01-10 Cash           Lunch          8.00 
-   16 2000-01-11 Cash           Breakfast      2.00 Bakery
-   17 2000-01-11 Cash           Lunch          8.00 
-   18 2000-01-12 Cash           Breakfast      2.00 Bakery
-   19 2000-01-12 Cash           Lunch          8.00 
-   20 2000-01-13 Cash           Breakfast      2.00 Bakery
-   21 2000-01-13 Cash           Lunch          8.00 
-   22 2000-01-14 Cash           Breakfast      2.00 Bakery
-   23 2000-01-14 Cash           Lunch          8.00 
-   24 2000-01-17 Cash           Breakfast      2.00 Bakery
-   25 2000-01-17 Cash           Lunch          8.00 
-   26 2000-01-18 Cash           Breakfast      2.00 Bakery
-   27 2000-01-18 Cash           Lunch          8.00 
-   28 2000-01-19 Cash           Breakfast      2.00 Bakery
-   29 2000-01-19 Cash           Lunch          8.00 
-   30 2000-01-20 Cash           Breakfast      2.00 Bakery
-   31 2000-01-20 Cash           Lunch          8.00 
-   32 2000-01-21 Cash           Breakfast      2.00 Bakery
-   33 2000-01-21 Cash           Lunch          8.00 
-   34 2000-01-24 Cash           Breakfast      2.00 Bakery
-   35 2000-01-24 Cash           Lunch          8.00 
-   36 2000-01-25 Cash           Breakfast      2.00 Bakery
-   37 2000-01-25 Cash           Lunch          8.00 
-   38 2000-01-25 Giro           Rent         600.00 Execution of payment plan Rent
-   39 2000-01-25 Giro           Internet      30.00 Execution of payment plan Internet
-   40 2000-01-26 Cash           Breakfast      2.00 Bakery
-   41 2000-01-26 Cash           Lunch          8.00 
-   42 2000-01-27 Cash           Breakfast      2.00 Bakery
-   43 2000-01-27 Cash           Lunch          8.00 
-   44 2000-01-28 Cash           Breakfast      2.00 Bakery
-   45 2000-01-28 Cash           Lunch          8.00 
-   46 2000-01-28 Wages          Giro        2000.00 
-   47 2000-01-28 Giro           DayMoney     500.00 Execution of payment plan Save
-   48 2000-01-28 Giro           Cash         400.00 
-   49 2000-01-31 Cash           Breakfast      2.00 Bakery
-   50 2000-01-31 Cash           Lunch          8.00 
-   51 2000-01-31 Income.Misc    Cash          10.00 Found
-   52 2000-02-01 Giro           Energy        50.00 Execution of payment plan Energy
-   53 2000-02-01 Cash           Breakfast      2.00 Bakery
-   54 2000-02-01 Cash           Lunch          8.00 
-   55 2000-02-02 Cash           Breakfast      2.00 Bakery
-   56 2000-02-02 Cash           Lunch          8.00 
-   57 2000-02-03 Cash           Breakfast      2.00 Bakery
-   58 2000-02-03 Cash           Lunch          8.00 
-   59 2000-02-04 Cash           Breakfast      2.00 Bakery
-   60 2000-02-04 Cash           Lunch          8.00 
-   61 2000-02-07 Cash           Breakfast      2.00 Bakery
-   62 2000-02-07 Cash           Lunch          8.00 
-   63 2000-02-08 Cash           Breakfast      2.00 Bakery
-   64 2000-02-08 Cash           Lunch          8.00 
-   65 2000-02-09 Cash           Breakfast      2.00 Bakery
-   66 2000-02-09 Cash           Lunch          8.00 
-   67 2000-02-10 Cash           Breakfast      2.00 Bakery
-   68 2000-02-10 Cash           Lunch          8.00 
-   69 2000-02-11 Cash           Breakfast      2.00 Bakery
-   70 2000-02-11 Cash           Lunch          8.00 
-   71 2000-02-14 Cash           Breakfast      2.00 Bakery
-   72 2000-02-14 Cash           Lunch          8.00 
-   73 2000-02-15 Cash           Breakfast      2.00 Bakery
-   74 2000-02-15 Cash           Lunch          8.00 
+    0 2000-01-01 OpeningBalance Cash            400.00 
+    1 2000-01-01 OpeningBalance Giro           3000.00 
+    2 2000-01-01 OpeningBalance DayMoney      10000.00 
+    3 2000-01-03 Giro           Energy           50.00 Execution of payment plan Energy
+    4 2000-01-03 Cash           Breakfast         2.00 Bakery
+    5 2000-01-03 Cash           Lunch             8.00 
+    6 2000-01-04 Cash           Breakfast         2.00 Bakery
+    7 2000-01-04 Cash           Lunch             8.00 
+    8 2000-01-05 Cash           Breakfast         2.00 Bakery
+    9 2000-01-05 Cash           Lunch             8.00 
+   10 2000-01-06 Cash           Breakfast         2.00 Bakery
+   11 2000-01-06 Cash           Lunch             8.00 
+   12 2000-01-07 Cash           Breakfast         2.00 Bakery
+   13 2000-01-07 Cash           Lunch             8.00 
+   14 2000-01-10 Cash           Breakfast         2.00 Bakery
+   15 2000-01-10 Cash           Lunch             8.00 
+   16 2000-01-11 Cash           Breakfast         2.00 Bakery
+   17 2000-01-11 Cash           Lunch             8.00 
+   18 2000-01-12 Cash           Breakfast         2.00 Bakery
+   19 2000-01-12 Cash           Lunch             8.00 
+   20 2000-01-13 Cash           Breakfast         2.00 Bakery
+   21 2000-01-13 Cash           Lunch             8.00 
+   22 2000-01-14 Cash           Breakfast         2.00 Bakery
+   23 2000-01-14 Cash           Lunch             8.00 
+   24 2000-01-17 Cash           Breakfast         2.00 Bakery
+   25 2000-01-17 Cash           Lunch             8.00 
+   26 2000-01-18 Cash           Breakfast         2.00 Bakery
+   27 2000-01-18 Cash           Lunch             8.00 
+   28 2000-01-19 Cash           Breakfast         2.00 Bakery
+   29 2000-01-19 Cash           Lunch             8.00 
+   30 2000-01-20 Cash           Breakfast         2.00 Bakery
+   31 2000-01-20 Cash           Lunch             8.00 
+   32 2000-01-21 Cash           Breakfast         2.00 Bakery
+   33 2000-01-21 Cash           Lunch             8.00 
+   34 2000-01-24 Cash           Breakfast         2.00 Bakery
+   35 2000-01-24 Cash           Lunch             8.00 
+   36 2000-01-25 Cash           Breakfast         2.00 Bakery
+   37 2000-01-25 Cash           Lunch             8.00 
+   38 2000-01-25 Giro           Rent            600.00 Execution of payment plan Rent
+   39 2000-01-25 Giro           Internet         30.00 Execution of payment plan Internet
+   40 2000-01-26 Cash           Breakfast         2.00 Bakery
+   41 2000-01-26 Cash           Lunch             8.00 
+   42 2000-01-27 Cash           Breakfast         2.00 Bakery
+   43 2000-01-27 Cash           Lunch             8.00 
+   44 2000-01-28 Cash           Breakfast         2.00 Bakery
+   45 2000-01-28 Cash           Lunch             8.00 
+   46 2000-01-28 Wages          Giro           2000.00 
+   47 2000-01-28 Giro           DayMoney        500.00 Execution of payment plan Save: Monthly saving
+   48 2000-01-28 Giro           Cash            400.00 
+   49 2000-01-28 Giro           OtherDayMoney   500.00 Execution of payment plan Save: Monthly saving now happening to other account
+   50 2000-01-31 Cash           Breakfast         2.00 Bakery
+   51 2000-01-31 Cash           Lunch             8.00 
+   52 2000-01-31 Income.Misc    Cash             10.00 Found
+   53 2000-02-01 Giro           Energy           50.00 Execution of payment plan Energy
+   54 2000-02-01 Cash           Breakfast         2.00 Bakery
+   55 2000-02-01 Cash           Lunch             8.00 
+   56 2000-02-02 Cash           Breakfast         2.00 Bakery
+   57 2000-02-02 Cash           Lunch             8.00 
+   58 2000-02-03 Cash           Breakfast         2.00 Bakery
+   59 2000-02-03 Cash           Lunch             8.00 
+   60 2000-02-04 Cash           Breakfast         2.00 Bakery
+   61 2000-02-04 Cash           Lunch             8.00 
+   62 2000-02-07 Cash           Breakfast         2.00 Bakery
+   63 2000-02-07 Cash           Lunch             8.00 
+   64 2000-02-08 Cash           Breakfast         2.00 Bakery
+   65 2000-02-08 Cash           Lunch             8.00 
+   66 2000-02-09 Cash           Breakfast         2.00 Bakery
+   67 2000-02-09 Cash           Lunch             8.00 
+   68 2000-02-10 Cash           Breakfast         2.00 Bakery
+   69 2000-02-10 Cash           Lunch             8.00 
+   70 2000-02-11 Cash           Breakfast         2.00 Bakery
+   71 2000-02-11 Cash           Lunch             8.00 
+   72 2000-02-14 Cash           Breakfast         2.00 Bakery
+   73 2000-02-14 Cash           Lunch             8.00 
+   74 2000-02-15 Cash           Breakfast         2.00 Bakery
+   75 2000-02-15 Cash           Lunch             8.00 
 
 $ ./pyMoney.py transaction list >=2000 01 15
-Index       Date FromCategory ToCategory  Amount Comment
+Index       Date FromCategory ToCategory     Amount Comment
 
-   24 2000-01-17 Cash         Breakfast     2.00 Bakery
-   25 2000-01-17 Cash         Lunch         8.00 
-   26 2000-01-18 Cash         Breakfast     2.00 Bakery
-   27 2000-01-18 Cash         Lunch         8.00 
-   28 2000-01-19 Cash         Breakfast     2.00 Bakery
-   29 2000-01-19 Cash         Lunch         8.00 
-   30 2000-01-20 Cash         Breakfast     2.00 Bakery
-   31 2000-01-20 Cash         Lunch         8.00 
-   32 2000-01-21 Cash         Breakfast     2.00 Bakery
-   33 2000-01-21 Cash         Lunch         8.00 
-   34 2000-01-24 Cash         Breakfast     2.00 Bakery
-   35 2000-01-24 Cash         Lunch         8.00 
-   36 2000-01-25 Cash         Breakfast     2.00 Bakery
-   37 2000-01-25 Cash         Lunch         8.00 
-   38 2000-01-25 Giro         Rent        600.00 Execution of payment plan Rent
-   39 2000-01-25 Giro         Internet     30.00 Execution of payment plan Internet
-   40 2000-01-26 Cash         Breakfast     2.00 Bakery
-   41 2000-01-26 Cash         Lunch         8.00 
-   42 2000-01-27 Cash         Breakfast     2.00 Bakery
-   43 2000-01-27 Cash         Lunch         8.00 
-   44 2000-01-28 Cash         Breakfast     2.00 Bakery
-   45 2000-01-28 Cash         Lunch         8.00 
-   46 2000-01-28 Wages        Giro       2000.00 
-   47 2000-01-28 Giro         DayMoney    500.00 Execution of payment plan Save
-   48 2000-01-28 Giro         Cash        400.00 
-   49 2000-01-31 Cash         Breakfast     2.00 Bakery
-   50 2000-01-31 Cash         Lunch         8.00 
-   51 2000-01-31 Income.Misc  Cash         10.00 Found
-   52 2000-02-01 Giro         Energy       50.00 Execution of payment plan Energy
-   53 2000-02-01 Cash         Breakfast     2.00 Bakery
-   54 2000-02-01 Cash         Lunch         8.00 
-   55 2000-02-02 Cash         Breakfast     2.00 Bakery
-   56 2000-02-02 Cash         Lunch         8.00 
-   57 2000-02-03 Cash         Breakfast     2.00 Bakery
-   58 2000-02-03 Cash         Lunch         8.00 
-   59 2000-02-04 Cash         Breakfast     2.00 Bakery
-   60 2000-02-04 Cash         Lunch         8.00 
-   61 2000-02-07 Cash         Breakfast     2.00 Bakery
-   62 2000-02-07 Cash         Lunch         8.00 
-   63 2000-02-08 Cash         Breakfast     2.00 Bakery
-   64 2000-02-08 Cash         Lunch         8.00 
-   65 2000-02-09 Cash         Breakfast     2.00 Bakery
-   66 2000-02-09 Cash         Lunch         8.00 
-   67 2000-02-10 Cash         Breakfast     2.00 Bakery
-   68 2000-02-10 Cash         Lunch         8.00 
-   69 2000-02-11 Cash         Breakfast     2.00 Bakery
-   70 2000-02-11 Cash         Lunch         8.00 
-   71 2000-02-14 Cash         Breakfast     2.00 Bakery
-   72 2000-02-14 Cash         Lunch         8.00 
-   73 2000-02-15 Cash         Breakfast     2.00 Bakery
-   74 2000-02-15 Cash         Lunch         8.00 
-   75 2000-02-16 Cash         Breakfast     2.00 Bakery
-   76 2000-02-16 Cash         Lunch         8.00 
-   77 2000-02-17 Cash         Breakfast     2.00 Bakery
-   78 2000-02-17 Cash         Lunch         8.00 
-   79 2000-02-18 Cash         Breakfast     2.00 Bakery
-   80 2000-02-18 Cash         Lunch         8.00 
-   81 2000-02-21 Cash         Breakfast     2.00 Bakery
-   82 2000-02-21 Cash         Lunch         8.00 
-   83 2000-02-22 Cash         Breakfast     2.00 Bakery
-   84 2000-02-22 Cash         Lunch         8.00 
-   85 2000-02-23 Cash         Breakfast     2.00 Bakery
-   86 2000-02-23 Cash         Lunch         8.00 
-   87 2000-02-24 Cash         Breakfast     2.00 Bakery
-   88 2000-02-24 Cash         Lunch         8.00 
-   89 2000-02-25 Cash         Breakfast     2.00 Bakery
-   90 2000-02-25 Cash         Lunch         8.00 
-   91 2000-02-25 Giro         Rent        600.00 Execution of payment plan Rent
-   92 2000-02-25 Giro         Internet     30.00 Execution of payment plan Internet
-   93 2000-02-28 Cash         Breakfast     2.00 Bakery
-   94 2000-02-28 Cash         Lunch         8.00 
-   95 2000-02-28 Wages        Giro       2000.00 
-   96 2000-02-28 Giro         DayMoney    500.00 Accidentally manually transferring money of payment plan
-   97 2000-02-28 Giro         Cash        400.00 
-   98 2000-02-29 Cash         Breakfast     2.00 Bakery
-   99 2000-02-29 Cash         Lunch         8.00 
+   24 2000-01-17 Cash         Breakfast        2.00 Bakery
+   25 2000-01-17 Cash         Lunch            8.00 
+   26 2000-01-18 Cash         Breakfast        2.00 Bakery
+   27 2000-01-18 Cash         Lunch            8.00 
+   28 2000-01-19 Cash         Breakfast        2.00 Bakery
+   29 2000-01-19 Cash         Lunch            8.00 
+   30 2000-01-20 Cash         Breakfast        2.00 Bakery
+   31 2000-01-20 Cash         Lunch            8.00 
+   32 2000-01-21 Cash         Breakfast        2.00 Bakery
+   33 2000-01-21 Cash         Lunch            8.00 
+   34 2000-01-24 Cash         Breakfast        2.00 Bakery
+   35 2000-01-24 Cash         Lunch            8.00 
+   36 2000-01-25 Cash         Breakfast        2.00 Bakery
+   37 2000-01-25 Cash         Lunch            8.00 
+   38 2000-01-25 Giro         Rent           600.00 Execution of payment plan Rent
+   39 2000-01-25 Giro         Internet        30.00 Execution of payment plan Internet
+   40 2000-01-26 Cash         Breakfast        2.00 Bakery
+   41 2000-01-26 Cash         Lunch            8.00 
+   42 2000-01-27 Cash         Breakfast        2.00 Bakery
+   43 2000-01-27 Cash         Lunch            8.00 
+   44 2000-01-28 Cash         Breakfast        2.00 Bakery
+   45 2000-01-28 Cash         Lunch            8.00 
+   46 2000-01-28 Wages        Giro          2000.00 
+   47 2000-01-28 Giro         DayMoney       500.00 Execution of payment plan Save: Monthly saving
+   48 2000-01-28 Giro         Cash           400.00 
+   49 2000-01-28 Giro         OtherDayMoney  500.00 Execution of payment plan Save: Monthly saving now happening to other account
+   50 2000-01-31 Cash         Breakfast        2.00 Bakery
+   51 2000-01-31 Cash         Lunch            8.00 
+   52 2000-01-31 Income.Misc  Cash            10.00 Found
+   53 2000-02-01 Giro         Energy          50.00 Execution of payment plan Energy
+   54 2000-02-01 Cash         Breakfast        2.00 Bakery
+   55 2000-02-01 Cash         Lunch            8.00 
+   56 2000-02-02 Cash         Breakfast        2.00 Bakery
+   57 2000-02-02 Cash         Lunch            8.00 
+   58 2000-02-03 Cash         Breakfast        2.00 Bakery
+   59 2000-02-03 Cash         Lunch            8.00 
+   60 2000-02-04 Cash         Breakfast        2.00 Bakery
+   61 2000-02-04 Cash         Lunch            8.00 
+   62 2000-02-07 Cash         Breakfast        2.00 Bakery
+   63 2000-02-07 Cash         Lunch            8.00 
+   64 2000-02-08 Cash         Breakfast        2.00 Bakery
+   65 2000-02-08 Cash         Lunch            8.00 
+   66 2000-02-09 Cash         Breakfast        2.00 Bakery
+   67 2000-02-09 Cash         Lunch            8.00 
+   68 2000-02-10 Cash         Breakfast        2.00 Bakery
+   69 2000-02-10 Cash         Lunch            8.00 
+   70 2000-02-11 Cash         Breakfast        2.00 Bakery
+   71 2000-02-11 Cash         Lunch            8.00 
+   72 2000-02-14 Cash         Breakfast        2.00 Bakery
+   73 2000-02-14 Cash         Lunch            8.00 
+   74 2000-02-15 Cash         Breakfast        2.00 Bakery
+   75 2000-02-15 Cash         Lunch            8.00 
+   76 2000-02-16 Cash         Breakfast        2.00 Bakery
+   77 2000-02-16 Cash         Lunch            8.00 
+   78 2000-02-17 Cash         Breakfast        2.00 Bakery
+   79 2000-02-17 Cash         Lunch            8.00 
+   80 2000-02-18 Cash         Breakfast        2.00 Bakery
+   81 2000-02-18 Cash         Lunch            8.00 
+   82 2000-02-21 Cash         Breakfast        2.00 Bakery
+   83 2000-02-21 Cash         Lunch            8.00 
+   84 2000-02-22 Cash         Breakfast        2.00 Bakery
+   85 2000-02-22 Cash         Lunch            8.00 
+   86 2000-02-23 Cash         Breakfast        2.00 Bakery
+   87 2000-02-23 Cash         Lunch            8.00 
+   88 2000-02-24 Cash         Breakfast        2.00 Bakery
+   89 2000-02-24 Cash         Lunch            8.00 
+   90 2000-02-25 Cash         Breakfast        2.00 Bakery
+   91 2000-02-25 Cash         Lunch            8.00 
+   92 2000-02-25 Giro         Rent           600.00 Accidentally manually transferring money of payment plan
+   93 2000-02-25 Giro         Internet        30.00 Execution of payment plan Internet
+   94 2000-02-28 Cash         Breakfast        2.00 Bakery
+   95 2000-02-28 Cash         Lunch            8.00 
+   96 2000-02-28 Wages        Giro          2000.00 
+   97 2000-02-28 Giro         Cash           400.00 
+   98 2000-02-29 Cash         Breakfast        2.00 Bakery
+   99 2000-02-29 Cash         Lunch            8.00 
 
 $ ./pyMoney.py transaction list >2000 01 14
-Index       Date FromCategory ToCategory  Amount Comment
+Index       Date FromCategory ToCategory     Amount Comment
 
-   24 2000-01-17 Cash         Breakfast     2.00 Bakery
-   25 2000-01-17 Cash         Lunch         8.00 
-   26 2000-01-18 Cash         Breakfast     2.00 Bakery
-   27 2000-01-18 Cash         Lunch         8.00 
-   28 2000-01-19 Cash         Breakfast     2.00 Bakery
-   29 2000-01-19 Cash         Lunch         8.00 
-   30 2000-01-20 Cash         Breakfast     2.00 Bakery
-   31 2000-01-20 Cash         Lunch         8.00 
-   32 2000-01-21 Cash         Breakfast     2.00 Bakery
-   33 2000-01-21 Cash         Lunch         8.00 
-   34 2000-01-24 Cash         Breakfast     2.00 Bakery
-   35 2000-01-24 Cash         Lunch         8.00 
-   36 2000-01-25 Cash         Breakfast     2.00 Bakery
-   37 2000-01-25 Cash         Lunch         8.00 
-   38 2000-01-25 Giro         Rent        600.00 Execution of payment plan Rent
-   39 2000-01-25 Giro         Internet     30.00 Execution of payment plan Internet
-   40 2000-01-26 Cash         Breakfast     2.00 Bakery
-   41 2000-01-26 Cash         Lunch         8.00 
-   42 2000-01-27 Cash         Breakfast     2.00 Bakery
-   43 2000-01-27 Cash         Lunch         8.00 
-   44 2000-01-28 Cash         Breakfast     2.00 Bakery
-   45 2000-01-28 Cash         Lunch         8.00 
-   46 2000-01-28 Wages        Giro       2000.00 
-   47 2000-01-28 Giro         DayMoney    500.00 Execution of payment plan Save
-   48 2000-01-28 Giro         Cash        400.00 
-   49 2000-01-31 Cash         Breakfast     2.00 Bakery
-   50 2000-01-31 Cash         Lunch         8.00 
-   51 2000-01-31 Income.Misc  Cash         10.00 Found
-   52 2000-02-01 Giro         Energy       50.00 Execution of payment plan Energy
-   53 2000-02-01 Cash         Breakfast     2.00 Bakery
-   54 2000-02-01 Cash         Lunch         8.00 
-   55 2000-02-02 Cash         Breakfast     2.00 Bakery
-   56 2000-02-02 Cash         Lunch         8.00 
-   57 2000-02-03 Cash         Breakfast     2.00 Bakery
-   58 2000-02-03 Cash         Lunch         8.00 
-   59 2000-02-04 Cash         Breakfast     2.00 Bakery
-   60 2000-02-04 Cash         Lunch         8.00 
-   61 2000-02-07 Cash         Breakfast     2.00 Bakery
-   62 2000-02-07 Cash         Lunch         8.00 
-   63 2000-02-08 Cash         Breakfast     2.00 Bakery
-   64 2000-02-08 Cash         Lunch         8.00 
-   65 2000-02-09 Cash         Breakfast     2.00 Bakery
-   66 2000-02-09 Cash         Lunch         8.00 
-   67 2000-02-10 Cash         Breakfast     2.00 Bakery
-   68 2000-02-10 Cash         Lunch         8.00 
-   69 2000-02-11 Cash         Breakfast     2.00 Bakery
-   70 2000-02-11 Cash         Lunch         8.00 
-   71 2000-02-14 Cash         Breakfast     2.00 Bakery
-   72 2000-02-14 Cash         Lunch         8.00 
-   73 2000-02-15 Cash         Breakfast     2.00 Bakery
-   74 2000-02-15 Cash         Lunch         8.00 
-   75 2000-02-16 Cash         Breakfast     2.00 Bakery
-   76 2000-02-16 Cash         Lunch         8.00 
-   77 2000-02-17 Cash         Breakfast     2.00 Bakery
-   78 2000-02-17 Cash         Lunch         8.00 
-   79 2000-02-18 Cash         Breakfast     2.00 Bakery
-   80 2000-02-18 Cash         Lunch         8.00 
-   81 2000-02-21 Cash         Breakfast     2.00 Bakery
-   82 2000-02-21 Cash         Lunch         8.00 
-   83 2000-02-22 Cash         Breakfast     2.00 Bakery
-   84 2000-02-22 Cash         Lunch         8.00 
-   85 2000-02-23 Cash         Breakfast     2.00 Bakery
-   86 2000-02-23 Cash         Lunch         8.00 
-   87 2000-02-24 Cash         Breakfast     2.00 Bakery
-   88 2000-02-24 Cash         Lunch         8.00 
-   89 2000-02-25 Cash         Breakfast     2.00 Bakery
-   90 2000-02-25 Cash         Lunch         8.00 
-   91 2000-02-25 Giro         Rent        600.00 Execution of payment plan Rent
-   92 2000-02-25 Giro         Internet     30.00 Execution of payment plan Internet
-   93 2000-02-28 Cash         Breakfast     2.00 Bakery
-   94 2000-02-28 Cash         Lunch         8.00 
-   95 2000-02-28 Wages        Giro       2000.00 
-   96 2000-02-28 Giro         DayMoney    500.00 Accidentally manually transferring money of payment plan
-   97 2000-02-28 Giro         Cash        400.00 
-   98 2000-02-29 Cash         Breakfast     2.00 Bakery
-   99 2000-02-29 Cash         Lunch         8.00 
+   24 2000-01-17 Cash         Breakfast        2.00 Bakery
+   25 2000-01-17 Cash         Lunch            8.00 
+   26 2000-01-18 Cash         Breakfast        2.00 Bakery
+   27 2000-01-18 Cash         Lunch            8.00 
+   28 2000-01-19 Cash         Breakfast        2.00 Bakery
+   29 2000-01-19 Cash         Lunch            8.00 
+   30 2000-01-20 Cash         Breakfast        2.00 Bakery
+   31 2000-01-20 Cash         Lunch            8.00 
+   32 2000-01-21 Cash         Breakfast        2.00 Bakery
+   33 2000-01-21 Cash         Lunch            8.00 
+   34 2000-01-24 Cash         Breakfast        2.00 Bakery
+   35 2000-01-24 Cash         Lunch            8.00 
+   36 2000-01-25 Cash         Breakfast        2.00 Bakery
+   37 2000-01-25 Cash         Lunch            8.00 
+   38 2000-01-25 Giro         Rent           600.00 Execution of payment plan Rent
+   39 2000-01-25 Giro         Internet        30.00 Execution of payment plan Internet
+   40 2000-01-26 Cash         Breakfast        2.00 Bakery
+   41 2000-01-26 Cash         Lunch            8.00 
+   42 2000-01-27 Cash         Breakfast        2.00 Bakery
+   43 2000-01-27 Cash         Lunch            8.00 
+   44 2000-01-28 Cash         Breakfast        2.00 Bakery
+   45 2000-01-28 Cash         Lunch            8.00 
+   46 2000-01-28 Wages        Giro          2000.00 
+   47 2000-01-28 Giro         DayMoney       500.00 Execution of payment plan Save: Monthly saving
+   48 2000-01-28 Giro         Cash           400.00 
+   49 2000-01-28 Giro         OtherDayMoney  500.00 Execution of payment plan Save: Monthly saving now happening to other account
+   50 2000-01-31 Cash         Breakfast        2.00 Bakery
+   51 2000-01-31 Cash         Lunch            8.00 
+   52 2000-01-31 Income.Misc  Cash            10.00 Found
+   53 2000-02-01 Giro         Energy          50.00 Execution of payment plan Energy
+   54 2000-02-01 Cash         Breakfast        2.00 Bakery
+   55 2000-02-01 Cash         Lunch            8.00 
+   56 2000-02-02 Cash         Breakfast        2.00 Bakery
+   57 2000-02-02 Cash         Lunch            8.00 
+   58 2000-02-03 Cash         Breakfast        2.00 Bakery
+   59 2000-02-03 Cash         Lunch            8.00 
+   60 2000-02-04 Cash         Breakfast        2.00 Bakery
+   61 2000-02-04 Cash         Lunch            8.00 
+   62 2000-02-07 Cash         Breakfast        2.00 Bakery
+   63 2000-02-07 Cash         Lunch            8.00 
+   64 2000-02-08 Cash         Breakfast        2.00 Bakery
+   65 2000-02-08 Cash         Lunch            8.00 
+   66 2000-02-09 Cash         Breakfast        2.00 Bakery
+   67 2000-02-09 Cash         Lunch            8.00 
+   68 2000-02-10 Cash         Breakfast        2.00 Bakery
+   69 2000-02-10 Cash         Lunch            8.00 
+   70 2000-02-11 Cash         Breakfast        2.00 Bakery
+   71 2000-02-11 Cash         Lunch            8.00 
+   72 2000-02-14 Cash         Breakfast        2.00 Bakery
+   73 2000-02-14 Cash         Lunch            8.00 
+   74 2000-02-15 Cash         Breakfast        2.00 Bakery
+   75 2000-02-15 Cash         Lunch            8.00 
+   76 2000-02-16 Cash         Breakfast        2.00 Bakery
+   77 2000-02-16 Cash         Lunch            8.00 
+   78 2000-02-17 Cash         Breakfast        2.00 Bakery
+   79 2000-02-17 Cash         Lunch            8.00 
+   80 2000-02-18 Cash         Breakfast        2.00 Bakery
+   81 2000-02-18 Cash         Lunch            8.00 
+   82 2000-02-21 Cash         Breakfast        2.00 Bakery
+   83 2000-02-21 Cash         Lunch            8.00 
+   84 2000-02-22 Cash         Breakfast        2.00 Bakery
+   85 2000-02-22 Cash         Lunch            8.00 
+   86 2000-02-23 Cash         Breakfast        2.00 Bakery
+   87 2000-02-23 Cash         Lunch            8.00 
+   88 2000-02-24 Cash         Breakfast        2.00 Bakery
+   89 2000-02-24 Cash         Lunch            8.00 
+   90 2000-02-25 Cash         Breakfast        2.00 Bakery
+   91 2000-02-25 Cash         Lunch            8.00 
+   92 2000-02-25 Giro         Rent           600.00 Accidentally manually transferring money of payment plan
+   93 2000-02-25 Giro         Internet        30.00 Execution of payment plan Internet
+   94 2000-02-28 Cash         Breakfast        2.00 Bakery
+   95 2000-02-28 Cash         Lunch            8.00 
+   96 2000-02-28 Wages        Giro          2000.00 
+   97 2000-02-28 Giro         Cash           400.00 
+   98 2000-02-29 Cash         Breakfast        2.00 Bakery
+   99 2000-02-29 Cash         Lunch            8.00 
 
 $ ./pyMoney.py transaction list --category Rent
 Index       Date FromCategory ToCategory  Amount Comment
 
    38 2000-01-25 Giro         Rent        600.00 Execution of payment plan Rent
-   91 2000-02-25 Giro         Rent        600.00 Execution of payment plan Rent
+   92 2000-02-25 Giro         Rent        600.00 Accidentally manually transferring money of payment plan
                                           
                               + Rent     1200.00 
                               - Rent        0.00 
@@ -1080,8 +1092,10 @@ All
     OpeningBalance
   Assets
     Cash
-    DayMoney
     Giro
+    DayMoneyAccounts
+      DayMoney
+      OtherDayMoney
   Income
     Wages
     Interests
@@ -1108,8 +1122,10 @@ Equity
 OpeningBalance
 Assets
 Cash
-DayMoney
 Giro
+DayMoneyAccounts
+DayMoney
+OtherDayMoney
 Income
 Wages
 Interests
@@ -1132,108 +1148,108 @@ Rent
 
 
 $ ./pyMoney.py transaction list
-Index       Date FromCategory   ToCategory   Amount Comment
+Index       Date FromCategory   ToCategory      Amount Comment
 
-    0 2000-01-01 OpeningBalance Cash         400.00 
-    1 2000-01-01 OpeningBalance Giro        3000.00 
-    2 2000-01-01 OpeningBalance DayMoney   10000.00 
-    3 2000-01-03 Giro           Energy        50.00 Execution of payment plan Energy
-    4 2000-01-03 Cash           Breakfast      2.00 Bakery
-    5 2000-01-03 Cash           Lunch          8.00 
-    6 2000-01-04 Cash           Breakfast      2.00 Bakery
-    7 2000-01-04 Cash           Lunch          8.00 
-    8 2000-01-05 Cash           Breakfast      2.00 Bakery
-    9 2000-01-05 Cash           Lunch          8.00 
-   10 2000-01-06 Cash           Breakfast      2.00 Bakery
-   11 2000-01-06 Cash           Lunch          8.00 
-   12 2000-01-07 Cash           Breakfast      2.00 Bakery
-   13 2000-01-07 Cash           Lunch          8.00 
-   14 2000-01-10 Cash           Breakfast      2.00 Bakery
-   15 2000-01-10 Cash           Lunch          8.00 
-   16 2000-01-11 Cash           Breakfast      2.00 Bakery
-   17 2000-01-11 Cash           Lunch          8.00 
-   18 2000-01-12 Cash           Breakfast      2.00 Bakery
-   19 2000-01-12 Cash           Lunch          8.00 
-   20 2000-01-13 Cash           Breakfast      2.00 Bakery
-   21 2000-01-13 Cash           Lunch          8.00 
-   22 2000-01-14 Cash           Breakfast      2.00 Bakery
-   23 2000-01-14 Cash           Lunch          8.00 
-   24 2000-01-17 Cash           Breakfast      2.00 Bakery
-   25 2000-01-17 Cash           Lunch          8.00 
-   26 2000-01-18 Cash           Breakfast      2.00 Bakery
-   27 2000-01-18 Cash           Lunch          8.00 
-   28 2000-01-19 Cash           Breakfast      2.00 Bakery
-   29 2000-01-19 Cash           Lunch          8.00 
-   30 2000-01-20 Cash           Breakfast      2.00 Bakery
-   31 2000-01-20 Cash           Lunch          8.00 
-   32 2000-01-21 Cash           Breakfast      2.00 Bakery
-   33 2000-01-21 Cash           Lunch          8.00 
-   34 2000-01-24 Cash           Breakfast      2.00 Bakery
-   35 2000-01-24 Cash           Lunch          8.00 
-   36 2000-01-25 Cash           Breakfast      2.00 Bakery
-   37 2000-01-25 Cash           Lunch          8.00 
-   38 2000-01-25 Giro           Rent         600.00 Execution of payment plan Rent
-   39 2000-01-25 Giro           Internet      30.00 Execution of payment plan Internet
-   40 2000-01-26 Cash           Breakfast      2.00 Bakery
-   41 2000-01-26 Cash           Lunch          8.00 
-   42 2000-01-27 Cash           Breakfast      2.00 Bakery
-   43 2000-01-27 Cash           Lunch          8.00 
-   44 2000-01-28 Cash           Breakfast      2.00 Bakery
-   45 2000-01-28 Cash           Lunch          8.00 
-   46 2000-01-28 Wages          Giro        2000.00 
-   47 2000-01-28 Giro           DayMoney     500.00 Execution of payment plan Save
-   48 2000-01-28 Giro           Cash         400.00 
-   49 2000-01-31 Cash           Breakfast      2.00 Bakery
-   50 2000-01-31 Cash           Lunch          8.00 
-   51 2000-01-31 Income.Misc    Cash          10.00 Found
-   52 2000-02-01 Giro           Energy        50.00 Execution of payment plan Energy
-   53 2000-02-01 Cash           Breakfast      2.00 Bakery
-   54 2000-02-01 Cash           Lunch          8.00 
-   55 2000-02-02 Cash           Breakfast      2.00 Bakery
-   56 2000-02-02 Cash           Lunch          8.00 
-   57 2000-02-03 Cash           Breakfast      2.00 Bakery
-   58 2000-02-03 Cash           Lunch          8.00 
-   59 2000-02-04 Cash           Breakfast      2.00 Bakery
-   60 2000-02-04 Cash           Lunch          8.00 
-   61 2000-02-07 Cash           Breakfast      2.00 Bakery
-   62 2000-02-07 Cash           Lunch          8.00 
-   63 2000-02-08 Cash           Breakfast      2.00 Bakery
-   64 2000-02-08 Cash           Lunch          8.00 
-   65 2000-02-09 Cash           Breakfast      2.00 Bakery
-   66 2000-02-09 Cash           Lunch          8.00 
-   67 2000-02-10 Cash           Breakfast      2.00 Bakery
-   68 2000-02-10 Cash           Lunch          8.00 
-   69 2000-02-11 Cash           Breakfast      2.00 Bakery
-   70 2000-02-11 Cash           Lunch          8.00 
-   71 2000-02-14 Cash           Breakfast      2.00 Bakery
-   72 2000-02-14 Cash           Lunch          8.00 
-   73 2000-02-15 Cash           Breakfast      2.00 Bakery
-   74 2000-02-15 Cash           Lunch          8.00 
-   75 2000-02-16 Cash           Breakfast      2.00 Bakery
-   76 2000-02-16 Cash           Lunch          8.00 
-   77 2000-02-17 Cash           Breakfast      2.00 Bakery
-   78 2000-02-17 Cash           Lunch          8.00 
-   79 2000-02-18 Cash           Breakfast      2.00 Bakery
-   80 2000-02-18 Cash           Lunch          8.00 
-   81 2000-02-21 Cash           Breakfast      2.00 Bakery
-   82 2000-02-21 Cash           Lunch          8.00 
-   83 2000-02-22 Cash           Breakfast      2.00 Bakery
-   84 2000-02-22 Cash           Lunch          8.00 
-   85 2000-02-23 Cash           Breakfast      2.00 Bakery
-   86 2000-02-23 Cash           Lunch          8.00 
-   87 2000-02-24 Cash           Breakfast      2.00 Bakery
-   88 2000-02-24 Cash           Lunch          8.00 
-   89 2000-02-25 Cash           Breakfast      2.00 Bakery
-   90 2000-02-25 Cash           Lunch          8.00 
-   91 2000-02-25 Giro           Rent         600.00 Execution of payment plan Rent
-   92 2000-02-25 Giro           Internet      30.00 Execution of payment plan Internet
-   93 2000-02-28 Cash           Breakfast      2.00 Bakery
-   94 2000-02-28 Cash           Lunch          8.00 
-   95 2000-02-28 Wages          Giro        2000.00 
-   96 2000-02-28 Giro           DayMoney     500.00 Accidentally manually transferring money of payment plan
-   97 2000-02-28 Giro           Cash         400.00 
-   98 2000-02-29 Cash           Breakfast      2.00 Bakery
-   99 2000-02-29 Cash           Lunch          8.00 
+    0 2000-01-01 OpeningBalance Cash            400.00 
+    1 2000-01-01 OpeningBalance Giro           3000.00 
+    2 2000-01-01 OpeningBalance DayMoney      10000.00 
+    3 2000-01-03 Giro           Energy           50.00 Execution of payment plan Energy
+    4 2000-01-03 Cash           Breakfast         2.00 Bakery
+    5 2000-01-03 Cash           Lunch             8.00 
+    6 2000-01-04 Cash           Breakfast         2.00 Bakery
+    7 2000-01-04 Cash           Lunch             8.00 
+    8 2000-01-05 Cash           Breakfast         2.00 Bakery
+    9 2000-01-05 Cash           Lunch             8.00 
+   10 2000-01-06 Cash           Breakfast         2.00 Bakery
+   11 2000-01-06 Cash           Lunch             8.00 
+   12 2000-01-07 Cash           Breakfast         2.00 Bakery
+   13 2000-01-07 Cash           Lunch             8.00 
+   14 2000-01-10 Cash           Breakfast         2.00 Bakery
+   15 2000-01-10 Cash           Lunch             8.00 
+   16 2000-01-11 Cash           Breakfast         2.00 Bakery
+   17 2000-01-11 Cash           Lunch             8.00 
+   18 2000-01-12 Cash           Breakfast         2.00 Bakery
+   19 2000-01-12 Cash           Lunch             8.00 
+   20 2000-01-13 Cash           Breakfast         2.00 Bakery
+   21 2000-01-13 Cash           Lunch             8.00 
+   22 2000-01-14 Cash           Breakfast         2.00 Bakery
+   23 2000-01-14 Cash           Lunch             8.00 
+   24 2000-01-17 Cash           Breakfast         2.00 Bakery
+   25 2000-01-17 Cash           Lunch             8.00 
+   26 2000-01-18 Cash           Breakfast         2.00 Bakery
+   27 2000-01-18 Cash           Lunch             8.00 
+   28 2000-01-19 Cash           Breakfast         2.00 Bakery
+   29 2000-01-19 Cash           Lunch             8.00 
+   30 2000-01-20 Cash           Breakfast         2.00 Bakery
+   31 2000-01-20 Cash           Lunch             8.00 
+   32 2000-01-21 Cash           Breakfast         2.00 Bakery
+   33 2000-01-21 Cash           Lunch             8.00 
+   34 2000-01-24 Cash           Breakfast         2.00 Bakery
+   35 2000-01-24 Cash           Lunch             8.00 
+   36 2000-01-25 Cash           Breakfast         2.00 Bakery
+   37 2000-01-25 Cash           Lunch             8.00 
+   38 2000-01-25 Giro           Rent            600.00 Execution of payment plan Rent
+   39 2000-01-25 Giro           Internet         30.00 Execution of payment plan Internet
+   40 2000-01-26 Cash           Breakfast         2.00 Bakery
+   41 2000-01-26 Cash           Lunch             8.00 
+   42 2000-01-27 Cash           Breakfast         2.00 Bakery
+   43 2000-01-27 Cash           Lunch             8.00 
+   44 2000-01-28 Cash           Breakfast         2.00 Bakery
+   45 2000-01-28 Cash           Lunch             8.00 
+   46 2000-01-28 Wages          Giro           2000.00 
+   47 2000-01-28 Giro           DayMoney        500.00 Execution of payment plan Save: Monthly saving
+   48 2000-01-28 Giro           Cash            400.00 
+   49 2000-01-28 Giro           OtherDayMoney   500.00 Execution of payment plan Save: Monthly saving now happening to other account
+   50 2000-01-31 Cash           Breakfast         2.00 Bakery
+   51 2000-01-31 Cash           Lunch             8.00 
+   52 2000-01-31 Income.Misc    Cash             10.00 Found
+   53 2000-02-01 Giro           Energy           50.00 Execution of payment plan Energy
+   54 2000-02-01 Cash           Breakfast         2.00 Bakery
+   55 2000-02-01 Cash           Lunch             8.00 
+   56 2000-02-02 Cash           Breakfast         2.00 Bakery
+   57 2000-02-02 Cash           Lunch             8.00 
+   58 2000-02-03 Cash           Breakfast         2.00 Bakery
+   59 2000-02-03 Cash           Lunch             8.00 
+   60 2000-02-04 Cash           Breakfast         2.00 Bakery
+   61 2000-02-04 Cash           Lunch             8.00 
+   62 2000-02-07 Cash           Breakfast         2.00 Bakery
+   63 2000-02-07 Cash           Lunch             8.00 
+   64 2000-02-08 Cash           Breakfast         2.00 Bakery
+   65 2000-02-08 Cash           Lunch             8.00 
+   66 2000-02-09 Cash           Breakfast         2.00 Bakery
+   67 2000-02-09 Cash           Lunch             8.00 
+   68 2000-02-10 Cash           Breakfast         2.00 Bakery
+   69 2000-02-10 Cash           Lunch             8.00 
+   70 2000-02-11 Cash           Breakfast         2.00 Bakery
+   71 2000-02-11 Cash           Lunch             8.00 
+   72 2000-02-14 Cash           Breakfast         2.00 Bakery
+   73 2000-02-14 Cash           Lunch             8.00 
+   74 2000-02-15 Cash           Breakfast         2.00 Bakery
+   75 2000-02-15 Cash           Lunch             8.00 
+   76 2000-02-16 Cash           Breakfast         2.00 Bakery
+   77 2000-02-16 Cash           Lunch             8.00 
+   78 2000-02-17 Cash           Breakfast         2.00 Bakery
+   79 2000-02-17 Cash           Lunch             8.00 
+   80 2000-02-18 Cash           Breakfast         2.00 Bakery
+   81 2000-02-18 Cash           Lunch             8.00 
+   82 2000-02-21 Cash           Breakfast         2.00 Bakery
+   83 2000-02-21 Cash           Lunch             8.00 
+   84 2000-02-22 Cash           Breakfast         2.00 Bakery
+   85 2000-02-22 Cash           Lunch             8.00 
+   86 2000-02-23 Cash           Breakfast         2.00 Bakery
+   87 2000-02-23 Cash           Lunch             8.00 
+   88 2000-02-24 Cash           Breakfast         2.00 Bakery
+   89 2000-02-24 Cash           Lunch             8.00 
+   90 2000-02-25 Cash           Breakfast         2.00 Bakery
+   91 2000-02-25 Cash           Lunch             8.00 
+   92 2000-02-25 Giro           Rent            600.00 Accidentally manually transferring money of payment plan
+   93 2000-02-25 Giro           Internet         30.00 Execution of payment plan Internet
+   94 2000-02-28 Cash           Breakfast         2.00 Bakery
+   95 2000-02-28 Cash           Lunch             8.00 
+   96 2000-02-28 Wages          Giro           2000.00 
+   97 2000-02-28 Giro           Cash            400.00 
+   98 2000-02-29 Cash           Breakfast         2.00 Bakery
+   99 2000-02-29 Cash           Lunch             8.00 
 
 $ ./pyMoney.py category rename Income.Misc IncomingMisc
 
@@ -1243,8 +1259,10 @@ All
     OpeningBalance
   Assets
     Cash
-    DayMoney
     Giro
+    DayMoneyAccounts
+      DayMoney
+      OtherDayMoney
   Income
     Wages
     Interests
@@ -1271,8 +1289,10 @@ Equity
 OpeningBalance
 Assets
 Cash
-DayMoney
 Giro
+DayMoneyAccounts
+DayMoney
+OtherDayMoney
 Income
 Wages
 Interests
@@ -1295,108 +1315,108 @@ Rent
 
 
 $ ./pyMoney.py transaction list
-Index       Date FromCategory   ToCategory   Amount Comment
+Index       Date FromCategory   ToCategory      Amount Comment
 
-    0 2000-01-01 OpeningBalance Cash         400.00 
-    1 2000-01-01 OpeningBalance Giro        3000.00 
-    2 2000-01-01 OpeningBalance DayMoney   10000.00 
-    3 2000-01-03 Giro           Energy        50.00 Execution of payment plan Energy
-    4 2000-01-03 Cash           Breakfast      2.00 Bakery
-    5 2000-01-03 Cash           Lunch          8.00 
-    6 2000-01-04 Cash           Breakfast      2.00 Bakery
-    7 2000-01-04 Cash           Lunch          8.00 
-    8 2000-01-05 Cash           Breakfast      2.00 Bakery
-    9 2000-01-05 Cash           Lunch          8.00 
-   10 2000-01-06 Cash           Breakfast      2.00 Bakery
-   11 2000-01-06 Cash           Lunch          8.00 
-   12 2000-01-07 Cash           Breakfast      2.00 Bakery
-   13 2000-01-07 Cash           Lunch          8.00 
-   14 2000-01-10 Cash           Breakfast      2.00 Bakery
-   15 2000-01-10 Cash           Lunch          8.00 
-   16 2000-01-11 Cash           Breakfast      2.00 Bakery
-   17 2000-01-11 Cash           Lunch          8.00 
-   18 2000-01-12 Cash           Breakfast      2.00 Bakery
-   19 2000-01-12 Cash           Lunch          8.00 
-   20 2000-01-13 Cash           Breakfast      2.00 Bakery
-   21 2000-01-13 Cash           Lunch          8.00 
-   22 2000-01-14 Cash           Breakfast      2.00 Bakery
-   23 2000-01-14 Cash           Lunch          8.00 
-   24 2000-01-17 Cash           Breakfast      2.00 Bakery
-   25 2000-01-17 Cash           Lunch          8.00 
-   26 2000-01-18 Cash           Breakfast      2.00 Bakery
-   27 2000-01-18 Cash           Lunch          8.00 
-   28 2000-01-19 Cash           Breakfast      2.00 Bakery
-   29 2000-01-19 Cash           Lunch          8.00 
-   30 2000-01-20 Cash           Breakfast      2.00 Bakery
-   31 2000-01-20 Cash           Lunch          8.00 
-   32 2000-01-21 Cash           Breakfast      2.00 Bakery
-   33 2000-01-21 Cash           Lunch          8.00 
-   34 2000-01-24 Cash           Breakfast      2.00 Bakery
-   35 2000-01-24 Cash           Lunch          8.00 
-   36 2000-01-25 Cash           Breakfast      2.00 Bakery
-   37 2000-01-25 Cash           Lunch          8.00 
-   38 2000-01-25 Giro           Rent         600.00 Execution of payment plan Rent
-   39 2000-01-25 Giro           Internet      30.00 Execution of payment plan Internet
-   40 2000-01-26 Cash           Breakfast      2.00 Bakery
-   41 2000-01-26 Cash           Lunch          8.00 
-   42 2000-01-27 Cash           Breakfast      2.00 Bakery
-   43 2000-01-27 Cash           Lunch          8.00 
-   44 2000-01-28 Cash           Breakfast      2.00 Bakery
-   45 2000-01-28 Cash           Lunch          8.00 
-   46 2000-01-28 Wages          Giro        2000.00 
-   47 2000-01-28 Giro           DayMoney     500.00 Execution of payment plan Save
-   48 2000-01-28 Giro           Cash         400.00 
-   49 2000-01-31 Cash           Breakfast      2.00 Bakery
-   50 2000-01-31 Cash           Lunch          8.00 
-   51 2000-01-31 IncomingMisc   Cash          10.00 Found
-   52 2000-02-01 Giro           Energy        50.00 Execution of payment plan Energy
-   53 2000-02-01 Cash           Breakfast      2.00 Bakery
-   54 2000-02-01 Cash           Lunch          8.00 
-   55 2000-02-02 Cash           Breakfast      2.00 Bakery
-   56 2000-02-02 Cash           Lunch          8.00 
-   57 2000-02-03 Cash           Breakfast      2.00 Bakery
-   58 2000-02-03 Cash           Lunch          8.00 
-   59 2000-02-04 Cash           Breakfast      2.00 Bakery
-   60 2000-02-04 Cash           Lunch          8.00 
-   61 2000-02-07 Cash           Breakfast      2.00 Bakery
-   62 2000-02-07 Cash           Lunch          8.00 
-   63 2000-02-08 Cash           Breakfast      2.00 Bakery
-   64 2000-02-08 Cash           Lunch          8.00 
-   65 2000-02-09 Cash           Breakfast      2.00 Bakery
-   66 2000-02-09 Cash           Lunch          8.00 
-   67 2000-02-10 Cash           Breakfast      2.00 Bakery
-   68 2000-02-10 Cash           Lunch          8.00 
-   69 2000-02-11 Cash           Breakfast      2.00 Bakery
-   70 2000-02-11 Cash           Lunch          8.00 
-   71 2000-02-14 Cash           Breakfast      2.00 Bakery
-   72 2000-02-14 Cash           Lunch          8.00 
-   73 2000-02-15 Cash           Breakfast      2.00 Bakery
-   74 2000-02-15 Cash           Lunch          8.00 
-   75 2000-02-16 Cash           Breakfast      2.00 Bakery
-   76 2000-02-16 Cash           Lunch          8.00 
-   77 2000-02-17 Cash           Breakfast      2.00 Bakery
-   78 2000-02-17 Cash           Lunch          8.00 
-   79 2000-02-18 Cash           Breakfast      2.00 Bakery
-   80 2000-02-18 Cash           Lunch          8.00 
-   81 2000-02-21 Cash           Breakfast      2.00 Bakery
-   82 2000-02-21 Cash           Lunch          8.00 
-   83 2000-02-22 Cash           Breakfast      2.00 Bakery
-   84 2000-02-22 Cash           Lunch          8.00 
-   85 2000-02-23 Cash           Breakfast      2.00 Bakery
-   86 2000-02-23 Cash           Lunch          8.00 
-   87 2000-02-24 Cash           Breakfast      2.00 Bakery
-   88 2000-02-24 Cash           Lunch          8.00 
-   89 2000-02-25 Cash           Breakfast      2.00 Bakery
-   90 2000-02-25 Cash           Lunch          8.00 
-   91 2000-02-25 Giro           Rent         600.00 Execution of payment plan Rent
-   92 2000-02-25 Giro           Internet      30.00 Execution of payment plan Internet
-   93 2000-02-28 Cash           Breakfast      2.00 Bakery
-   94 2000-02-28 Cash           Lunch          8.00 
-   95 2000-02-28 Wages          Giro        2000.00 
-   96 2000-02-28 Giro           DayMoney     500.00 Accidentally manually transferring money of payment plan
-   97 2000-02-28 Giro           Cash         400.00 
-   98 2000-02-29 Cash           Breakfast      2.00 Bakery
-   99 2000-02-29 Cash           Lunch          8.00 
+    0 2000-01-01 OpeningBalance Cash            400.00 
+    1 2000-01-01 OpeningBalance Giro           3000.00 
+    2 2000-01-01 OpeningBalance DayMoney      10000.00 
+    3 2000-01-03 Giro           Energy           50.00 Execution of payment plan Energy
+    4 2000-01-03 Cash           Breakfast         2.00 Bakery
+    5 2000-01-03 Cash           Lunch             8.00 
+    6 2000-01-04 Cash           Breakfast         2.00 Bakery
+    7 2000-01-04 Cash           Lunch             8.00 
+    8 2000-01-05 Cash           Breakfast         2.00 Bakery
+    9 2000-01-05 Cash           Lunch             8.00 
+   10 2000-01-06 Cash           Breakfast         2.00 Bakery
+   11 2000-01-06 Cash           Lunch             8.00 
+   12 2000-01-07 Cash           Breakfast         2.00 Bakery
+   13 2000-01-07 Cash           Lunch             8.00 
+   14 2000-01-10 Cash           Breakfast         2.00 Bakery
+   15 2000-01-10 Cash           Lunch             8.00 
+   16 2000-01-11 Cash           Breakfast         2.00 Bakery
+   17 2000-01-11 Cash           Lunch             8.00 
+   18 2000-01-12 Cash           Breakfast         2.00 Bakery
+   19 2000-01-12 Cash           Lunch             8.00 
+   20 2000-01-13 Cash           Breakfast         2.00 Bakery
+   21 2000-01-13 Cash           Lunch             8.00 
+   22 2000-01-14 Cash           Breakfast         2.00 Bakery
+   23 2000-01-14 Cash           Lunch             8.00 
+   24 2000-01-17 Cash           Breakfast         2.00 Bakery
+   25 2000-01-17 Cash           Lunch             8.00 
+   26 2000-01-18 Cash           Breakfast         2.00 Bakery
+   27 2000-01-18 Cash           Lunch             8.00 
+   28 2000-01-19 Cash           Breakfast         2.00 Bakery
+   29 2000-01-19 Cash           Lunch             8.00 
+   30 2000-01-20 Cash           Breakfast         2.00 Bakery
+   31 2000-01-20 Cash           Lunch             8.00 
+   32 2000-01-21 Cash           Breakfast         2.00 Bakery
+   33 2000-01-21 Cash           Lunch             8.00 
+   34 2000-01-24 Cash           Breakfast         2.00 Bakery
+   35 2000-01-24 Cash           Lunch             8.00 
+   36 2000-01-25 Cash           Breakfast         2.00 Bakery
+   37 2000-01-25 Cash           Lunch             8.00 
+   38 2000-01-25 Giro           Rent            600.00 Execution of payment plan Rent
+   39 2000-01-25 Giro           Internet         30.00 Execution of payment plan Internet
+   40 2000-01-26 Cash           Breakfast         2.00 Bakery
+   41 2000-01-26 Cash           Lunch             8.00 
+   42 2000-01-27 Cash           Breakfast         2.00 Bakery
+   43 2000-01-27 Cash           Lunch             8.00 
+   44 2000-01-28 Cash           Breakfast         2.00 Bakery
+   45 2000-01-28 Cash           Lunch             8.00 
+   46 2000-01-28 Wages          Giro           2000.00 
+   47 2000-01-28 Giro           DayMoney        500.00 Execution of payment plan Save: Monthly saving
+   48 2000-01-28 Giro           Cash            400.00 
+   49 2000-01-28 Giro           OtherDayMoney   500.00 Execution of payment plan Save: Monthly saving now happening to other account
+   50 2000-01-31 Cash           Breakfast         2.00 Bakery
+   51 2000-01-31 Cash           Lunch             8.00 
+   52 2000-01-31 IncomingMisc   Cash             10.00 Found
+   53 2000-02-01 Giro           Energy           50.00 Execution of payment plan Energy
+   54 2000-02-01 Cash           Breakfast         2.00 Bakery
+   55 2000-02-01 Cash           Lunch             8.00 
+   56 2000-02-02 Cash           Breakfast         2.00 Bakery
+   57 2000-02-02 Cash           Lunch             8.00 
+   58 2000-02-03 Cash           Breakfast         2.00 Bakery
+   59 2000-02-03 Cash           Lunch             8.00 
+   60 2000-02-04 Cash           Breakfast         2.00 Bakery
+   61 2000-02-04 Cash           Lunch             8.00 
+   62 2000-02-07 Cash           Breakfast         2.00 Bakery
+   63 2000-02-07 Cash           Lunch             8.00 
+   64 2000-02-08 Cash           Breakfast         2.00 Bakery
+   65 2000-02-08 Cash           Lunch             8.00 
+   66 2000-02-09 Cash           Breakfast         2.00 Bakery
+   67 2000-02-09 Cash           Lunch             8.00 
+   68 2000-02-10 Cash           Breakfast         2.00 Bakery
+   69 2000-02-10 Cash           Lunch             8.00 
+   70 2000-02-11 Cash           Breakfast         2.00 Bakery
+   71 2000-02-11 Cash           Lunch             8.00 
+   72 2000-02-14 Cash           Breakfast         2.00 Bakery
+   73 2000-02-14 Cash           Lunch             8.00 
+   74 2000-02-15 Cash           Breakfast         2.00 Bakery
+   75 2000-02-15 Cash           Lunch             8.00 
+   76 2000-02-16 Cash           Breakfast         2.00 Bakery
+   77 2000-02-16 Cash           Lunch             8.00 
+   78 2000-02-17 Cash           Breakfast         2.00 Bakery
+   79 2000-02-17 Cash           Lunch             8.00 
+   80 2000-02-18 Cash           Breakfast         2.00 Bakery
+   81 2000-02-18 Cash           Lunch             8.00 
+   82 2000-02-21 Cash           Breakfast         2.00 Bakery
+   83 2000-02-21 Cash           Lunch             8.00 
+   84 2000-02-22 Cash           Breakfast         2.00 Bakery
+   85 2000-02-22 Cash           Lunch             8.00 
+   86 2000-02-23 Cash           Breakfast         2.00 Bakery
+   87 2000-02-23 Cash           Lunch             8.00 
+   88 2000-02-24 Cash           Breakfast         2.00 Bakery
+   89 2000-02-24 Cash           Lunch             8.00 
+   90 2000-02-25 Cash           Breakfast         2.00 Bakery
+   91 2000-02-25 Cash           Lunch             8.00 
+   92 2000-02-25 Giro           Rent            600.00 Accidentally manually transferring money of payment plan
+   93 2000-02-25 Giro           Internet         30.00 Execution of payment plan Internet
+   94 2000-02-28 Cash           Breakfast         2.00 Bakery
+   95 2000-02-28 Cash           Lunch             8.00 
+   96 2000-02-28 Wages          Giro           2000.00 
+   97 2000-02-28 Giro           Cash            400.00 
+   98 2000-02-29 Cash           Breakfast         2.00 Bakery
+   99 2000-02-29 Cash           Lunch             8.00 
 
 $ ./pyMoney.py category move Break Life
 
@@ -1406,8 +1426,10 @@ All
     OpeningBalance
   Assets
     Cash
-    DayMoney
     Giro
+    DayMoneyAccounts
+      DayMoney
+      OtherDayMoney
   Income
     Wages
     Interests
@@ -1434,8 +1456,10 @@ Equity
 OpeningBalance
 Assets
 Cash
-DayMoney
 Giro
+DayMoneyAccounts
+DayMoney
+OtherDayMoney
 Income
 Wages
 Interests
@@ -1458,108 +1482,108 @@ Rent
 
 
 $ ./pyMoney.py transaction list
-Index       Date FromCategory   ToCategory   Amount Comment
+Index       Date FromCategory   ToCategory      Amount Comment
 
-    0 2000-01-01 OpeningBalance Cash         400.00 
-    1 2000-01-01 OpeningBalance Giro        3000.00 
-    2 2000-01-01 OpeningBalance DayMoney   10000.00 
-    3 2000-01-03 Giro           Energy        50.00 Execution of payment plan Energy
-    4 2000-01-03 Cash           Breakfast      2.00 Bakery
-    5 2000-01-03 Cash           Lunch          8.00 
-    6 2000-01-04 Cash           Breakfast      2.00 Bakery
-    7 2000-01-04 Cash           Lunch          8.00 
-    8 2000-01-05 Cash           Breakfast      2.00 Bakery
-    9 2000-01-05 Cash           Lunch          8.00 
-   10 2000-01-06 Cash           Breakfast      2.00 Bakery
-   11 2000-01-06 Cash           Lunch          8.00 
-   12 2000-01-07 Cash           Breakfast      2.00 Bakery
-   13 2000-01-07 Cash           Lunch          8.00 
-   14 2000-01-10 Cash           Breakfast      2.00 Bakery
-   15 2000-01-10 Cash           Lunch          8.00 
-   16 2000-01-11 Cash           Breakfast      2.00 Bakery
-   17 2000-01-11 Cash           Lunch          8.00 
-   18 2000-01-12 Cash           Breakfast      2.00 Bakery
-   19 2000-01-12 Cash           Lunch          8.00 
-   20 2000-01-13 Cash           Breakfast      2.00 Bakery
-   21 2000-01-13 Cash           Lunch          8.00 
-   22 2000-01-14 Cash           Breakfast      2.00 Bakery
-   23 2000-01-14 Cash           Lunch          8.00 
-   24 2000-01-17 Cash           Breakfast      2.00 Bakery
-   25 2000-01-17 Cash           Lunch          8.00 
-   26 2000-01-18 Cash           Breakfast      2.00 Bakery
-   27 2000-01-18 Cash           Lunch          8.00 
-   28 2000-01-19 Cash           Breakfast      2.00 Bakery
-   29 2000-01-19 Cash           Lunch          8.00 
-   30 2000-01-20 Cash           Breakfast      2.00 Bakery
-   31 2000-01-20 Cash           Lunch          8.00 
-   32 2000-01-21 Cash           Breakfast      2.00 Bakery
-   33 2000-01-21 Cash           Lunch          8.00 
-   34 2000-01-24 Cash           Breakfast      2.00 Bakery
-   35 2000-01-24 Cash           Lunch          8.00 
-   36 2000-01-25 Cash           Breakfast      2.00 Bakery
-   37 2000-01-25 Cash           Lunch          8.00 
-   38 2000-01-25 Giro           Rent         600.00 Execution of payment plan Rent
-   39 2000-01-25 Giro           Internet      30.00 Execution of payment plan Internet
-   40 2000-01-26 Cash           Breakfast      2.00 Bakery
-   41 2000-01-26 Cash           Lunch          8.00 
-   42 2000-01-27 Cash           Breakfast      2.00 Bakery
-   43 2000-01-27 Cash           Lunch          8.00 
-   44 2000-01-28 Cash           Breakfast      2.00 Bakery
-   45 2000-01-28 Cash           Lunch          8.00 
-   46 2000-01-28 Wages          Giro        2000.00 
-   47 2000-01-28 Giro           DayMoney     500.00 Execution of payment plan Save
-   48 2000-01-28 Giro           Cash         400.00 
-   49 2000-01-31 Cash           Breakfast      2.00 Bakery
-   50 2000-01-31 Cash           Lunch          8.00 
-   51 2000-01-31 IncomingMisc   Cash          10.00 Found
-   52 2000-02-01 Giro           Energy        50.00 Execution of payment plan Energy
-   53 2000-02-01 Cash           Breakfast      2.00 Bakery
-   54 2000-02-01 Cash           Lunch          8.00 
-   55 2000-02-02 Cash           Breakfast      2.00 Bakery
-   56 2000-02-02 Cash           Lunch          8.00 
-   57 2000-02-03 Cash           Breakfast      2.00 Bakery
-   58 2000-02-03 Cash           Lunch          8.00 
-   59 2000-02-04 Cash           Breakfast      2.00 Bakery
-   60 2000-02-04 Cash           Lunch          8.00 
-   61 2000-02-07 Cash           Breakfast      2.00 Bakery
-   62 2000-02-07 Cash           Lunch          8.00 
-   63 2000-02-08 Cash           Breakfast      2.00 Bakery
-   64 2000-02-08 Cash           Lunch          8.00 
-   65 2000-02-09 Cash           Breakfast      2.00 Bakery
-   66 2000-02-09 Cash           Lunch          8.00 
-   67 2000-02-10 Cash           Breakfast      2.00 Bakery
-   68 2000-02-10 Cash           Lunch          8.00 
-   69 2000-02-11 Cash           Breakfast      2.00 Bakery
-   70 2000-02-11 Cash           Lunch          8.00 
-   71 2000-02-14 Cash           Breakfast      2.00 Bakery
-   72 2000-02-14 Cash           Lunch          8.00 
-   73 2000-02-15 Cash           Breakfast      2.00 Bakery
-   74 2000-02-15 Cash           Lunch          8.00 
-   75 2000-02-16 Cash           Breakfast      2.00 Bakery
-   76 2000-02-16 Cash           Lunch          8.00 
-   77 2000-02-17 Cash           Breakfast      2.00 Bakery
-   78 2000-02-17 Cash           Lunch          8.00 
-   79 2000-02-18 Cash           Breakfast      2.00 Bakery
-   80 2000-02-18 Cash           Lunch          8.00 
-   81 2000-02-21 Cash           Breakfast      2.00 Bakery
-   82 2000-02-21 Cash           Lunch          8.00 
-   83 2000-02-22 Cash           Breakfast      2.00 Bakery
-   84 2000-02-22 Cash           Lunch          8.00 
-   85 2000-02-23 Cash           Breakfast      2.00 Bakery
-   86 2000-02-23 Cash           Lunch          8.00 
-   87 2000-02-24 Cash           Breakfast      2.00 Bakery
-   88 2000-02-24 Cash           Lunch          8.00 
-   89 2000-02-25 Cash           Breakfast      2.00 Bakery
-   90 2000-02-25 Cash           Lunch          8.00 
-   91 2000-02-25 Giro           Rent         600.00 Execution of payment plan Rent
-   92 2000-02-25 Giro           Internet      30.00 Execution of payment plan Internet
-   93 2000-02-28 Cash           Breakfast      2.00 Bakery
-   94 2000-02-28 Cash           Lunch          8.00 
-   95 2000-02-28 Wages          Giro        2000.00 
-   96 2000-02-28 Giro           DayMoney     500.00 Accidentally manually transferring money of payment plan
-   97 2000-02-28 Giro           Cash         400.00 
-   98 2000-02-29 Cash           Breakfast      2.00 Bakery
-   99 2000-02-29 Cash           Lunch          8.00 
+    0 2000-01-01 OpeningBalance Cash            400.00 
+    1 2000-01-01 OpeningBalance Giro           3000.00 
+    2 2000-01-01 OpeningBalance DayMoney      10000.00 
+    3 2000-01-03 Giro           Energy           50.00 Execution of payment plan Energy
+    4 2000-01-03 Cash           Breakfast         2.00 Bakery
+    5 2000-01-03 Cash           Lunch             8.00 
+    6 2000-01-04 Cash           Breakfast         2.00 Bakery
+    7 2000-01-04 Cash           Lunch             8.00 
+    8 2000-01-05 Cash           Breakfast         2.00 Bakery
+    9 2000-01-05 Cash           Lunch             8.00 
+   10 2000-01-06 Cash           Breakfast         2.00 Bakery
+   11 2000-01-06 Cash           Lunch             8.00 
+   12 2000-01-07 Cash           Breakfast         2.00 Bakery
+   13 2000-01-07 Cash           Lunch             8.00 
+   14 2000-01-10 Cash           Breakfast         2.00 Bakery
+   15 2000-01-10 Cash           Lunch             8.00 
+   16 2000-01-11 Cash           Breakfast         2.00 Bakery
+   17 2000-01-11 Cash           Lunch             8.00 
+   18 2000-01-12 Cash           Breakfast         2.00 Bakery
+   19 2000-01-12 Cash           Lunch             8.00 
+   20 2000-01-13 Cash           Breakfast         2.00 Bakery
+   21 2000-01-13 Cash           Lunch             8.00 
+   22 2000-01-14 Cash           Breakfast         2.00 Bakery
+   23 2000-01-14 Cash           Lunch             8.00 
+   24 2000-01-17 Cash           Breakfast         2.00 Bakery
+   25 2000-01-17 Cash           Lunch             8.00 
+   26 2000-01-18 Cash           Breakfast         2.00 Bakery
+   27 2000-01-18 Cash           Lunch             8.00 
+   28 2000-01-19 Cash           Breakfast         2.00 Bakery
+   29 2000-01-19 Cash           Lunch             8.00 
+   30 2000-01-20 Cash           Breakfast         2.00 Bakery
+   31 2000-01-20 Cash           Lunch             8.00 
+   32 2000-01-21 Cash           Breakfast         2.00 Bakery
+   33 2000-01-21 Cash           Lunch             8.00 
+   34 2000-01-24 Cash           Breakfast         2.00 Bakery
+   35 2000-01-24 Cash           Lunch             8.00 
+   36 2000-01-25 Cash           Breakfast         2.00 Bakery
+   37 2000-01-25 Cash           Lunch             8.00 
+   38 2000-01-25 Giro           Rent            600.00 Execution of payment plan Rent
+   39 2000-01-25 Giro           Internet         30.00 Execution of payment plan Internet
+   40 2000-01-26 Cash           Breakfast         2.00 Bakery
+   41 2000-01-26 Cash           Lunch             8.00 
+   42 2000-01-27 Cash           Breakfast         2.00 Bakery
+   43 2000-01-27 Cash           Lunch             8.00 
+   44 2000-01-28 Cash           Breakfast         2.00 Bakery
+   45 2000-01-28 Cash           Lunch             8.00 
+   46 2000-01-28 Wages          Giro           2000.00 
+   47 2000-01-28 Giro           DayMoney        500.00 Execution of payment plan Save: Monthly saving
+   48 2000-01-28 Giro           Cash            400.00 
+   49 2000-01-28 Giro           OtherDayMoney   500.00 Execution of payment plan Save: Monthly saving now happening to other account
+   50 2000-01-31 Cash           Breakfast         2.00 Bakery
+   51 2000-01-31 Cash           Lunch             8.00 
+   52 2000-01-31 IncomingMisc   Cash             10.00 Found
+   53 2000-02-01 Giro           Energy           50.00 Execution of payment plan Energy
+   54 2000-02-01 Cash           Breakfast         2.00 Bakery
+   55 2000-02-01 Cash           Lunch             8.00 
+   56 2000-02-02 Cash           Breakfast         2.00 Bakery
+   57 2000-02-02 Cash           Lunch             8.00 
+   58 2000-02-03 Cash           Breakfast         2.00 Bakery
+   59 2000-02-03 Cash           Lunch             8.00 
+   60 2000-02-04 Cash           Breakfast         2.00 Bakery
+   61 2000-02-04 Cash           Lunch             8.00 
+   62 2000-02-07 Cash           Breakfast         2.00 Bakery
+   63 2000-02-07 Cash           Lunch             8.00 
+   64 2000-02-08 Cash           Breakfast         2.00 Bakery
+   65 2000-02-08 Cash           Lunch             8.00 
+   66 2000-02-09 Cash           Breakfast         2.00 Bakery
+   67 2000-02-09 Cash           Lunch             8.00 
+   68 2000-02-10 Cash           Breakfast         2.00 Bakery
+   69 2000-02-10 Cash           Lunch             8.00 
+   70 2000-02-11 Cash           Breakfast         2.00 Bakery
+   71 2000-02-11 Cash           Lunch             8.00 
+   72 2000-02-14 Cash           Breakfast         2.00 Bakery
+   73 2000-02-14 Cash           Lunch             8.00 
+   74 2000-02-15 Cash           Breakfast         2.00 Bakery
+   75 2000-02-15 Cash           Lunch             8.00 
+   76 2000-02-16 Cash           Breakfast         2.00 Bakery
+   77 2000-02-16 Cash           Lunch             8.00 
+   78 2000-02-17 Cash           Breakfast         2.00 Bakery
+   79 2000-02-17 Cash           Lunch             8.00 
+   80 2000-02-18 Cash           Breakfast         2.00 Bakery
+   81 2000-02-18 Cash           Lunch             8.00 
+   82 2000-02-21 Cash           Breakfast         2.00 Bakery
+   83 2000-02-21 Cash           Lunch             8.00 
+   84 2000-02-22 Cash           Breakfast         2.00 Bakery
+   85 2000-02-22 Cash           Lunch             8.00 
+   86 2000-02-23 Cash           Breakfast         2.00 Bakery
+   87 2000-02-23 Cash           Lunch             8.00 
+   88 2000-02-24 Cash           Breakfast         2.00 Bakery
+   89 2000-02-24 Cash           Lunch             8.00 
+   90 2000-02-25 Cash           Breakfast         2.00 Bakery
+   91 2000-02-25 Cash           Lunch             8.00 
+   92 2000-02-25 Giro           Rent            600.00 Accidentally manually transferring money of payment plan
+   93 2000-02-25 Giro           Internet         30.00 Execution of payment plan Internet
+   94 2000-02-28 Cash           Breakfast         2.00 Bakery
+   95 2000-02-28 Cash           Lunch             8.00 
+   96 2000-02-28 Wages          Giro           2000.00 
+   97 2000-02-28 Giro           Cash            400.00 
+   98 2000-02-29 Cash           Breakfast         2.00 Bakery
+   99 2000-02-29 Cash           Lunch             8.00 
 
 $ ./pyMoney.py category merge DayMoney Giro
 
@@ -1570,6 +1594,8 @@ All
   Assets
     Cash
     Giro
+    DayMoneyAccounts
+      OtherDayMoney
   Income
     Wages
     Interests
@@ -1597,6 +1623,8 @@ OpeningBalance
 Assets
 Cash
 Giro
+DayMoneyAccounts
+OtherDayMoney
 Income
 Wages
 Interests
@@ -1619,108 +1647,108 @@ Rent
 
 
 $ ./pyMoney.py transaction list
-Index       Date FromCategory   ToCategory   Amount Comment
+Index       Date FromCategory   ToCategory      Amount Comment
 
-    0 2000-01-01 OpeningBalance Cash         400.00 
-    1 2000-01-01 OpeningBalance Giro        3000.00 
-    2 2000-01-01 OpeningBalance Giro       10000.00 
-    3 2000-01-03 Giro           Energy        50.00 Execution of payment plan Energy
-    4 2000-01-03 Cash           Breakfast      2.00 Bakery
-    5 2000-01-03 Cash           Lunch          8.00 
-    6 2000-01-04 Cash           Breakfast      2.00 Bakery
-    7 2000-01-04 Cash           Lunch          8.00 
-    8 2000-01-05 Cash           Breakfast      2.00 Bakery
-    9 2000-01-05 Cash           Lunch          8.00 
-   10 2000-01-06 Cash           Breakfast      2.00 Bakery
-   11 2000-01-06 Cash           Lunch          8.00 
-   12 2000-01-07 Cash           Breakfast      2.00 Bakery
-   13 2000-01-07 Cash           Lunch          8.00 
-   14 2000-01-10 Cash           Breakfast      2.00 Bakery
-   15 2000-01-10 Cash           Lunch          8.00 
-   16 2000-01-11 Cash           Breakfast      2.00 Bakery
-   17 2000-01-11 Cash           Lunch          8.00 
-   18 2000-01-12 Cash           Breakfast      2.00 Bakery
-   19 2000-01-12 Cash           Lunch          8.00 
-   20 2000-01-13 Cash           Breakfast      2.00 Bakery
-   21 2000-01-13 Cash           Lunch          8.00 
-   22 2000-01-14 Cash           Breakfast      2.00 Bakery
-   23 2000-01-14 Cash           Lunch          8.00 
-   24 2000-01-17 Cash           Breakfast      2.00 Bakery
-   25 2000-01-17 Cash           Lunch          8.00 
-   26 2000-01-18 Cash           Breakfast      2.00 Bakery
-   27 2000-01-18 Cash           Lunch          8.00 
-   28 2000-01-19 Cash           Breakfast      2.00 Bakery
-   29 2000-01-19 Cash           Lunch          8.00 
-   30 2000-01-20 Cash           Breakfast      2.00 Bakery
-   31 2000-01-20 Cash           Lunch          8.00 
-   32 2000-01-21 Cash           Breakfast      2.00 Bakery
-   33 2000-01-21 Cash           Lunch          8.00 
-   34 2000-01-24 Cash           Breakfast      2.00 Bakery
-   35 2000-01-24 Cash           Lunch          8.00 
-   36 2000-01-25 Cash           Breakfast      2.00 Bakery
-   37 2000-01-25 Cash           Lunch          8.00 
-   38 2000-01-25 Giro           Rent         600.00 Execution of payment plan Rent
-   39 2000-01-25 Giro           Internet      30.00 Execution of payment plan Internet
-   40 2000-01-26 Cash           Breakfast      2.00 Bakery
-   41 2000-01-26 Cash           Lunch          8.00 
-   42 2000-01-27 Cash           Breakfast      2.00 Bakery
-   43 2000-01-27 Cash           Lunch          8.00 
-   44 2000-01-28 Cash           Breakfast      2.00 Bakery
-   45 2000-01-28 Cash           Lunch          8.00 
-   46 2000-01-28 Wages          Giro        2000.00 
-   47 2000-01-28 Giro           Giro         500.00 Execution of payment plan Save
-   48 2000-01-28 Giro           Cash         400.00 
-   49 2000-01-31 Cash           Breakfast      2.00 Bakery
-   50 2000-01-31 Cash           Lunch          8.00 
-   51 2000-01-31 IncomingMisc   Cash          10.00 Found
-   52 2000-02-01 Giro           Energy        50.00 Execution of payment plan Energy
-   53 2000-02-01 Cash           Breakfast      2.00 Bakery
-   54 2000-02-01 Cash           Lunch          8.00 
-   55 2000-02-02 Cash           Breakfast      2.00 Bakery
-   56 2000-02-02 Cash           Lunch          8.00 
-   57 2000-02-03 Cash           Breakfast      2.00 Bakery
-   58 2000-02-03 Cash           Lunch          8.00 
-   59 2000-02-04 Cash           Breakfast      2.00 Bakery
-   60 2000-02-04 Cash           Lunch          8.00 
-   61 2000-02-07 Cash           Breakfast      2.00 Bakery
-   62 2000-02-07 Cash           Lunch          8.00 
-   63 2000-02-08 Cash           Breakfast      2.00 Bakery
-   64 2000-02-08 Cash           Lunch          8.00 
-   65 2000-02-09 Cash           Breakfast      2.00 Bakery
-   66 2000-02-09 Cash           Lunch          8.00 
-   67 2000-02-10 Cash           Breakfast      2.00 Bakery
-   68 2000-02-10 Cash           Lunch          8.00 
-   69 2000-02-11 Cash           Breakfast      2.00 Bakery
-   70 2000-02-11 Cash           Lunch          8.00 
-   71 2000-02-14 Cash           Breakfast      2.00 Bakery
-   72 2000-02-14 Cash           Lunch          8.00 
-   73 2000-02-15 Cash           Breakfast      2.00 Bakery
-   74 2000-02-15 Cash           Lunch          8.00 
-   75 2000-02-16 Cash           Breakfast      2.00 Bakery
-   76 2000-02-16 Cash           Lunch          8.00 
-   77 2000-02-17 Cash           Breakfast      2.00 Bakery
-   78 2000-02-17 Cash           Lunch          8.00 
-   79 2000-02-18 Cash           Breakfast      2.00 Bakery
-   80 2000-02-18 Cash           Lunch          8.00 
-   81 2000-02-21 Cash           Breakfast      2.00 Bakery
-   82 2000-02-21 Cash           Lunch          8.00 
-   83 2000-02-22 Cash           Breakfast      2.00 Bakery
-   84 2000-02-22 Cash           Lunch          8.00 
-   85 2000-02-23 Cash           Breakfast      2.00 Bakery
-   86 2000-02-23 Cash           Lunch          8.00 
-   87 2000-02-24 Cash           Breakfast      2.00 Bakery
-   88 2000-02-24 Cash           Lunch          8.00 
-   89 2000-02-25 Cash           Breakfast      2.00 Bakery
-   90 2000-02-25 Cash           Lunch          8.00 
-   91 2000-02-25 Giro           Rent         600.00 Execution of payment plan Rent
-   92 2000-02-25 Giro           Internet      30.00 Execution of payment plan Internet
-   93 2000-02-28 Cash           Breakfast      2.00 Bakery
-   94 2000-02-28 Cash           Lunch          8.00 
-   95 2000-02-28 Wages          Giro        2000.00 
-   96 2000-02-28 Giro           Giro         500.00 Accidentally manually transferring money of payment plan
-   97 2000-02-28 Giro           Cash         400.00 
-   98 2000-02-29 Cash           Breakfast      2.00 Bakery
-   99 2000-02-29 Cash           Lunch          8.00 
+    0 2000-01-01 OpeningBalance Cash            400.00 
+    1 2000-01-01 OpeningBalance Giro           3000.00 
+    2 2000-01-01 OpeningBalance Giro          10000.00 
+    3 2000-01-03 Giro           Energy           50.00 Execution of payment plan Energy
+    4 2000-01-03 Cash           Breakfast         2.00 Bakery
+    5 2000-01-03 Cash           Lunch             8.00 
+    6 2000-01-04 Cash           Breakfast         2.00 Bakery
+    7 2000-01-04 Cash           Lunch             8.00 
+    8 2000-01-05 Cash           Breakfast         2.00 Bakery
+    9 2000-01-05 Cash           Lunch             8.00 
+   10 2000-01-06 Cash           Breakfast         2.00 Bakery
+   11 2000-01-06 Cash           Lunch             8.00 
+   12 2000-01-07 Cash           Breakfast         2.00 Bakery
+   13 2000-01-07 Cash           Lunch             8.00 
+   14 2000-01-10 Cash           Breakfast         2.00 Bakery
+   15 2000-01-10 Cash           Lunch             8.00 
+   16 2000-01-11 Cash           Breakfast         2.00 Bakery
+   17 2000-01-11 Cash           Lunch             8.00 
+   18 2000-01-12 Cash           Breakfast         2.00 Bakery
+   19 2000-01-12 Cash           Lunch             8.00 
+   20 2000-01-13 Cash           Breakfast         2.00 Bakery
+   21 2000-01-13 Cash           Lunch             8.00 
+   22 2000-01-14 Cash           Breakfast         2.00 Bakery
+   23 2000-01-14 Cash           Lunch             8.00 
+   24 2000-01-17 Cash           Breakfast         2.00 Bakery
+   25 2000-01-17 Cash           Lunch             8.00 
+   26 2000-01-18 Cash           Breakfast         2.00 Bakery
+   27 2000-01-18 Cash           Lunch             8.00 
+   28 2000-01-19 Cash           Breakfast         2.00 Bakery
+   29 2000-01-19 Cash           Lunch             8.00 
+   30 2000-01-20 Cash           Breakfast         2.00 Bakery
+   31 2000-01-20 Cash           Lunch             8.00 
+   32 2000-01-21 Cash           Breakfast         2.00 Bakery
+   33 2000-01-21 Cash           Lunch             8.00 
+   34 2000-01-24 Cash           Breakfast         2.00 Bakery
+   35 2000-01-24 Cash           Lunch             8.00 
+   36 2000-01-25 Cash           Breakfast         2.00 Bakery
+   37 2000-01-25 Cash           Lunch             8.00 
+   38 2000-01-25 Giro           Rent            600.00 Execution of payment plan Rent
+   39 2000-01-25 Giro           Internet         30.00 Execution of payment plan Internet
+   40 2000-01-26 Cash           Breakfast         2.00 Bakery
+   41 2000-01-26 Cash           Lunch             8.00 
+   42 2000-01-27 Cash           Breakfast         2.00 Bakery
+   43 2000-01-27 Cash           Lunch             8.00 
+   44 2000-01-28 Cash           Breakfast         2.00 Bakery
+   45 2000-01-28 Cash           Lunch             8.00 
+   46 2000-01-28 Wages          Giro           2000.00 
+   47 2000-01-28 Giro           Giro            500.00 Execution of payment plan Save: Monthly saving
+   48 2000-01-28 Giro           Cash            400.00 
+   49 2000-01-28 Giro           OtherDayMoney   500.00 Execution of payment plan Save: Monthly saving now happening to other account
+   50 2000-01-31 Cash           Breakfast         2.00 Bakery
+   51 2000-01-31 Cash           Lunch             8.00 
+   52 2000-01-31 IncomingMisc   Cash             10.00 Found
+   53 2000-02-01 Giro           Energy           50.00 Execution of payment plan Energy
+   54 2000-02-01 Cash           Breakfast         2.00 Bakery
+   55 2000-02-01 Cash           Lunch             8.00 
+   56 2000-02-02 Cash           Breakfast         2.00 Bakery
+   57 2000-02-02 Cash           Lunch             8.00 
+   58 2000-02-03 Cash           Breakfast         2.00 Bakery
+   59 2000-02-03 Cash           Lunch             8.00 
+   60 2000-02-04 Cash           Breakfast         2.00 Bakery
+   61 2000-02-04 Cash           Lunch             8.00 
+   62 2000-02-07 Cash           Breakfast         2.00 Bakery
+   63 2000-02-07 Cash           Lunch             8.00 
+   64 2000-02-08 Cash           Breakfast         2.00 Bakery
+   65 2000-02-08 Cash           Lunch             8.00 
+   66 2000-02-09 Cash           Breakfast         2.00 Bakery
+   67 2000-02-09 Cash           Lunch             8.00 
+   68 2000-02-10 Cash           Breakfast         2.00 Bakery
+   69 2000-02-10 Cash           Lunch             8.00 
+   70 2000-02-11 Cash           Breakfast         2.00 Bakery
+   71 2000-02-11 Cash           Lunch             8.00 
+   72 2000-02-14 Cash           Breakfast         2.00 Bakery
+   73 2000-02-14 Cash           Lunch             8.00 
+   74 2000-02-15 Cash           Breakfast         2.00 Bakery
+   75 2000-02-15 Cash           Lunch             8.00 
+   76 2000-02-16 Cash           Breakfast         2.00 Bakery
+   77 2000-02-16 Cash           Lunch             8.00 
+   78 2000-02-17 Cash           Breakfast         2.00 Bakery
+   79 2000-02-17 Cash           Lunch             8.00 
+   80 2000-02-18 Cash           Breakfast         2.00 Bakery
+   81 2000-02-18 Cash           Lunch             8.00 
+   82 2000-02-21 Cash           Breakfast         2.00 Bakery
+   83 2000-02-21 Cash           Lunch             8.00 
+   84 2000-02-22 Cash           Breakfast         2.00 Bakery
+   85 2000-02-22 Cash           Lunch             8.00 
+   86 2000-02-23 Cash           Breakfast         2.00 Bakery
+   87 2000-02-23 Cash           Lunch             8.00 
+   88 2000-02-24 Cash           Breakfast         2.00 Bakery
+   89 2000-02-24 Cash           Lunch             8.00 
+   90 2000-02-25 Cash           Breakfast         2.00 Bakery
+   91 2000-02-25 Cash           Lunch             8.00 
+   92 2000-02-25 Giro           Rent            600.00 Accidentally manually transferring money of payment plan
+   93 2000-02-25 Giro           Internet         30.00 Execution of payment plan Internet
+   94 2000-02-28 Cash           Breakfast         2.00 Bakery
+   95 2000-02-28 Cash           Lunch             8.00 
+   96 2000-02-28 Wages          Giro           2000.00 
+   97 2000-02-28 Giro           Cash            400.00 
+   98 2000-02-29 Cash           Breakfast         2.00 Bakery
+   99 2000-02-29 Cash           Lunch             8.00 
 
 $ ./pyMoney.py transaction delete 12
 
@@ -1729,105 +1757,105 @@ $ ./pyMoney.py transaction delete 11
 $ ./pyMoney.py transaction delete 10
 
 $ ./pyMoney.py transaction list
-Index       Date FromCategory   ToCategory   Amount Comment
+Index       Date FromCategory   ToCategory      Amount Comment
 
-    0 2000-01-01 OpeningBalance Cash         400.00 
-    1 2000-01-01 OpeningBalance Giro        3000.00 
-    2 2000-01-01 OpeningBalance Giro       10000.00 
-    3 2000-01-03 Giro           Energy        50.00 Execution of payment plan Energy
-    4 2000-01-03 Cash           Breakfast      2.00 Bakery
-    5 2000-01-03 Cash           Lunch          8.00 
-    6 2000-01-04 Cash           Breakfast      2.00 Bakery
-    7 2000-01-04 Cash           Lunch          8.00 
-    8 2000-01-05 Cash           Breakfast      2.00 Bakery
-    9 2000-01-05 Cash           Lunch          8.00 
-   10 2000-01-07 Cash           Lunch          8.00 
-   11 2000-01-10 Cash           Breakfast      2.00 Bakery
-   12 2000-01-10 Cash           Lunch          8.00 
-   13 2000-01-11 Cash           Breakfast      2.00 Bakery
-   14 2000-01-11 Cash           Lunch          8.00 
-   15 2000-01-12 Cash           Breakfast      2.00 Bakery
-   16 2000-01-12 Cash           Lunch          8.00 
-   17 2000-01-13 Cash           Breakfast      2.00 Bakery
-   18 2000-01-13 Cash           Lunch          8.00 
-   19 2000-01-14 Cash           Breakfast      2.00 Bakery
-   20 2000-01-14 Cash           Lunch          8.00 
-   21 2000-01-17 Cash           Breakfast      2.00 Bakery
-   22 2000-01-17 Cash           Lunch          8.00 
-   23 2000-01-18 Cash           Breakfast      2.00 Bakery
-   24 2000-01-18 Cash           Lunch          8.00 
-   25 2000-01-19 Cash           Breakfast      2.00 Bakery
-   26 2000-01-19 Cash           Lunch          8.00 
-   27 2000-01-20 Cash           Breakfast      2.00 Bakery
-   28 2000-01-20 Cash           Lunch          8.00 
-   29 2000-01-21 Cash           Breakfast      2.00 Bakery
-   30 2000-01-21 Cash           Lunch          8.00 
-   31 2000-01-24 Cash           Breakfast      2.00 Bakery
-   32 2000-01-24 Cash           Lunch          8.00 
-   33 2000-01-25 Cash           Breakfast      2.00 Bakery
-   34 2000-01-25 Cash           Lunch          8.00 
-   35 2000-01-25 Giro           Rent         600.00 Execution of payment plan Rent
-   36 2000-01-25 Giro           Internet      30.00 Execution of payment plan Internet
-   37 2000-01-26 Cash           Breakfast      2.00 Bakery
-   38 2000-01-26 Cash           Lunch          8.00 
-   39 2000-01-27 Cash           Breakfast      2.00 Bakery
-   40 2000-01-27 Cash           Lunch          8.00 
-   41 2000-01-28 Cash           Breakfast      2.00 Bakery
-   42 2000-01-28 Cash           Lunch          8.00 
-   43 2000-01-28 Wages          Giro        2000.00 
-   44 2000-01-28 Giro           Giro         500.00 Execution of payment plan Save
-   45 2000-01-28 Giro           Cash         400.00 
-   46 2000-01-31 Cash           Breakfast      2.00 Bakery
-   47 2000-01-31 Cash           Lunch          8.00 
-   48 2000-01-31 IncomingMisc   Cash          10.00 Found
-   49 2000-02-01 Giro           Energy        50.00 Execution of payment plan Energy
-   50 2000-02-01 Cash           Breakfast      2.00 Bakery
-   51 2000-02-01 Cash           Lunch          8.00 
-   52 2000-02-02 Cash           Breakfast      2.00 Bakery
-   53 2000-02-02 Cash           Lunch          8.00 
-   54 2000-02-03 Cash           Breakfast      2.00 Bakery
-   55 2000-02-03 Cash           Lunch          8.00 
-   56 2000-02-04 Cash           Breakfast      2.00 Bakery
-   57 2000-02-04 Cash           Lunch          8.00 
-   58 2000-02-07 Cash           Breakfast      2.00 Bakery
-   59 2000-02-07 Cash           Lunch          8.00 
-   60 2000-02-08 Cash           Breakfast      2.00 Bakery
-   61 2000-02-08 Cash           Lunch          8.00 
-   62 2000-02-09 Cash           Breakfast      2.00 Bakery
-   63 2000-02-09 Cash           Lunch          8.00 
-   64 2000-02-10 Cash           Breakfast      2.00 Bakery
-   65 2000-02-10 Cash           Lunch          8.00 
-   66 2000-02-11 Cash           Breakfast      2.00 Bakery
-   67 2000-02-11 Cash           Lunch          8.00 
-   68 2000-02-14 Cash           Breakfast      2.00 Bakery
-   69 2000-02-14 Cash           Lunch          8.00 
-   70 2000-02-15 Cash           Breakfast      2.00 Bakery
-   71 2000-02-15 Cash           Lunch          8.00 
-   72 2000-02-16 Cash           Breakfast      2.00 Bakery
-   73 2000-02-16 Cash           Lunch          8.00 
-   74 2000-02-17 Cash           Breakfast      2.00 Bakery
-   75 2000-02-17 Cash           Lunch          8.00 
-   76 2000-02-18 Cash           Breakfast      2.00 Bakery
-   77 2000-02-18 Cash           Lunch          8.00 
-   78 2000-02-21 Cash           Breakfast      2.00 Bakery
-   79 2000-02-21 Cash           Lunch          8.00 
-   80 2000-02-22 Cash           Breakfast      2.00 Bakery
-   81 2000-02-22 Cash           Lunch          8.00 
-   82 2000-02-23 Cash           Breakfast      2.00 Bakery
-   83 2000-02-23 Cash           Lunch          8.00 
-   84 2000-02-24 Cash           Breakfast      2.00 Bakery
-   85 2000-02-24 Cash           Lunch          8.00 
-   86 2000-02-25 Cash           Breakfast      2.00 Bakery
-   87 2000-02-25 Cash           Lunch          8.00 
-   88 2000-02-25 Giro           Rent         600.00 Execution of payment plan Rent
-   89 2000-02-25 Giro           Internet      30.00 Execution of payment plan Internet
-   90 2000-02-28 Cash           Breakfast      2.00 Bakery
-   91 2000-02-28 Cash           Lunch          8.00 
-   92 2000-02-28 Wages          Giro        2000.00 
-   93 2000-02-28 Giro           Giro         500.00 Accidentally manually transferring money of payment plan
-   94 2000-02-28 Giro           Cash         400.00 
-   95 2000-02-29 Cash           Breakfast      2.00 Bakery
-   96 2000-02-29 Cash           Lunch          8.00 
+    0 2000-01-01 OpeningBalance Cash            400.00 
+    1 2000-01-01 OpeningBalance Giro           3000.00 
+    2 2000-01-01 OpeningBalance Giro          10000.00 
+    3 2000-01-03 Giro           Energy           50.00 Execution of payment plan Energy
+    4 2000-01-03 Cash           Breakfast         2.00 Bakery
+    5 2000-01-03 Cash           Lunch             8.00 
+    6 2000-01-04 Cash           Breakfast         2.00 Bakery
+    7 2000-01-04 Cash           Lunch             8.00 
+    8 2000-01-05 Cash           Breakfast         2.00 Bakery
+    9 2000-01-05 Cash           Lunch             8.00 
+   10 2000-01-07 Cash           Lunch             8.00 
+   11 2000-01-10 Cash           Breakfast         2.00 Bakery
+   12 2000-01-10 Cash           Lunch             8.00 
+   13 2000-01-11 Cash           Breakfast         2.00 Bakery
+   14 2000-01-11 Cash           Lunch             8.00 
+   15 2000-01-12 Cash           Breakfast         2.00 Bakery
+   16 2000-01-12 Cash           Lunch             8.00 
+   17 2000-01-13 Cash           Breakfast         2.00 Bakery
+   18 2000-01-13 Cash           Lunch             8.00 
+   19 2000-01-14 Cash           Breakfast         2.00 Bakery
+   20 2000-01-14 Cash           Lunch             8.00 
+   21 2000-01-17 Cash           Breakfast         2.00 Bakery
+   22 2000-01-17 Cash           Lunch             8.00 
+   23 2000-01-18 Cash           Breakfast         2.00 Bakery
+   24 2000-01-18 Cash           Lunch             8.00 
+   25 2000-01-19 Cash           Breakfast         2.00 Bakery
+   26 2000-01-19 Cash           Lunch             8.00 
+   27 2000-01-20 Cash           Breakfast         2.00 Bakery
+   28 2000-01-20 Cash           Lunch             8.00 
+   29 2000-01-21 Cash           Breakfast         2.00 Bakery
+   30 2000-01-21 Cash           Lunch             8.00 
+   31 2000-01-24 Cash           Breakfast         2.00 Bakery
+   32 2000-01-24 Cash           Lunch             8.00 
+   33 2000-01-25 Cash           Breakfast         2.00 Bakery
+   34 2000-01-25 Cash           Lunch             8.00 
+   35 2000-01-25 Giro           Rent            600.00 Execution of payment plan Rent
+   36 2000-01-25 Giro           Internet         30.00 Execution of payment plan Internet
+   37 2000-01-26 Cash           Breakfast         2.00 Bakery
+   38 2000-01-26 Cash           Lunch             8.00 
+   39 2000-01-27 Cash           Breakfast         2.00 Bakery
+   40 2000-01-27 Cash           Lunch             8.00 
+   41 2000-01-28 Cash           Breakfast         2.00 Bakery
+   42 2000-01-28 Cash           Lunch             8.00 
+   43 2000-01-28 Wages          Giro           2000.00 
+   44 2000-01-28 Giro           Giro            500.00 Execution of payment plan Save: Monthly saving
+   45 2000-01-28 Giro           Cash            400.00 
+   46 2000-01-28 Giro           OtherDayMoney   500.00 Execution of payment plan Save: Monthly saving now happening to other account
+   47 2000-01-31 Cash           Breakfast         2.00 Bakery
+   48 2000-01-31 Cash           Lunch             8.00 
+   49 2000-01-31 IncomingMisc   Cash             10.00 Found
+   50 2000-02-01 Giro           Energy           50.00 Execution of payment plan Energy
+   51 2000-02-01 Cash           Breakfast         2.00 Bakery
+   52 2000-02-01 Cash           Lunch             8.00 
+   53 2000-02-02 Cash           Breakfast         2.00 Bakery
+   54 2000-02-02 Cash           Lunch             8.00 
+   55 2000-02-03 Cash           Breakfast         2.00 Bakery
+   56 2000-02-03 Cash           Lunch             8.00 
+   57 2000-02-04 Cash           Breakfast         2.00 Bakery
+   58 2000-02-04 Cash           Lunch             8.00 
+   59 2000-02-07 Cash           Breakfast         2.00 Bakery
+   60 2000-02-07 Cash           Lunch             8.00 
+   61 2000-02-08 Cash           Breakfast         2.00 Bakery
+   62 2000-02-08 Cash           Lunch             8.00 
+   63 2000-02-09 Cash           Breakfast         2.00 Bakery
+   64 2000-02-09 Cash           Lunch             8.00 
+   65 2000-02-10 Cash           Breakfast         2.00 Bakery
+   66 2000-02-10 Cash           Lunch             8.00 
+   67 2000-02-11 Cash           Breakfast         2.00 Bakery
+   68 2000-02-11 Cash           Lunch             8.00 
+   69 2000-02-14 Cash           Breakfast         2.00 Bakery
+   70 2000-02-14 Cash           Lunch             8.00 
+   71 2000-02-15 Cash           Breakfast         2.00 Bakery
+   72 2000-02-15 Cash           Lunch             8.00 
+   73 2000-02-16 Cash           Breakfast         2.00 Bakery
+   74 2000-02-16 Cash           Lunch             8.00 
+   75 2000-02-17 Cash           Breakfast         2.00 Bakery
+   76 2000-02-17 Cash           Lunch             8.00 
+   77 2000-02-18 Cash           Breakfast         2.00 Bakery
+   78 2000-02-18 Cash           Lunch             8.00 
+   79 2000-02-21 Cash           Breakfast         2.00 Bakery
+   80 2000-02-21 Cash           Lunch             8.00 
+   81 2000-02-22 Cash           Breakfast         2.00 Bakery
+   82 2000-02-22 Cash           Lunch             8.00 
+   83 2000-02-23 Cash           Breakfast         2.00 Bakery
+   84 2000-02-23 Cash           Lunch             8.00 
+   85 2000-02-24 Cash           Breakfast         2.00 Bakery
+   86 2000-02-24 Cash           Lunch             8.00 
+   87 2000-02-25 Cash           Breakfast         2.00 Bakery
+   88 2000-02-25 Cash           Lunch             8.00 
+   89 2000-02-25 Giro           Rent            600.00 Accidentally manually transferring money of payment plan
+   90 2000-02-25 Giro           Internet         30.00 Execution of payment plan Internet
+   91 2000-02-28 Cash           Breakfast         2.00 Bakery
+   92 2000-02-28 Cash           Lunch             8.00 
+   93 2000-02-28 Wages          Giro           2000.00 
+   94 2000-02-28 Giro           Cash            400.00 
+   95 2000-02-29 Cash           Breakfast         2.00 Bakery
+   96 2000-02-29 Cash           Lunch             8.00 
 
 $ ./pyMoney.py export 2000 01
 category add "All" "Equity"
@@ -1835,6 +1863,8 @@ category add "All.Equity" "OpeningBalance"
 category add "All" "Assets"
 category add "All.Assets" "Cash"
 category add "All.Assets" "Giro"
+category add "All.Assets" "DayMoneyAccounts"
+category add "All.Assets.DayMoneyAccounts" "OtherDayMoney"
 category add "All" "Income"
 category add "All.Income" "Wages"
 category add "All.Income" "Interests"
@@ -1857,7 +1887,7 @@ category add "All.NOTFOUND" "Rent"
 paymentplan add "Energy" "Monthly" "All.Assets.Giro" "All.Expenses.Frequent.Energy" 50.0 ""
 paymentplan add "Internet" "Monthly" "All.Assets.Giro" "All.Expenses.Frequent.Internet" 30.0 ""
 paymentplan add "Rent" "Monthly" "All.Assets.Giro" "All.NOTFOUND.Rent" 600.0 ""
-paymentplan add "Save" "Monthly" "All.Assets.Giro" "All.Assets.Giro" 500.0 ""
+paymentplan add "Save" "Monthly" "All.Assets.Giro" "All.Assets.DayMoneyAccounts.OtherDayMoney" 500.0 "Monthly saving now happening to other account"
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Cash" 400.0 ""
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Giro" 3000.0 ""
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Giro" 10000.0 ""
@@ -1902,8 +1932,11 @@ transaction add 2000-01-27 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.L
 transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-28 "All.Income.Wages" "All.Assets.Giro" 2000.0 ""
+paymentplan edit "Save" "Monthly" "Giro" "Giro" 500.0 "Monthly saving now happening to other account"
 paymentplan execute "Save" 2000-01-28
+paymentplan edit "Save" "Monthly" "Giro" "OtherDayMoney" 500.0 "Monthly saving now happening to other account"
 transaction add 2000-01-28 "All.Assets.Giro" "All.Assets.Cash" 400.0 ""
+paymentplan execute "Save" 2000-01-28
 transaction add 2000-01-31 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-31 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-31 "All.Income.IncomingMisc" "All.Assets.Cash" 10.0 "Found"
@@ -1914,6 +1947,8 @@ category add "All.Equity" "OpeningBalance"
 category add "All" "Assets"
 category add "All.Assets" "Cash"
 category add "All.Assets" "Giro"
+category add "All.Assets" "DayMoneyAccounts"
+category add "All.Assets.DayMoneyAccounts" "OtherDayMoney"
 category add "All" "Income"
 category add "All.Income" "Wages"
 category add "All.Income" "Interests"
@@ -1936,7 +1971,7 @@ category add "All.NOTFOUND" "Rent"
 paymentplan add "Energy" "Monthly" "All.Assets.Giro" "All.Expenses.Frequent.Energy" 50.0 ""
 paymentplan add "Internet" "Monthly" "All.Assets.Giro" "All.Expenses.Frequent.Internet" 30.0 ""
 paymentplan add "Rent" "Monthly" "All.Assets.Giro" "All.NOTFOUND.Rent" 600.0 ""
-paymentplan add "Save" "Monthly" "All.Assets.Giro" "All.Assets.Giro" 500.0 ""
+paymentplan add "Save" "Monthly" "All.Assets.Giro" "All.Assets.DayMoneyAccounts.OtherDayMoney" 500.0 "Monthly saving now happening to other account"
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Cash" 400.0 ""
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Giro" 3000.0 ""
 transaction add 2000-01-01 "All.Equity.OpeningBalance" "All.Assets.Giro" 10000.0 ""
@@ -1981,8 +2016,11 @@ transaction add 2000-01-27 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.L
 transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-28 "All.Income.Wages" "All.Assets.Giro" 2000.0 ""
+paymentplan edit "Save" "Monthly" "Giro" "Giro" 500.0 "Monthly saving now happening to other account"
 paymentplan execute "Save" 2000-01-28
+paymentplan edit "Save" "Monthly" "Giro" "OtherDayMoney" 500.0 "Monthly saving now happening to other account"
 transaction add 2000-01-28 "All.Assets.Giro" "All.Assets.Cash" 400.0 ""
+paymentplan execute "Save" 2000-01-28
 transaction add 2000-01-31 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-01-31 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-31 "All.Income.IncomingMisc" "All.Assets.Cash" 10.0 "Found"
@@ -2025,12 +2063,11 @@ transaction add 2000-02-24 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.B
 transaction add 2000-02-24 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-02-25 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-02-25 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
-paymentplan execute "Rent" 2000-02-25
+transaction add 2000-02-25 "All.Assets.Giro" "All.NOTFOUND.Rent" 600.0 "Accidentally manually transferring money of payment plan"
 paymentplan execute "Internet" 2000-02-25
 transaction add 2000-02-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-02-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-02-28 "All.Income.Wages" "All.Assets.Giro" 2000.0 ""
-transaction add 2000-02-28 "All.Assets.Giro" "All.Assets.Giro" 500.0 "Accidentally manually transferring money of payment plan"
 transaction add 2000-02-28 "All.Assets.Giro" "All.Assets.Cash" 400.0 ""
 transaction add 2000-02-29 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Breakfast" 2.0 "Bakery"
 transaction add 2000-02-29 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""

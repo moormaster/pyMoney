@@ -4,6 +4,8 @@ All
 	Assets
 		Cash
 		Giro
+		DayMoneyAccounts
+			OtherDayMoney
 	Income
 		Wages
 		Interests

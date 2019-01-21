@@ -1393,7 +1393,24 @@ class PyMoneyConsole(cmd.Cmd):
                                         self.print("transaction add " + str(t.date) + " \"" + t.fromcategory.get_full_name() + "\" \"" + t.tocategory.get_full_name() + "\" " + str(t.amount) + " \"" + t.comment + "\"")
                                 else:
                                         assert isinstance(t.paymentplan, lib.data.moneydata.PaymentPlan)
-                                        self.print("paymentplan execute \"" + t.paymentplan.name + "\" " + str(t.date))
+
+                                        update_paymentplan = False
+                                        if not t.fromcategory is t.paymentplan.fromcategory:
+                                                update_paymentplan = True
+                                        if not t.tocategory is t.paymentplan.tocategory:
+                                                update_paymentplan = True
+
+                                        if update_paymentplan:
+                                                self.print("paymentplan edit \"" + t.paymentplan.name + "\" \"" + t.paymentplan.groupname + "\" \"" + t.fromcategory.get_unique_name() + "\" \"" + t.tocategory.get_unique_name() + "\" " + str(t.paymentplan.amount) + " \"" + t.paymentplan.comment + "\"")
+
+                                        if t.amount == t.paymentplan.amount:
+                                                self.print("paymentplan execute \"" + t.paymentplan.name + "\" " + str(t.date))
+                                        else:
+                                                self.print("paymentplan execute \"" + t.paymentplan.name + "\" " + str(t.date) + " " + str(t.amount))
+
+
+                                        if update_paymentplan:
+                                                self.print("paymentplan edit \"" + t.paymentplan.name + "\" \"" + t.paymentplan.groupname + "\" \"" + t.paymentplan.fromcategory.get_unique_name() + "\" \"" + t.paymentplan.tocategory.get_unique_name() + "\" " + str(t.paymentplan.amount) + " \"" + t.paymentplan.comment + "\"")
 
 
                 parser = lib.argparse.ArgumentParser()

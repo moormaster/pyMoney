@@ -43,8 +43,9 @@ date,fromcategory,tocategory,paymentplan,amount,comment
 2000-01-28,Cash,Breakfast,,2.0,Bakery
 2000-01-28,Cash,Lunch,,8.0,
 2000-01-28,Wages,Giro,,2000.0,
-2000-01-28,Giro,Giro,Save,500.0,
+2000-01-28,Giro,Giro,Save,500.0,Monthly saving
 2000-01-28,Giro,Cash,,400.0,
+2000-01-28,Giro,OtherDayMoney,Save,500.0,Monthly saving now happening to other account
 2000-01-31,Cash,Breakfast,,2.0,Bakery
 2000-01-31,Cash,Lunch,,8.0,
 2000-01-31,IncomingMisc,Cash,,10.0,Found
@@ -87,12 +88,11 @@ date,fromcategory,tocategory,paymentplan,amount,comment
 2000-02-24,Cash,Lunch,,8.0,
 2000-02-25,Cash,Breakfast,,2.0,Bakery
 2000-02-25,Cash,Lunch,,8.0,
-2000-02-25,Giro,Rent,Rent,600.0,
+2000-02-25,Giro,Rent,,600.0,Accidentally manually transferring money of payment plan
 2000-02-25,Giro,Internet,Internet,30.0,
 2000-02-28,Cash,Breakfast,,2.0,Bakery
 2000-02-28,Cash,Lunch,,8.0,
 2000-02-28,Wages,Giro,,2000.0,
-2000-02-28,Giro,Giro,,500.0,Accidentally manually transferring money of payment plan
 2000-02-28,Giro,Cash,,400.0,
 2000-02-29,Cash,Breakfast,,2.0,Bakery
 2000-02-29,Cash,Lunch,,8.0,
