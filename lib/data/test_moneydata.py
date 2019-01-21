@@ -194,6 +194,15 @@ class TestMoneyData_Transactions(unittest.TestCase):
                 self.assertEqual(transaction2.index, 0)
                 self.assertEqual(transaction3.index, 1)
 
+        def test_delete_latest_transaction_should_reset_index_of_the_next_transaction(self):
+                transaction = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+                last_index = transaction.index
+
+                self.moneydata.delete_transaction(transaction.index)
+
+                transaction = self.moneydata.add_transaction("2000-01-01", "Category1", "Category2", "10.0", "")
+                self.assertEqual(transaction.index, last_index)
+
         def test_parse_transaction_should_raise_exception_if_fromcategory_was_not_found(self):
                 self.assertRaisesRegex(moneydata.NoSuchCategoryException, "UnknownCategory",
                         self.moneydata.parse_transaction, "2000-01-01", "Category1", "UnknownCategory", "10.0", "A comment")

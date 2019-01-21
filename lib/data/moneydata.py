@@ -65,6 +65,8 @@ class MoneyData:
                 for i in range(index, len(self.transactions)):
                         self.transactions[i].index = i
 
+                self.nextfreeindex = None
+
         def parse_transaction(self, str_date, str_categoryin, str_categoryout, str_amount, str_comment,
                         autocreatenotfoundcategory=False, dateformat="%Y-%m-%d"):
                 from lib.io.parser import TransactionParser
