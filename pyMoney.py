@@ -248,7 +248,7 @@ class PyMoneyCompletion:
 
                 if len(argv) >= 2:
                         if argv[1] == 'paymentplansprediction':
-                                parameters = ['category', 'cashflowcategory', 'paymentplangroup', 'showempty']
+                                parameters = ['category', 'cashflowcategory', 'paymentplangroup', 'showempty', 'maxlevel']
 
                                 if argv[-2] in ['--category', '--cashflowcategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
