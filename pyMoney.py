@@ -205,9 +205,15 @@ class PyMoneyCompletion:
 
                                         return names
                         elif argv[1] == 'list':
-                                parameters = ['group']
+                                parameters = ['category', 'fromcategory', 'tocategory', 'group']
 
-                                if argv[-2] == '--group':
+                                if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
+                                        categories = self.pyMoney.get_moneydata().get_categories_iterator()
+                                        categorynames = map(lambda c: c.get_unique_name(), categories)
+                                        categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+                                        return list(categorynames)
+                                elif argv[-2] == '--group':
                                         groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
                                         groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
 
@@ -827,6 +833,32 @@ class PyMoneyConsole(cmd.Cmd):
                                         lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['group'])
                                 )
 
+                        summarycategory = None
+
+                        if arguments.__dict__['category']:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                self.pyMoney.filterFactory.create_or_category_paymentplanfilter(arguments.__dict__['category'], arguments.__dict__['category'])
+                                        )
+                                        summarycategory = self.pyMoney.get_moneydata().get_category(arguments.__dict__['category'])
+                                except Exception as e:
+                                        self.print_error(e)
+                                        return
+
+                        if arguments.__dict__['fromcategory'] or arguments.__dict__['tocategory']:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                self.pyMoney.filterFactory.create_and_category_paymentplanfilter(arguments.__dict__['fromcategory'], arguments.__dict__['tocategory'])
+                                        )
+
+                                        if arguments.__dict__['fromcategory']:
+                                                summarycategory = self.pyMoney.get_moneydata().get_category(arguments.__dict__['fromcategory'])
+                                        if arguments.__dict__['tocategory']:
+                                                summarycategory = self.pyMoney.get_moneydata().get_category(arguments.__dict__['tocategory'])
+                                except Exception as e:
+                                        self.print_error(e)
+                                        return
+
                         for paymentplan in self.pyMoney.get_moneydata().get_paymentplans_iterator():
                                 if not paymentplanfilter(paymentplan):
                                         continue
@@ -841,6 +873,17 @@ class PyMoneyConsole(cmd.Cmd):
                                 row.append(paymentplan.comment)
 
                                 tabledata.append(row)
+
+                        d_summary = self.pyMoney.get_moneydata().create_paymentplan_summary(paymentplanfilter)
+
+                        if summarycategory:
+                                _summarycategory = summarycategory.get_unique_name()
+                                key = summarycategory.get_unique_name()
+
+                                tabledata.append(['', '', '', '', None, ''])
+                                tabledata.append(['', '', '', '+ ' + _summarycategory, d_summary[key].sumin, ''])
+                                tabledata.append(['', '', '', '- ' + _summarycategory, d_summary[key].sumout, ''])
+                                tabledata.append(['', '', '', 'sum ' + _summarycategory, d_summary[key].sum, ''])
 
                         tableformatter = lib.formatter.TableFormatter()
                         tableformatter.add_column(0)
@@ -938,6 +981,9 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_list = sp_paymentplan.add_parser('list')
                 p_paymentplan_list.set_defaults(command='list')
                 p_paymentplan_list.set_defaults(parser=p_paymentplan_list)
+                p_paymentplan_list.add_argument('--category')
+                p_paymentplan_list.add_argument('--fromcategory')
+                p_paymentplan_list.add_argument('--tocategory')
                 p_paymentplan_list.add_argument('--group')
 
                 p_paymentplan_listnames = sp_paymentplan.add_parser('listnames')

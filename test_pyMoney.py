@@ -88,6 +88,8 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["paymentplan", "add", "Save", "Monthly", "Giro", "DayMoney", "500", "Monthly saving"])
 
                 self.pymoney(["paymentplan", "list"])
+                self.pymoney(["paymentplan", "list", "--group", "Monthly"])
+                self.pymoney(["paymentplan", "list", "--category", "Expenses"])
 
                 self.pymoney(["transaction", "add", "2000-01-01", "OpeningBalance", "Cash", "400.01"])
                 self.pymoney(["transaction", "add", "2000-01-01", "OpeningBalance", "Giro", "3000"])

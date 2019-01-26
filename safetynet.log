@@ -172,6 +172,25 @@ Monthly Internet    Giro         Internet    30.00
 Monthly Rent        Giro         Rent       600.00 
 Monthly Save        Giro         DayMoney   500.00 Monthly saving
 
+$ ./pyMoney.py paymentplan list --group Monthly
+Group   PaymentPlan FromCategory ToCategory Amount Comment
+
+Monthly Energy      Giro         Energy      50.00 
+Monthly Internet    Giro         Internet    30.00 
+Monthly Rent        Giro         Rent       600.00 
+Monthly Save        Giro         DayMoney   500.00 Monthly saving
+
+$ ./pyMoney.py paymentplan list --category Expenses
+Group   PaymentPlan FromCategory ToCategory   Amount Comment
+
+Monthly Energy      Giro         Energy        50.00 
+Monthly Internet    Giro         Internet      30.00 
+Monthly Rent        Giro         Rent         600.00 
+                                               
+                                 + Expenses   680.00 
+                                 - Expenses     0.00 
+                                 sum Expenses 680.00 
+
 $ ./pyMoney.py transaction add 2000-01-01 OpeningBalance Cash 400.01
 added transaction 0: transferred amount 400.01 from OpeningBalance to Cash
 

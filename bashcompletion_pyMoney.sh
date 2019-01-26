@@ -312,13 +312,18 @@ _pymoney_paymentplan()
 
 		list)
 			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
+				--category | --fromcategory | --tocategory)
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
 				--group)
 					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--group" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--category --fromcategory --tocategory --group" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
+
 			esac
 			;;
 
