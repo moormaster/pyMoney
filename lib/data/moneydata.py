@@ -439,6 +439,75 @@ class MoneyData:
 
                 return d_summary
 
+        def create_paymentplan_summary(self, paymentplanfilter, d_summary=None):
+                if d_summary is None:
+                        d_summary = {}  # resulting map unqique category name -> NodeSummary() object
+                d_unique_name = {}      # cached category.get_unique_name() results
+
+                fp_correction_factor = 100      # factor by which each summands gets multiplied before addition - and by which the sum gets divided again
+                                                # to prevent floating point errors (like sum([0.01]*6) being not equal to 0.06)
+
+                for key in d_summary:
+                        d_summary[key].amount *= fp_correction_factor
+                        d_summary[key].amountin *= fp_correction_factor
+                        d_summary[key].amountout *= fp_correction_factor
+
+                        d_summary[key].sum *= fp_correction_factor
+                        d_summary[key].sumin *= fp_correction_factor
+                        d_summary[key].sumout *= fp_correction_factor
+
+                for c in self.categorytree:
+                        unique_name = c.get_unique_name()
+                        d_unique_name[id(c)] = unique_name
+                        if not unique_name in d_summary:
+                                d_summary[unique_name] = NodeSummary()
+
+                for pp in self.get_paymentplans_iterator():
+                        if not paymentplanfilter(pp):
+                                continue
+
+                        fromkey = d_unique_name[id(pp.fromcategory)]
+                        tokey = d_unique_name[id(pp.tocategory)]
+
+                        d_summary[fromkey].amountout -= pp.amount * fp_correction_factor
+                        d_summary[fromkey].amount -= pp.amount * fp_correction_factor
+
+                        d_summary[tokey].amountin += pp.amount * fp_correction_factor
+                        d_summary[tokey].amount += pp.amount * fp_correction_factor
+
+                        c = pp.fromcategory
+                        while not c is None:
+                                key = d_unique_name[id(c)]
+                                d_summary[key].paymentplancountout = d_summary[key].paymentplancountout + 1
+                                d_summary[key].paymentplancount = d_summary[key].paymentplancount + 1
+                                d_summary[key].sumcountout = d_summary[key].sumcountout + 1
+                                d_summary[key].sumcount = d_summary[key].sumcount + 1
+                                d_summary[key].sumout -= pp.amount * fp_correction_factor
+                                d_summary[key].sum -= pp.amount * fp_correction_factor
+                                c = c.parent
+
+                        c = pp.tocategory
+                        while not c is None:
+                                key = d_unique_name[id(c)]
+                                d_summary[key].paymentplancountin = d_summary[key].paymentplancountin + 1
+                                d_summary[key].paymentplancount = d_summary[key].paymentplancount + 1
+                                d_summary[key].sumcountin = d_summary[key].sumcountin + 1
+                                d_summary[key].sumcount = d_summary[key].sumcount + 1
+                                d_summary[key].sumin += pp.amount * fp_correction_factor
+                                d_summary[key].sum += pp.amount * fp_correction_factor
+                                c = c.parent
+
+                for key in d_summary:
+                        d_summary[key].amount /= fp_correction_factor
+                        d_summary[key].amountin /= fp_correction_factor
+                        d_summary[key].amountout /= fp_correction_factor
+
+                        d_summary[key].sum /= fp_correction_factor
+                        d_summary[key].sumin /= fp_correction_factor
+                        d_summary[key].sumout /= fp_correction_factor
+
+                return d_summary
+
 
 class Transaction(object):
         fields = ["index", "date", "fromcategory", "tocategory", "paymentplan", "amount", "comment"]
