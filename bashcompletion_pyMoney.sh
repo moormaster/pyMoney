@@ -364,6 +364,22 @@ _pymoney_summary()
 			esac
 			;;
 
+		paymentplansprediction)
+			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
+				--category | --cashflowcategory)
+					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				--paymentplangroup)
+					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+
+				*)
+					COMPREPLY=( $( compgen -W "--category --cashflowcategory --paymentplangroup --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					;;
+			esac
+			;;
+
 		monthly)
 			case ${COMP_WORDS[$(( $COMP_CWORD - 1 ))]} in
 				--paymentplan)
@@ -415,7 +431,7 @@ _pymoney_summary()
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "categories monthly yearly" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "categories paymentplansprediction monthly yearly" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }

@@ -247,6 +247,25 @@ class PyMoneyCompletion:
                         argv.append('')
 
                 if len(argv) >= 2:
+                        if argv[1] == 'paymentplansprediction':
+                                parameters = ['category', 'cashflowcategory', 'paymentplangroup', 'showempty']
+
+                                if argv[-2] in ['--category', '--cashflowcategory']:
+                                        categories = self.pyMoney.get_moneydata().get_categories_iterator()
+                                        categorynames = map(lambda c: c.get_unique_name(), categories)
+                                        categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
+
+                                        return list(categorynames)
+                                elif argv[-2] == '--paymentplangroup':
+                                        groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
+                                        groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
+
+                                        return groupnames
+                                elif len(argv) >= 3:
+                                        if argv[-1].startswith('--'):
+                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
+                                        else:
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
                         if argv[1] == 'categories':
                                 parameters = ['category', 'cashflowcategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
 
@@ -299,7 +318,7 @@ class PyMoneyCompletion:
                                         else:
                                                 return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
                         elif len(argv) == 2:
-                                return list(filter(lambda v: v.startswith(argv[-1]), ['categories', 'monthly', 'yearly']))
+                                return list(filter(lambda v: v.startswith(argv[-1]), ['categories', 'paymentplansprediction', 'monthly', 'yearly']))
 
         def complete_export(self, text, line, begidx, endidx):
                 if endidx < len(line):
@@ -1071,6 +1090,85 @@ class PyMoneyConsole(cmd.Cmd):
 
                                 is_first_line = False
 
+                'Prints a summarized report of predicted payments across categories based on the paymentplans. Use summary -h for more details.'
+                def cmd_paymentplansprediction(arguments):
+                        paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
+
+                        if arguments.__dict__['paymentplangroup']:
+                                paymentplanfilter = paymentplanfilter.and_concat(
+                                        lib.data.filterchain.Filter(lambda pp: not pp is None)
+                                )
+
+                        if arguments.__dict__['paymentplangroup']:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['paymentplangroup'])
+                                        )
+                                except Exception as e:
+                                        self.print_error(e)
+
+                        if arguments.__dict__['cashflowcategory']:
+                                try:
+                                        paymentplanfilter = paymentplanfilter.and_concat(
+                                                self.pyMoney.filterFactory.create_or_category_paymentplanfilter(arguments.__dict__['cashflowcategory'], arguments.__dict__['cashflowcategory'])
+                                        )
+                                except Exception as e:
+                                        self.print_error(e)
+                                        return
+
+                        categoryfilter = lib.data.filterchain.Filter(lambda c: True)
+                        if arguments.__dict__['maxlevel']:
+                                categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_maxlevel_categoryfilter(arguments.__dict__['maxlevel']))
+
+                        if arguments.__dict__['category']:
+                                categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_subtree_categoryfilter(arguments.__dict__['category']))
+
+                        d_summary = self.pyMoney.get_moneydata().create_paymentplan_summary(paymentplanfilter)
+                        category_name_formatter = lib.formatter.CategoryNameFormatter()
+                        category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
+                        category_name_formatter.set_indent_with_tree_level(True)
+
+                        headerdata = ['node', 'amount', 'sum +', 'sum -', 'sum']
+                        tabledata = []
+
+                        for category in filter(categoryfilter, self.pyMoney.get_moneydata().get_categories_iterator()):
+                                key = category.get_unique_name()
+                                name = category_name_formatter.format(category)
+
+                                if not arguments.__dict__['showempty'] and d_summary[key].sumcount == 0:
+                                        continue
+
+                                tabledata.append([name, d_summary[key].amount, d_summary[key].sumin, d_summary[key].sumout, d_summary[key].sum])
+
+                        tableformatter = lib.formatter.TableFormatter()
+                        tableformatter.add_column(0)
+                        column = tableformatter.add_column(1)
+                        column.set_alignment('>')
+                        column.set_precision(2)
+                        column.set_type('f')
+                        column = tableformatter.add_column(2)
+                        column.set_alignment('>')
+                        column.set_precision(2)
+                        column.set_type('f')
+                        column = tableformatter.add_column(3)
+                        column.set_alignment('>')
+                        column.set_precision(2)
+                        column.set_type('f')
+                        column = tableformatter.add_column(4)
+                        column.set_alignment('>')
+                        column.set_precision(2)
+                        column.set_type('f')
+
+                        lines = tableformatter.get_formatted_lines(headerdata, tabledata)
+
+                        is_first_line = True
+                        for line in lines:
+                                self.print(line)
+                                if is_first_line:
+                                        self.print('')
+
+                                is_first_line = False
+
                 def sub_time_interval_summary(category, paymentplanfilter, start_year, start_month, diff_months, maxdate, calculate_balance):
                         assert isinstance(category, lib.data.moneydata.CategoryTreeNode)
 
@@ -1275,6 +1373,15 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_categories.add_argument('month', type=int, nargs='?')
                 p_summary_categories.add_argument('day', type=int, nargs='?')
 
+                p_summary_paymentplansprediction = sp_summary.add_parser('paymentplansprediction')
+                p_summary_paymentplansprediction.set_defaults(command='paymentplansprediction')
+                p_summary_paymentplansprediction.set_defaults(parser=p_summary_paymentplansprediction)
+                p_summary_paymentplansprediction.add_argument('--maxlevel', type=int, nargs='?')
+                p_summary_paymentplansprediction.add_argument('--showempty', action='store_true')
+                p_summary_paymentplansprediction.add_argument('--cashflowcategory')
+                p_summary_paymentplansprediction.add_argument('--category')
+                p_summary_paymentplansprediction.add_argument('--paymentplangroup')
+
                 p_summary_monthly = sp_summary.add_parser('monthly')
                 p_summary_monthly.set_defaults(command='monthly')
                 p_summary_monthly.set_defaults(parser=p_summary_monthly)
@@ -1304,6 +1411,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                 d_commands = {
                         'categories': cmd_categories,
+                        'paymentplansprediction': cmd_paymentplansprediction,
                         'monthly': cmd_monthly,
                         'yearly': cmd_yearly
                 }

@@ -226,6 +226,48 @@ class TestFilterFactory(unittest.TestCase):
                 transactions = list(self.app.moneydata.filter_transactions(filter))
                 self.assertEqual(self.transactions_category_category1, transactions)
 
+        def test_create_and_category_paymentplanfilter(self):
+                filter = self.filterFactory.create_and_category_paymentplanfilter("Cash.In", None)
+                transactions = list(self.app.moneydata.filter_transactions(filter))
+                self.assertEqual([], transactions)
+
+                filter = self.filterFactory.create_and_category_paymentplanfilter("Cash.Out", None)
+                transactions = list(self.app.moneydata.filter_transactions(filter))
+                self.assertEqual(self.transactions_all, transactions)
+
+                filter = self.filterFactory.create_and_category_paymentplanfilter(None, "Category1")
+                transactions = list(self.app.moneydata.filter_transactions(filter))
+                self.assertEqual(self.transactions_category_category1, transactions)
+
+                filter = self.filterFactory.create_and_category_paymentplanfilter("Cash.Out", "Category1")
+                transactions = list(self.app.moneydata.filter_transactions(filter))
+                self.assertEqual(self.transactions_category_category1, transactions)
+
+                filter = self.filterFactory.create_and_category_paymentplanfilter("Cash.In", "Category1")
+                transactions = list(self.app.moneydata.filter_transactions(filter))
+                self.assertEqual([], transactions)
+
+        def test_create_or_category_paymentplanfilter(self):
+                filter = self.filterFactory.create_or_category_paymentplanfilter("Cash.In", None)
+                transactions = list(self.app.moneydata.filter_transactions(filter))
+                self.assertEqual([], transactions)
+
+                filter = self.filterFactory.create_or_category_paymentplanfilter("Cash.Out", None)
+                transactions = list(self.app.moneydata.filter_transactions(filter))
+                self.assertEqual(self.transactions_all, transactions)
+
+                filter = self.filterFactory.create_or_category_paymentplanfilter(None, "Category1")
+                transactions = list(self.app.moneydata.filter_transactions(filter))
+                self.assertEqual(self.transactions_category_category1, transactions)
+
+                filter = self.filterFactory.create_or_category_paymentplanfilter("Cash.Out", "Category1")
+                transactions = list(self.app.moneydata.filter_transactions(filter))
+                self.assertEqual(self.transactions_all, transactions)
+
+                filter = self.filterFactory.create_or_category_paymentplanfilter("Cash.In", "Category1")
+                transactions = list(self.app.moneydata.filter_transactions(filter))
+                self.assertEqual(self.transactions_category_category1, transactions)
+
         def test_create_maxlevel_categoryfilter(self):
                 filter = self.filterFactory.create_maxlevel_categoryfilter(4)
                 categories = list(self.app.moneydata.filter_categories(filter))

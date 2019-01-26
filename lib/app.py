@@ -187,6 +187,56 @@ class FilterFactory:
 
                 return transactionfilter
 
+        def create_or_category_paymentplanfilter(self, filter_from_category, filter_to_category):
+                paymentplanfilter = lib.data.filterchain.Filter(lambda t: False)
+
+                if filter_from_category:
+                        fromcategory = self.moneydata.get_category(filter_from_category)
+
+                        if not fromcategory:
+                                raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
+
+                        paymentplanfilter = paymentplanfilter.or_concat(
+                                lambda pp: pp.fromcategory is fromcategory or pp.fromcategory.is_contained_in_subtree(fromcategory)
+                        )
+
+                if filter_to_category:
+                        tocategory = self.moneydata.get_category(filter_to_category)
+
+                        if not tocategory:
+                                raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
+
+                        paymentplanfilter = paymentplanfilter.or_concat(
+                                lambda pp: pp.tocategory is tocategory or pp.tocategory.is_contained_in_subtree(tocategory)
+                        )
+
+                return paymentplanfilter
+
+        def create_and_category_paymentplanfilter(self, filter_from_category, filter_to_category):
+                paymentplanfilter = lib.data.filterchain.Filter(lambda t: True)
+
+                if filter_from_category:
+                        fromcategory = self.moneydata.get_category(filter_from_category)
+
+                        if not fromcategory:
+                                raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
+
+                        paymentplanfilter = paymentplanfilter.and_concat(
+                                lambda pp: pp.fromcategory is fromcategory or pp.fromcategory.is_contained_in_subtree(fromcategory)
+                        )
+
+                if filter_to_category:
+                        tocategory = self.moneydata.get_category(filter_to_category)
+
+                        if not tocategory:
+                                raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
+
+                        paymentplanfilter = paymentplanfilter.and_concat(
+                                lambda pp: pp.tocategory is tocategory or pp.tocategory.is_contained_in_subtree(tocategory)
+                        )
+
+                return paymentplanfilter
+
         def create_maxlevel_categoryfilter(self, maxlevel):
                 categoryfilter = lib.data.filterchain.Filter(lambda c: True)
 
