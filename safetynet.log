@@ -623,6 +623,49 @@ node           amount sum + sum -   sum
       Energy    50.00 50.00  0.00 50.00
       Internet  30.00 30.00  0.00 30.00
 
+$ ./pyMoney.py summary paymentplansprediction
+node                   amount   sum +    sum -      sum
+
+All                      0.00 1180.00 -1180.00     0.00
+  Assets                 0.00  500.00 -1180.00  -680.00
+    Giro             -1180.00    0.00 -1180.00 -1180.00
+    DayMoneyAccounts     0.00  500.00     0.00   500.00
+      OtherDayMoney    500.00  500.00     0.00   500.00
+  Expenses               0.00  680.00     0.00   680.00
+    Frequent             0.00  680.00     0.00   680.00
+      Rent             600.00  600.00     0.00   600.00
+      Energy            50.00   50.00     0.00    50.00
+      Internet          30.00   30.00     0.00    30.00
+
+$ ./pyMoney.py summary paymentplansprediction --maxlevel 2
+node                   amount   sum +    sum -      sum
+
+All                      0.00 1180.00 -1180.00     0.00
+  Assets                 0.00  500.00 -1180.00  -680.00
+    Giro             -1180.00    0.00 -1180.00 -1180.00
+    DayMoneyAccounts     0.00  500.00     0.00   500.00
+  Expenses               0.00  680.00     0.00   680.00
+    Frequent             0.00  680.00     0.00   680.00
+
+$ ./pyMoney.py summary paymentplansprediction --cashflowcategory Rent
+node          amount  sum +   sum -     sum
+
+All             0.00 600.00 -600.00    0.00
+  Assets        0.00   0.00 -600.00 -600.00
+    Giro     -600.00   0.00 -600.00 -600.00
+  Expenses      0.00 600.00    0.00  600.00
+    Frequent    0.00 600.00    0.00  600.00
+      Rent    600.00 600.00    0.00  600.00
+
+$ ./pyMoney.py summary paymentplansprediction --paymentplangroup Monthly --category Expenses
+node           amount  sum + sum -    sum
+
+  Expenses       0.00 680.00  0.00 680.00
+    Frequent     0.00 680.00  0.00 680.00
+      Rent     600.00 600.00  0.00 600.00
+      Energy    50.00  50.00  0.00  50.00
+      Internet  30.00  30.00  0.00  30.00
+
 $ ./pyMoney.py summary monthly --balance Giro
 date       node  amount   sum +    sum -     sum
 
