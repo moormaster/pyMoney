@@ -28,11 +28,11 @@ class PyMoneyCompletion:
 
                 argv = shlex.split(line)
 
-                if len(argv) == 1 or line.endswith(" "):
-                        argv.append("")
+                if len(argv) == 1 or line.endswith(' '):
+                        argv.append('')
 
                 if len(argv) >= 2:
-                        if argv[1] == "add":
+                        if argv[1] == 'add':
                                 # from-category, to-category
                                 if len(argv) == 4 or len(argv) == 5:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -40,7 +40,7 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                        elif argv[1] == "edit":
+                        elif argv[1] == 'edit':
                                 # from-category, to-category
                                 if len(argv) == 5 or len(argv) == 6:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -48,32 +48,32 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                        elif argv[1] == "list":
+                        elif argv[1] == 'list':
                                 parameters = ['category', 'fromcategory', 'tocategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
-                                if argv[-2] in ["--category", "--fromcategory", "--tocategory"]:
+                                if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
                                         categorynames = map(lambda c: c.get_unique_name(), categories)
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                                elif argv[-2] == "--paymentplan":
+                                elif argv[-2] == '--paymentplan':
                                         names = self.pyMoney.get_moneydata().get_paymentplannames()
                                         names = list(filter(lambda v: v.startswith(argv[-1]), names))
 
                                         return names
-                                elif argv[-2] == "--paymentplangroup":
+                                elif argv[-2] == '--paymentplangroup':
                                         groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
                                         groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
 
                                         return groupnames
                                 elif len(argv) >= 3:
-                                        if argv[-1].startswith("--"):
+                                        if argv[-1].startswith('--'):
                                                 return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith("-"):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
+                                        elif argv[-1].startswith('-'):
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
                                         else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'edit', 'delete', 'list']))
 
@@ -83,11 +83,11 @@ class PyMoneyCompletion:
 
                 argv = shlex.split(line)
 
-                if len(argv) == 1 or line.endswith(" "):
-                        argv.append("")
+                if len(argv) == 1 or line.endswith(' '):
+                        argv.append('')
 
                 if len(argv) >= 2:
-                        if argv[1] == "add":
+                        if argv[1] == 'add':
                                 # parent-category
                                 if len(argv) == 3:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -95,7 +95,7 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                        elif argv[1] == "delete" or argv[1] == "rename":
+                        elif argv[1] == 'delete' or argv[1] == 'rename':
                                 # category
                                 if len(argv) == 3:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -103,7 +103,7 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                        elif argv[1] == "merge" or argv[1] == "move":
+                        elif argv[1] == 'merge' or argv[1] == 'move':
                                 # category, target-category
                                 if len(argv) == 3 or len(argv) == 4:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -111,16 +111,16 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                        elif argv[1] == "list" or argv[1] == "tree":
+                        elif argv[1] == 'list' or argv[1] == 'tree':
                                 if len(argv) == 3:
                                         parameters = ['fullnamecategories']
 
-                                        if argv[-1].startswith("--"):
+                                        if argv[-1].startswith('--'):
                                                 return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith("-"):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
+                                        elif argv[-1].startswith('-'):
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
                                         else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'delete', 'list', 'merge', 'move', 'rename', 'tree']))
 
@@ -130,11 +130,11 @@ class PyMoneyCompletion:
 
                 argv = shlex.split(line)
 
-                if len(argv) == 1 or line.endswith(" "):
-                        argv.append("")
+                if len(argv) == 1 or line.endswith(' '):
+                        argv.append('')
 
                 if len(argv) >= 2:
-                        if argv[1] == "add":
+                        if argv[1] == 'add':
                                 # groupname
                                 if len(argv) == 4:
                                         groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
@@ -149,7 +149,7 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                        elif argv[1] == "edit":
+                        elif argv[1] == 'edit':
                                 # name
                                 if len(argv) == 3:
                                         names = self.pyMoney.get_moneydata().get_paymentplannames()
@@ -170,21 +170,21 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                        elif argv[1] == "delete":
+                        elif argv[1] == 'delete':
                                 # name
                                 if len(argv) == 3:
                                         names = self.pyMoney.get_moneydata().get_paymentplannames()
                                         names = list(filter(lambda v: v.startswith(argv[-1]), names))
 
                                         return names
-                        elif argv[1] == "rename":
+                        elif argv[1] == 'rename':
                                 # name
                                 if len(argv) == 3:
                                         names = self.pyMoney.get_moneydata().get_paymentplannames()
                                         names = list(filter(lambda v: v.startswith(argv[-1]), names))
 
                                         return names
-                        elif argv[1] == "move":
+                        elif argv[1] == 'move':
                                 # name
                                 if len(argv) == 3:
                                         names = self.pyMoney.get_moneydata().get_paymentplannames()
@@ -197,43 +197,43 @@ class PyMoneyCompletion:
                                         groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
 
                                         return groupnames
-                        elif argv[1] == "execute":
+                        elif argv[1] == 'execute':
                                 # name
                                 if len(argv) == 3:
                                         names = self.pyMoney.get_moneydata().get_paymentplannames()
                                         names = list(filter(lambda v: v.startswith(argv[-1]), names))
 
                                         return names
-                        elif argv[1] == "list":
+                        elif argv[1] == 'list':
                                 parameters = ['group']
 
-                                if argv[-2] == "--group":
+                                if argv[-2] == '--group':
                                         groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
                                         groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
 
                                         return groupnames
                                 else:
-                                        if argv[-1].startswith("--"):
+                                        if argv[-1].startswith('--'):
                                                 return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith("-"):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
+                                        elif argv[-1].startswith('-'):
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
                                         else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
-                        elif argv[1] == "listnames":
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                        elif argv[1] == 'listnames':
                                 parameters = ['group']
 
-                                if argv[-2] == "--group":
+                                if argv[-2] == '--group':
                                         groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
                                         groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
 
                                         return groupnames
                                 else:
-                                        if argv[-1].startswith("--"):
+                                        if argv[-1].startswith('--'):
                                                 return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith("-"):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
+                                        elif argv[-1].startswith('-'):
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
                                         else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'edit', 'rename', 'move', 'execute', 'delete', 'list', 'listnames', 'listgroupnames']))
 
@@ -243,35 +243,35 @@ class PyMoneyCompletion:
 
                 argv = shlex.split(line)
 
-                if len(argv) == 1 or line.endswith(" "):
-                        argv.append("")
+                if len(argv) == 1 or line.endswith(' '):
+                        argv.append('')
 
                 if len(argv) >= 2:
-                        if argv[1] == "categories":
+                        if argv[1] == 'categories':
                                 parameters = ['category', 'cashflowcategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
 
-                                if argv[-2] in ["--category", "--cashflowcategory"]:
+                                if argv[-2] in ['--category', '--cashflowcategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
                                         categorynames = map(lambda c: c.get_unique_name(), categories)
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                                elif argv[-2] == "--paymentplan":
+                                elif argv[-2] == '--paymentplan':
                                         names = self.pyMoney.get_moneydata().get_paymentplannames()
                                         names = list(filter(lambda v: v.startswith(argv[-1]), names))
 
                                         return names
-                                elif argv[-2] == "--paymentplangroup":
+                                elif argv[-2] == '--paymentplangroup':
                                         groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
                                         groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
 
                                         return groupnames
                                 elif len(argv) >= 3:
-                                        if argv[-1].startswith("--"):
+                                        if argv[-1].startswith('--'):
                                                 return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
                                         else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
-                        elif argv[1] == "monthly" or argv[1] == "yearly":
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                        elif argv[1] == 'monthly' or argv[1] == 'yearly':
                                 parameters = ['balance', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
                                 if len(argv) == 3:
@@ -280,24 +280,24 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                                elif argv[-2] == "--paymentplan":
+                                elif argv[-2] == '--paymentplan':
                                         names = self.pyMoney.get_moneydata().get_paymentplannames()
                                         names = list(filter(lambda v: v.startswith(argv[-1]), names))
 
                                         return names
-                                elif argv[-2] == "--paymentplangroup":
+                                elif argv[-2] == '--paymentplangroup':
                                         groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
                                         groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
 
                                         return groupnames
                                 elif len(argv) >= 4:
 
-                                        if argv[-1].startswith("--"):
+                                        if argv[-1].startswith('--'):
                                                 return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith("-"):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
+                                        elif argv[-1].startswith('-'):
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
                                         else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
+                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['categories', 'monthly', 'yearly']))
 
@@ -307,25 +307,25 @@ class PyMoneyCompletion:
 
                 argv = shlex.split(line)
 
-                if len(argv) == 1 or line.endswith(" "):
-                        argv.append("")
+                if len(argv) == 1 or line.endswith(' '):
+                        argv.append('')
 
                 if len(argv) >= 2:
                         parameters = ['category', 'fromcategory', 'tocategory']
 
-                        if argv[-2] in ["--category", "--fromcategory", "--tocategory"]:
+                        if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                 categories = self.pyMoney.get_moneydata().get_categories_iterator()
                                 categorynames = map(lambda c: c.get_unique_name(), categories)
                                 categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                 return list(categorynames)
                         elif len(argv) >= 3:
-                                if argv[-1].startswith("--"):
+                                if argv[-1].startswith('--'):
                                         return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                elif argv[-1].startswith("-"):
-                                        return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "-"+v, parameters))))
+                                elif argv[-1].startswith('-'):
+                                        return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
                                 else:
-                                        return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: "--"+v, parameters))))
+                                        return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
 
 
 class PyMoneyConsole(cmd.Cmd):
@@ -338,7 +338,7 @@ class PyMoneyConsole(cmd.Cmd):
                 parser = self.get_argument_parser()
                 self.arguments = parser.parse_args(argv)
 
-                self.pyMoney = lib.app.PyMoney(self.arguments.__dict__["fileprefix"])
+                self.pyMoney = lib.app.PyMoney(self.arguments.__dict__['fileprefix'])
                 self.pyMoney.read()
 
                 self.completion = PyMoneyCompletion(self.pyMoney)
@@ -362,23 +362,23 @@ class PyMoneyConsole(cmd.Cmd):
                 value = None
 
                 if isinstance(error, lib.data.moneydata.NoSuchCategoryException):
-                        value = "category not found: " + error.name
+                        value = 'category not found: ' + error.name
                 elif isinstance(error, lib.data.moneydata.DuplicateCategoryException):
-                        value = "category already exists: " + error.category.get_unique_name()
+                        value = 'category already exists: ' + error.category.get_unique_name()
                 elif isinstance(error, lib.data.moneydata.CategoryIsTopCategoryException):
-                        value = "top category may not be deleted: " + error.category.get_unique_name()
+                        value = 'top category may not be deleted: ' + error.category.get_unique_name()
                 elif isinstance(error, lib.data.moneydata.AmbiguousCategoryNameException):
-                        value = "category name " + error.name + " is ambiguous: " + str(list(map(lambda c: c.get_unique_name(), error.matching_categories)))
+                        value = 'category name ' + error.name + ' is ambiguous: ' + str(list(map(lambda c: c.get_unique_name(), error.matching_categories)))
                 elif isinstance(error, lib.data.tree.TargetNodeIsPartOfSourceNodeSubTreeException):
-                        value = "cannot move source node into its own subtree: " + str(error.sourcenode.get_unique_name())
+                        value = 'cannot move source node into its own subtree: ' + str(error.sourcenode.get_unique_name())
                 elif isinstance(error, lib.data.moneydata.NoSuchPaymentPlanException):
-                        value = "payment plan not found: " + error.name
+                        value = 'payment plan not found: ' + error.name
                 elif isinstance(error, lib.data.moneydata.DuplicatePaymentPlanException):
-                        value = "payment plan already exists: " + error.paymentplan.name + " (group: " + error.paymentplan.groupname + ")"
+                        value = 'payment plan already exists: ' + error.paymentplan.name + ' (group: ' + error.paymentplan.groupname + ')'
                 elif isinstance(error, ValueError):
                         value = str(error)
                 else:
-                        value = "unhandled exception: " + error.__class__.__module__ + "." + error.__class__.__name__ + ": " + str(error)
+                        value = 'unhandled exception: ' + error.__class__.__module__ + '.' + error.__class__.__name__ + ': ' + str(error)
 
                 if not value is None:
                         self.print_stderr(value)
@@ -405,22 +405,22 @@ class PyMoneyConsole(cmd.Cmd):
                 def cmd_add(arguments):
                         try:
                                 if self.is_interactive:
-                                        similar_paymentplans = self.pyMoney.get_moneydata().find_similar_paymentplans(arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"])
+                                        similar_paymentplans = self.pyMoney.get_moneydata().find_similar_paymentplans(arguments.__dict__['fromcategory'], arguments.__dict__['tocategory'], arguments.__dict__['amount'])
                                         if len(similar_paymentplans):
                                                 paymentplans = None
                                                 for paymentplan in similar_paymentplans:
                                                         if paymentplans is None:
                                                                 paymentplans = paymentplan.name
                                                         else:
-                                                                paymentplans += ", " + paymentplan.name
+                                                                paymentplans += ', ' + paymentplan.name
 
-                                                self.print("similar payment plan(s) found: " + paymentplans)
+                                                self.print('similar payment plan(s) found: ' + paymentplans)
 
-                                transaction = self.pyMoney.get_moneydata().add_transaction(arguments.__dict__["date"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"],
-                                                                arguments.__dict__["comment"], arguments.__dict__["force"])
+                                transaction = self.pyMoney.get_moneydata().add_transaction(arguments.__dict__['date'], arguments.__dict__['fromcategory'], arguments.__dict__['tocategory'], arguments.__dict__['amount'],
+                                                                arguments.__dict__['comment'], arguments.__dict__['force'])
 
                                 if self.is_interactive:
-                                        self.print("added transaction " + str(transaction.index) + ": transferred amount " + str(transaction.amount) + " from " + transaction.fromcategory.get_unique_name() + " to " + transaction.tocategory.get_unique_name())
+                                        self.print('added transaction ' + str(transaction.index) + ': transferred amount ' + str(transaction.amount) + ' from ' + transaction.fromcategory.get_unique_name() + ' to ' + transaction.tocategory.get_unique_name())
 
                                 self.writeOnQuit = True
                         except Exception as e:
@@ -428,38 +428,38 @@ class PyMoneyConsole(cmd.Cmd):
 
                 def cmd_edit(arguments):
                         try:
-                                self.pyMoney.get_moneydata().edit_transaction(arguments.__dict__["index"], arguments.__dict__["date"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"],
-                                                                arguments.__dict__["amount"], arguments.__dict__["comment"])
+                                self.pyMoney.get_moneydata().edit_transaction(arguments.__dict__['index'], arguments.__dict__['date'], arguments.__dict__['fromcategory'], arguments.__dict__['tocategory'],
+                                                                arguments.__dict__['amount'], arguments.__dict__['comment'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 def cmd_list(arguments):
-                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
+                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__['year'], arguments.__dict__['month'], arguments.__dict__['day'])
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
-                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroup"]:
+                        if arguments.__dict__['paymentplansonly'] or arguments.__dict__['paymentplan'] or arguments.__dict__['paymentplangroup']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: not pp is None)
                                 )
 
-                        if arguments.__dict__["nopaymentplans"]:
+                        if arguments.__dict__['nopaymentplans']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: pp is None)
                                 )
 
-                        if arguments.__dict__["paymentplan"]:
+                        if arguments.__dict__['paymentplan']:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__["paymentplan"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__['paymentplan'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
 
-                        if arguments.__dict__["paymentplangroup"]:
+                        if arguments.__dict__['paymentplangroup']:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["paymentplangroup"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['paymentplangroup'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
@@ -467,26 +467,26 @@ class PyMoneyConsole(cmd.Cmd):
 
                         summarycategory = None
 
-                        if arguments.__dict__["category"]:
+                        if arguments.__dict__['category']:
                                 try:
                                         transactionfilter = transactionfilter.and_concat(
-                                                self.pyMoney.filterFactory.create_or_category_transactionfilter(arguments.__dict__["category"], arguments.__dict__["category"])
+                                                self.pyMoney.filterFactory.create_or_category_transactionfilter(arguments.__dict__['category'], arguments.__dict__['category'])
                                         )
-                                        summarycategory = self.pyMoney.get_moneydata().get_category(arguments.__dict__["category"])
+                                        summarycategory = self.pyMoney.get_moneydata().get_category(arguments.__dict__['category'])
                                 except Exception as e:
                                         self.print_error(e)
                                         return
 
-                        if arguments.__dict__["fromcategory"] or arguments.__dict__["tocategory"]:
+                        if arguments.__dict__['fromcategory'] or arguments.__dict__['tocategory']:
                                 try:
                                         transactionfilter = transactionfilter.and_concat(
-                                                self.pyMoney.filterFactory.create_and_category_transactionfilter(arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"])
+                                                self.pyMoney.filterFactory.create_and_category_transactionfilter(arguments.__dict__['fromcategory'], arguments.__dict__['tocategory'])
                                         )
 
-                                        if arguments.__dict__["fromcategory"]:
-                                                summarycategory = self.pyMoney.get_moneydata().get_category(arguments.__dict__["fromcategory"])
-                                        if arguments.__dict__["tocategory"]:
-                                                summarycategory = self.pyMoney.get_moneydata().get_category(arguments.__dict__["tocategory"])
+                                        if arguments.__dict__['fromcategory']:
+                                                summarycategory = self.pyMoney.get_moneydata().get_category(arguments.__dict__['fromcategory'])
+                                        if arguments.__dict__['tocategory']:
+                                                summarycategory = self.pyMoney.get_moneydata().get_category(arguments.__dict__['tocategory'])
                                 except Exception as e:
                                         self.print_error(e)
                                         return
@@ -496,12 +496,12 @@ class PyMoneyConsole(cmd.Cmd):
                                 lib.data.filterchain.Filter(lambda t: paymentplanfilter(t.paymentplan))
                         )
 
-                        headerdata = ["Index", "Date", "FromCategory", "ToCategory", "Amount", "Comment"]
+                        headerdata = ['Index', 'Date', 'FromCategory', 'ToCategory', 'Amount', 'Comment']
                         tabledata = []
 
                         fromcategory_name_formatter = lib.formatter.CategoryNameFormatter()
                         tocategory_name_formatter = lib.formatter.CategoryNameFormatter()
-                        if arguments.__dict__["fullnamecategories"]:
+                        if arguments.__dict__['fullnamecategories']:
                                 fromcategory_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
                                 tocategory_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 
@@ -519,9 +519,9 @@ class PyMoneyConsole(cmd.Cmd):
                                 _amount = d.amount
 
                                 if not d.paymentplan is None:
-                                    _comment = "Execution of payment plan " + d.paymentplan.name
+                                    _comment = 'Execution of payment plan ' + d.paymentplan.name
                                     if len(d.comment) > 0:
-                                        _comment = _comment + ": " + d.comment
+                                        _comment = _comment + ': ' + d.comment
                                 else:
                                         _comment = d.comment
 
@@ -533,22 +533,22 @@ class PyMoneyConsole(cmd.Cmd):
                                 _summarycategory = tocategory_name_formatter.format(summarycategory)
                                 key = summarycategory.get_unique_name()
 
-                                tabledata.append(["", "", "", "", None, ""])
-                                tabledata.append(["", "", "", "+ " + _summarycategory, d_summary[key].sumin, ""])
-                                tabledata.append(["", "", "", "- " + _summarycategory, d_summary[key].sumout, ""])
-                                tabledata.append(["", "", "", "sum " + _summarycategory, d_summary[key].sum, ""])
+                                tabledata.append(['', '', '', '', None, ''])
+                                tabledata.append(['', '', '', '+ ' + _summarycategory, d_summary[key].sumin, ''])
+                                tabledata.append(['', '', '', '- ' + _summarycategory, d_summary[key].sumout, ''])
+                                tabledata.append(['', '', '', 'sum ' + _summarycategory, d_summary[key].sum, ''])
 
                         tableformatter = lib.formatter.TableFormatter()
                         column = tableformatter.add_column(0)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column = tableformatter.add_column(1)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         tableformatter.add_column(2)
                         tableformatter.add_column(3)
                         column = tableformatter.add_column(4)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column.set_precision(2)
-                        column.set_type("f")
+                        column.set_type('f')
                         tableformatter.add_column(5)
 
                         lines = tableformatter.get_formatted_lines(headerdata, tabledata)
@@ -557,56 +557,56 @@ class PyMoneyConsole(cmd.Cmd):
                         for line in lines:
                                 self.print(line)
                                 if is_first_line:
-                                        self.print("")
+                                        self.print('')
 
                                 is_first_line = False
 
                 def cmd_delete(arguments):
-                        self.pyMoney.get_moneydata().delete_transaction(arguments.__dict__["index"])
+                        self.pyMoney.get_moneydata().delete_transaction(arguments.__dict__['index'])
                         self.writeOnQuit = True
 
                 parser = lib.argparse.ArgumentParser()
-                parser.add_argument("--fullnamecategories", action="store_true")
-                sp_transaction = parser.add_subparsers(title="command")
+                parser.add_argument('--fullnamecategories', action='store_true')
+                sp_transaction = parser.add_subparsers(title='command')
 
-                p_transaction_add = sp_transaction.add_parser("add")
-                p_transaction_add.set_defaults(command="add")
+                p_transaction_add = sp_transaction.add_parser('add')
+                p_transaction_add.set_defaults(command='add')
                 p_transaction_add.set_defaults(parser=p_transaction_add)
-                p_transaction_add.add_argument("date")
-                p_transaction_add.add_argument("fromcategory")
-                p_transaction_add.add_argument("tocategory")
-                p_transaction_add.add_argument("amount", type=float)
-                p_transaction_add.add_argument("comment", default="", nargs='?')
-                p_transaction_add.add_argument("--force", action="store_true")
+                p_transaction_add.add_argument('date')
+                p_transaction_add.add_argument('fromcategory')
+                p_transaction_add.add_argument('tocategory')
+                p_transaction_add.add_argument('amount', type=float)
+                p_transaction_add.add_argument('comment', default='', nargs='?')
+                p_transaction_add.add_argument('--force', action='store_true')
 
-                p_transaction_edit = sp_transaction.add_parser("edit")
-                p_transaction_edit.set_defaults(command="edit")
+                p_transaction_edit = sp_transaction.add_parser('edit')
+                p_transaction_edit.set_defaults(command='edit')
                 p_transaction_edit.set_defaults(parser=p_transaction_edit)
-                p_transaction_edit.add_argument("index", type=int)
-                p_transaction_edit.add_argument("date")
-                p_transaction_edit.add_argument("fromcategory")
-                p_transaction_edit.add_argument("tocategory")
-                p_transaction_edit.add_argument("amount", type=float)
-                p_transaction_edit.add_argument("comment", default="", nargs='?')
+                p_transaction_edit.add_argument('index', type=int)
+                p_transaction_edit.add_argument('date')
+                p_transaction_edit.add_argument('fromcategory')
+                p_transaction_edit.add_argument('tocategory')
+                p_transaction_edit.add_argument('amount', type=float)
+                p_transaction_edit.add_argument('comment', default='', nargs='?')
 
-                p_transaction_delete = sp_transaction.add_parser("delete")
-                p_transaction_delete.set_defaults(command="delete")
+                p_transaction_delete = sp_transaction.add_parser('delete')
+                p_transaction_delete.set_defaults(command='delete')
                 p_transaction_delete.set_defaults(parser=p_transaction_delete)
-                p_transaction_delete.add_argument("index", type=int)
+                p_transaction_delete.add_argument('index', type=int)
 
-                p_transaction_list = sp_transaction.add_parser("list")
-                p_transaction_list.set_defaults(command="list")
+                p_transaction_list = sp_transaction.add_parser('list')
+                p_transaction_list.set_defaults(command='list')
                 p_transaction_list.set_defaults(parser=p_transaction_list)
-                p_transaction_list.add_argument("year", nargs='?')
-                p_transaction_list.add_argument("month", type=int, nargs='?')
-                p_transaction_list.add_argument("day", type=int, nargs='?')
-                p_transaction_list.add_argument("--category")
-                p_transaction_list.add_argument("--fromcategory")
-                p_transaction_list.add_argument("--tocategory")
-                p_transaction_list.add_argument("--nopaymentplans", action='store_true')
-                p_transaction_list.add_argument("--paymentplansonly", action='store_true')
-                p_transaction_list.add_argument("--paymentplan")
-                p_transaction_list.add_argument("--paymentplangroup")
+                p_transaction_list.add_argument('year', nargs='?')
+                p_transaction_list.add_argument('month', type=int, nargs='?')
+                p_transaction_list.add_argument('day', type=int, nargs='?')
+                p_transaction_list.add_argument('--category')
+                p_transaction_list.add_argument('--fromcategory')
+                p_transaction_list.add_argument('--tocategory')
+                p_transaction_list.add_argument('--nopaymentplans', action='store_true')
+                p_transaction_list.add_argument('--paymentplansonly', action='store_true')
+                p_transaction_list.add_argument('--paymentplan')
+                p_transaction_list.add_argument('--paymentplangroup')
 
                 try:
                         arguments = parser.parse_args(shlex.split(args))
@@ -616,20 +616,20 @@ class PyMoneyConsole(cmd.Cmd):
                         return
 
                 d_commands = {
-                        "add": cmd_add,
-                        "delete": cmd_delete,
-                        "edit": cmd_edit,
-                        "list": cmd_list
+                        'add': cmd_add,
+                        'delete': cmd_delete,
+                        'edit': cmd_edit,
+                        'list': cmd_list
                 }
 
-                if not "command" in arguments.__dict__:
+                if not 'command' in arguments.__dict__:
                         parser.print_help()
                 else:
                         try:
-                                d_commands[arguments.__dict__["command"]](arguments)
+                                d_commands[arguments.__dict__['command']](arguments)
                         except Exception as e:
                                 self.print_error(e)
-                                arguments.__dict__["parser"].print_help()
+                                arguments.__dict__['parser'].print_help()
                                 return
 
         def do_category(self, args):
@@ -639,7 +639,7 @@ class PyMoneyConsole(cmd.Cmd):
                         category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
                         category_name_formatter.set_indent_with_tree_level(True)
 
-                        if arguments.__dict__["fullnamecategories"]:
+                        if arguments.__dict__['fullnamecategories']:
                                 category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
                                 category_name_formatter.set_indent_with_tree_level(False)
 
@@ -648,90 +648,90 @@ class PyMoneyConsole(cmd.Cmd):
 
                 def cmd_list(arguments):
                         category_name_formatter = lib.formatter.CategoryNameFormatter()
-                        if arguments.__dict__["fullnamecategories"]:
+                        if arguments.__dict__['fullnamecategories']:
                                 category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
 
                         for category in self.pyMoney.get_moneydata().get_categories_iterator():
                                 _category = category_name_formatter.format(category)
                                 self.print(_category)
-                        self.print("")
+                        self.print('')
 
                 def cmd_add(arguments):
                         try:
-                                self.pyMoney.get_moneydata().add_category(arguments.__dict__["parentname"], arguments.__dict__["name"])
+                                self.pyMoney.get_moneydata().add_category(arguments.__dict__['parentname'], arguments.__dict__['name'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 def cmd_delete(arguments):
                         try:
-                                self.pyMoney.get_moneydata().delete_category(arguments.__dict__["name"])
+                                self.pyMoney.get_moneydata().delete_category(arguments.__dict__['name'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 def cmd_move(arguments):
                         try:
-                                self.pyMoney.get_moneydata().move_category(arguments.__dict__["name"], arguments.__dict__["newparentname"])
+                                self.pyMoney.get_moneydata().move_category(arguments.__dict__['name'], arguments.__dict__['newparentname'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 def cmd_rename(arguments):
                         try:
-                                self.pyMoney.get_moneydata().rename_category(arguments.__dict__["name"], arguments.__dict__["newname"])
+                                self.pyMoney.get_moneydata().rename_category(arguments.__dict__['name'], arguments.__dict__['newname'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 def cmd_merge(arguments):
                         try:
-                                self.pyMoney.get_moneydata().merge_to_category(arguments.__dict__["name"], arguments.__dict__["targetname"])
+                                self.pyMoney.get_moneydata().merge_to_category(arguments.__dict__['name'], arguments.__dict__['targetname'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 parser = lib.argparse.ArgumentParser()
-                sp_category = parser.add_subparsers(title="command")
+                sp_category = parser.add_subparsers(title='command')
 
-                p_category_add = sp_category.add_parser("add")
-                p_category_add.set_defaults(command="add")
+                p_category_add = sp_category.add_parser('add')
+                p_category_add.set_defaults(command='add')
                 p_category_add.set_defaults(parser=p_category_add)
-                p_category_add.add_argument("parentname")
-                p_category_add.add_argument("name")
+                p_category_add.add_argument('parentname')
+                p_category_add.add_argument('name')
 
-                p_category_delete = sp_category.add_parser("delete")
-                p_category_delete.set_defaults(command="delete")
+                p_category_delete = sp_category.add_parser('delete')
+                p_category_delete.set_defaults(command='delete')
                 p_category_delete.set_defaults(parser=p_category_delete)
-                p_category_delete.add_argument("name")
+                p_category_delete.add_argument('name')
 
-                p_category_merge = sp_category.add_parser("merge")
-                p_category_merge.set_defaults(command="merge")
+                p_category_merge = sp_category.add_parser('merge')
+                p_category_merge.set_defaults(command='merge')
                 p_category_merge.set_defaults(parser=p_category_merge)
-                p_category_merge.add_argument("name")
-                p_category_merge.add_argument("targetname")
+                p_category_merge.add_argument('name')
+                p_category_merge.add_argument('targetname')
 
-                p_category_move = sp_category.add_parser("move")
-                p_category_move.set_defaults(command="move")
+                p_category_move = sp_category.add_parser('move')
+                p_category_move.set_defaults(command='move')
                 p_category_move.set_defaults(parser=p_category_move)
-                p_category_move.add_argument("name")
-                p_category_move.add_argument("newparentname")
+                p_category_move.add_argument('name')
+                p_category_move.add_argument('newparentname')
 
-                p_category_rename = sp_category.add_parser("rename")
-                p_category_rename.set_defaults(command="rename")
+                p_category_rename = sp_category.add_parser('rename')
+                p_category_rename.set_defaults(command='rename')
                 p_category_rename.set_defaults(parser=p_category_rename)
-                p_category_rename.add_argument("name")
-                p_category_rename.add_argument("newname")
+                p_category_rename.add_argument('name')
+                p_category_rename.add_argument('newname')
 
-                p_category_tree = sp_category.add_parser("tree")
-                p_category_tree.set_defaults(command="tree")
+                p_category_tree = sp_category.add_parser('tree')
+                p_category_tree.set_defaults(command='tree')
                 p_category_tree.set_defaults(parser=p_category_tree)
-                p_category_tree.add_argument("--fullnamecategories", action="store_true")
+                p_category_tree.add_argument('--fullnamecategories', action='store_true')
 
-                p_category_list = sp_category.add_parser("list")
-                p_category_list.set_defaults(command="list")
+                p_category_list = sp_category.add_parser('list')
+                p_category_list.set_defaults(command='list')
                 p_category_list.set_defaults(parser=p_category_list)
-                p_category_list.add_argument("--fullnamecategories", action="store_true")
+                p_category_list.add_argument('--fullnamecategories', action='store_true')
 
                 try:
                         arguments = parser.parse_args(shlex.split(args))
@@ -741,71 +741,71 @@ class PyMoneyConsole(cmd.Cmd):
                         return
 
                 d_commands = {
-                        "add": cmd_add,
-                        "delete": cmd_delete,
-                        "move": cmd_move,
-                        "rename": cmd_rename,
-                        "merge": cmd_merge,
-                        "list": cmd_list,
-                        "tree": cmd_tree
+                        'add': cmd_add,
+                        'delete': cmd_delete,
+                        'move': cmd_move,
+                        'rename': cmd_rename,
+                        'merge': cmd_merge,
+                        'list': cmd_list,
+                        'tree': cmd_tree
                 }
 
-                if not "command" in arguments.__dict__:
+                if not 'command' in arguments.__dict__:
                         parser.print_help()
                 else:
                         try:
-                                d_commands[arguments.__dict__["command"]](arguments)
+                                d_commands[arguments.__dict__['command']](arguments)
                         except Exception as e:
                                 self.print_error(e)
-                                arguments.__dict__["parser"].print_help()
+                                arguments.__dict__['parser'].print_help()
                                 return
 
         def do_paymentplan(self, args):
                 'Adds, deletes, edits or executes payment plans'
                 def cmd_add(arguments):
                         try:
-                                self.pyMoney.get_moneydata().add_paymentplan(arguments.__dict__["name"], arguments.__dict__["groupname"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"], arguments.__dict__["comment"])
+                                self.pyMoney.get_moneydata().add_paymentplan(arguments.__dict__['name'], arguments.__dict__['groupname'], arguments.__dict__['fromcategory'], arguments.__dict__['tocategory'], arguments.__dict__['amount'], arguments.__dict__['comment'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 def cmd_edit(arguments):
                         try:
-                                self.pyMoney.get_moneydata().edit_paymentplan(arguments.__dict__["name"], arguments.__dict__["groupname"], arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"], arguments.__dict__["amount"], arguments.__dict__["comment"])
+                                self.pyMoney.get_moneydata().edit_paymentplan(arguments.__dict__['name'], arguments.__dict__['groupname'], arguments.__dict__['fromcategory'], arguments.__dict__['tocategory'], arguments.__dict__['amount'], arguments.__dict__['comment'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 def cmd_delete(arguments):
                         try:
-                                self.pyMoney.get_moneydata().delete_paymentplan(arguments.__dict__["name"])
+                                self.pyMoney.get_moneydata().delete_paymentplan(arguments.__dict__['name'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 def cmd_rename(arguments):
                         try:
-                                self.pyMoney.get_moneydata().rename_paymentplan(arguments.__dict__["name"], arguments.__dict__["newname"])
+                                self.pyMoney.get_moneydata().rename_paymentplan(arguments.__dict__['name'], arguments.__dict__['newname'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 def cmd_move(arguments):
                         try:
-                                self.pyMoney.get_moneydata().move_paymentplan(arguments.__dict__["name"], arguments.__dict__["newgroupname"])
+                                self.pyMoney.get_moneydata().move_paymentplan(arguments.__dict__['name'], arguments.__dict__['newgroupname'])
                                 self.writeOnQuit = True
                         except Exception as e:
                                 self.print_error(e)
 
                 def cmd_list(arguments):
-                        headerdata = ["Group", "PaymentPlan", "FromCategory", "ToCategory", "Amount", "Comment"]
+                        headerdata = ['Group', 'PaymentPlan', 'FromCategory', 'ToCategory', 'Amount', 'Comment']
                         tabledata = []
 
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
-                        if arguments.__dict__["group"]:
+                        if arguments.__dict__['group']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
-                                        lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["group"])
+                                        lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['group'])
                                 )
 
                         for paymentplan in self.pyMoney.get_moneydata().get_paymentplans_iterator():
@@ -829,9 +829,9 @@ class PyMoneyConsole(cmd.Cmd):
                         tableformatter.add_column(2)
                         tableformatter.add_column(3)
                         column = tableformatter.add_column(4)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column.set_precision(2)
-                        column.set_type("f")
+                        column.set_type('f')
                         tableformatter.add_column(5)
 
                         lines = tableformatter.get_formatted_lines(headerdata, tabledata)
@@ -840,16 +840,16 @@ class PyMoneyConsole(cmd.Cmd):
                         for line in lines:
                                 self.print(line)
                                 if is_first_line:
-                                        self.print("")
+                                        self.print('')
 
                                 is_first_line = False
 
                 def cmd_listnames(arguments):
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
-                        if arguments.__dict__["group"]:
+                        if arguments.__dict__['group']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
-                                        lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["group"])
+                                        lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['group'])
                                 )
 
                         for paymentplan in self.pyMoney.get_moneydata().get_paymentplans_iterator():
@@ -866,10 +866,10 @@ class PyMoneyConsole(cmd.Cmd):
 
                 def cmd_execute(arguments):
                         try:
-                                transaction = self.pyMoney.get_moneydata().execute_paymentplan(arguments.__dict__["name"], arguments.__dict__["date"], arguments.__dict__["amount"], arguments.__dict__["comment"])
+                                transaction = self.pyMoney.get_moneydata().execute_paymentplan(arguments.__dict__['name'], arguments.__dict__['date'], arguments.__dict__['amount'], arguments.__dict__['comment'])
 
                                 if self.is_interactive:
-                                        self.print("added transaction " + str(transaction.index) + ": transferred amount " + str(transaction.amount) + " from " + transaction.fromcategory.get_unique_name() + " to " + transaction.tocategory.get_unique_name())
+                                        self.print('added transaction ' + str(transaction.index) + ': transferred amount ' + str(transaction.amount) + ' from ' + transaction.fromcategory.get_unique_name() + ' to ' + transaction.tocategory.get_unique_name())
 
                                 self.writeOnQuit = True
                         except Exception as e:
@@ -877,66 +877,66 @@ class PyMoneyConsole(cmd.Cmd):
 
 
                 parser = lib.argparse.ArgumentParser()
-                sp_paymentplan = parser.add_subparsers(title="command")
+                sp_paymentplan = parser.add_subparsers(title='command')
 
-                p_paymentplan_add = sp_paymentplan.add_parser("add")
-                p_paymentplan_add.set_defaults(command="add")
+                p_paymentplan_add = sp_paymentplan.add_parser('add')
+                p_paymentplan_add.set_defaults(command='add')
                 p_paymentplan_add.set_defaults(parser=p_paymentplan_add)
-                p_paymentplan_add.add_argument("name")
-                p_paymentplan_add.add_argument("groupname")
-                p_paymentplan_add.add_argument("fromcategory")
-                p_paymentplan_add.add_argument("tocategory")
-                p_paymentplan_add.add_argument("amount", type=float)
-                p_paymentplan_add.add_argument("comment", default="", nargs='?')
+                p_paymentplan_add.add_argument('name')
+                p_paymentplan_add.add_argument('groupname')
+                p_paymentplan_add.add_argument('fromcategory')
+                p_paymentplan_add.add_argument('tocategory')
+                p_paymentplan_add.add_argument('amount', type=float)
+                p_paymentplan_add.add_argument('comment', default='', nargs='?')
 
-                p_paymentplan_delete = sp_paymentplan.add_parser("delete")
-                p_paymentplan_delete.set_defaults(command="delete")
+                p_paymentplan_delete = sp_paymentplan.add_parser('delete')
+                p_paymentplan_delete.set_defaults(command='delete')
                 p_paymentplan_delete.set_defaults(parser=p_paymentplan_delete)
-                p_paymentplan_delete.add_argument("name")
+                p_paymentplan_delete.add_argument('name')
 
-                p_paymentplan_edit = sp_paymentplan.add_parser("edit")
-                p_paymentplan_edit.set_defaults(command="edit")
+                p_paymentplan_edit = sp_paymentplan.add_parser('edit')
+                p_paymentplan_edit.set_defaults(command='edit')
                 p_paymentplan_edit.set_defaults(parser=p_paymentplan_edit)
-                p_paymentplan_edit.add_argument("name")
-                p_paymentplan_edit.add_argument("groupname")
-                p_paymentplan_edit.add_argument("fromcategory")
-                p_paymentplan_edit.add_argument("tocategory")
-                p_paymentplan_edit.add_argument("amount", type=float)
-                p_paymentplan_edit.add_argument("comment", default="", nargs='?')
+                p_paymentplan_edit.add_argument('name')
+                p_paymentplan_edit.add_argument('groupname')
+                p_paymentplan_edit.add_argument('fromcategory')
+                p_paymentplan_edit.add_argument('tocategory')
+                p_paymentplan_edit.add_argument('amount', type=float)
+                p_paymentplan_edit.add_argument('comment', default='', nargs='?')
 
-                p_paymentplan_rename = sp_paymentplan.add_parser("rename")
-                p_paymentplan_rename.set_defaults(command="rename")
+                p_paymentplan_rename = sp_paymentplan.add_parser('rename')
+                p_paymentplan_rename.set_defaults(command='rename')
                 p_paymentplan_rename.set_defaults(parser=p_paymentplan_rename)
-                p_paymentplan_rename.add_argument("name")
-                p_paymentplan_rename.add_argument("newname")
+                p_paymentplan_rename.add_argument('name')
+                p_paymentplan_rename.add_argument('newname')
 
-                p_paymentplan_move = sp_paymentplan.add_parser("move")
-                p_paymentplan_move.set_defaults(command="move")
+                p_paymentplan_move = sp_paymentplan.add_parser('move')
+                p_paymentplan_move.set_defaults(command='move')
                 p_paymentplan_move.set_defaults(parser=p_paymentplan_move)
-                p_paymentplan_move.add_argument("name")
-                p_paymentplan_move.add_argument("newgroupname")
+                p_paymentplan_move.add_argument('name')
+                p_paymentplan_move.add_argument('newgroupname')
 
-                p_paymentplan_list = sp_paymentplan.add_parser("list")
-                p_paymentplan_list.set_defaults(command="list")
+                p_paymentplan_list = sp_paymentplan.add_parser('list')
+                p_paymentplan_list.set_defaults(command='list')
                 p_paymentplan_list.set_defaults(parser=p_paymentplan_list)
-                p_paymentplan_list.add_argument("--group")
+                p_paymentplan_list.add_argument('--group')
 
-                p_paymentplan_listnames = sp_paymentplan.add_parser("listnames")
-                p_paymentplan_listnames.set_defaults(command="listnames")
+                p_paymentplan_listnames = sp_paymentplan.add_parser('listnames')
+                p_paymentplan_listnames.set_defaults(command='listnames')
                 p_paymentplan_listnames.set_defaults(parser=p_paymentplan_listnames)
-                p_paymentplan_listnames.add_argument("--group")
+                p_paymentplan_listnames.add_argument('--group')
 
-                p_paymentplan_listgroupnames = sp_paymentplan.add_parser("listgroupnames")
-                p_paymentplan_listgroupnames.set_defaults(command="listgroupnames")
+                p_paymentplan_listgroupnames = sp_paymentplan.add_parser('listgroupnames')
+                p_paymentplan_listgroupnames.set_defaults(command='listgroupnames')
                 p_paymentplan_listgroupnames.set_defaults(parser=p_paymentplan_listgroupnames)
 
-                p_paymentplan_execute = sp_paymentplan.add_parser("execute")
-                p_paymentplan_execute.set_defaults(command="execute")
+                p_paymentplan_execute = sp_paymentplan.add_parser('execute')
+                p_paymentplan_execute.set_defaults(command='execute')
                 p_paymentplan_execute.set_defaults(parser=p_paymentplan_execute)
-                p_paymentplan_execute.add_argument("name")
-                p_paymentplan_execute.add_argument("date")
-                p_paymentplan_execute.add_argument("amount", default=None, type=float, nargs='?')
-                p_paymentplan_execute.add_argument("comment", default="", nargs='?')
+                p_paymentplan_execute.add_argument('name')
+                p_paymentplan_execute.add_argument('date')
+                p_paymentplan_execute.add_argument('amount', default=None, type=float, nargs='?')
+                p_paymentplan_execute.add_argument('comment', default='', nargs='?')
 
                 try:
                         arguments = parser.parse_args(shlex.split(args))
@@ -946,76 +946,76 @@ class PyMoneyConsole(cmd.Cmd):
                         return
 
                 d_commands = {
-                        "add": cmd_add,
-                        "delete": cmd_delete,
-                        "edit": cmd_edit,
-                        "rename": cmd_rename,
-                        "move": cmd_move,
-                        "list": cmd_list,
-                        "listnames": cmd_listnames,
-                        "listgroupnames": cmd_listgroupnames,
-                        "execute": cmd_execute
+                        'add': cmd_add,
+                        'delete': cmd_delete,
+                        'edit': cmd_edit,
+                        'rename': cmd_rename,
+                        'move': cmd_move,
+                        'list': cmd_list,
+                        'listnames': cmd_listnames,
+                        'listgroupnames': cmd_listgroupnames,
+                        'execute': cmd_execute
                 }
 
-                if not "command" in arguments.__dict__:
+                if not 'command' in arguments.__dict__:
                         parser.print_help()
                 else:
                         try:
-                                d_commands[arguments.__dict__["command"]](arguments)
+                                d_commands[arguments.__dict__['command']](arguments)
                         except Exception as e:
                                 self.print_error(e)
-                                arguments.__dict__["parser"].print_help()
+                                arguments.__dict__['parser'].print_help()
                                 return
 
         def do_summary(self, args):
                 'Prints a summarized report across categories / date intervals. Use summary -h for more details.'
                 def cmd_categories(arguments):
-                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
+                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__['year'], arguments.__dict__['month'], arguments.__dict__['day'])
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
                         is_paymentplanfilter_active = False
 
-                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroup"]:
+                        if arguments.__dict__['paymentplansonly'] or arguments.__dict__['paymentplan'] or arguments.__dict__['paymentplangroup']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: not pp is None)
                                 )
                                 is_paymentplanfilter_active = True
 
-                        if arguments.__dict__["nopaymentplans"]:
+                        if arguments.__dict__['nopaymentplans']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: pp is None)
                                 )
 
-                        if arguments.__dict__["paymentplan"]:
+                        if arguments.__dict__['paymentplan']:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__["paymentplan"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__['paymentplan'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
 
-                        if arguments.__dict__["paymentplangroup"]:
+                        if arguments.__dict__['paymentplangroup']:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["paymentplangroup"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['paymentplangroup'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
 
-                        if arguments.__dict__["cashflowcategory"]:
+                        if arguments.__dict__['cashflowcategory']:
                                 try:
                                         transactionfilter = transactionfilter.and_concat(
-                                                self.pyMoney.filterFactory.create_or_category_transactionfilter(arguments.__dict__["cashflowcategory"], arguments.__dict__["cashflowcategory"])
+                                                self.pyMoney.filterFactory.create_or_category_transactionfilter(arguments.__dict__['cashflowcategory'], arguments.__dict__['cashflowcategory'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
                                         return
 
                         categoryfilter = lib.data.filterchain.Filter(lambda c: True)
-                        if arguments.__dict__["maxlevel"]:
-                                categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_maxlevel_categoryfilter(arguments.__dict__["maxlevel"]))
+                        if arguments.__dict__['maxlevel']:
+                                categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_maxlevel_categoryfilter(arguments.__dict__['maxlevel']))
 
-                        if arguments.__dict__["category"]:
-                                categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_subtree_categoryfilter(arguments.__dict__["category"]))
+                        if arguments.__dict__['category']:
+                                categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_subtree_categoryfilter(arguments.__dict__['category']))
 
                         # also apply paymentplan filter to transactions
                         transactionfilter = transactionfilter.and_concat(
@@ -1027,7 +1027,7 @@ class PyMoneyConsole(cmd.Cmd):
                         category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
                         category_name_formatter.set_indent_with_tree_level(True)
 
-                        headerdata = ["node", "amount", "sum +", "sum -", "sum"]
+                        headerdata = ['node', 'amount', 'sum +', 'sum -', 'sum']
                         tabledata = []
 
                         for category in filter(categoryfilter, self.pyMoney.get_moneydata().get_categories_iterator()):
@@ -1037,7 +1037,7 @@ class PyMoneyConsole(cmd.Cmd):
                                 if is_paymentplanfilter_active and d_summary[key].paymentplancount == 0:
                                         continue
 
-                                if not arguments.__dict__["showempty"] and d_summary[key].sumcount == 0:
+                                if not arguments.__dict__['showempty'] and d_summary[key].sumcount == 0:
                                         continue
 
                                 tabledata.append([name, d_summary[key].amount, d_summary[key].sumin, d_summary[key].sumout, d_summary[key].sum])
@@ -1045,21 +1045,21 @@ class PyMoneyConsole(cmd.Cmd):
                         tableformatter = lib.formatter.TableFormatter()
                         tableformatter.add_column(0)
                         column = tableformatter.add_column(1)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column.set_precision(2)
-                        column.set_type("f")
+                        column.set_type('f')
                         column = tableformatter.add_column(2)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column.set_precision(2)
-                        column.set_type("f")
+                        column.set_type('f')
                         column = tableformatter.add_column(3)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column.set_precision(2)
-                        column.set_type("f")
+                        column.set_type('f')
                         column = tableformatter.add_column(4)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column.set_precision(2)
-                        column.set_type("f")
+                        column.set_type('f')
 
                         lines = tableformatter.get_formatted_lines(headerdata, tabledata)
 
@@ -1067,7 +1067,7 @@ class PyMoneyConsole(cmd.Cmd):
                         for line in lines:
                                 self.print(line)
                                 if is_first_line:
-                                        self.print("")
+                                        self.print('')
 
                                 is_first_line = False
 
@@ -1079,7 +1079,7 @@ class PyMoneyConsole(cmd.Cmd):
                         year = start_year
                         month = start_month
 
-                        headerdata = ["date", "node", "amount", "sum +", "sum -", "sum"]
+                        headerdata = ['date', 'node', 'amount', 'sum +', 'sum -', 'sum']
                         tabledata = []
 
                         key = category.get_unique_name()
@@ -1091,7 +1091,7 @@ class PyMoneyConsole(cmd.Cmd):
                                 elif diff_months == 12:
                                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(str(year), None, None)
                                 else:
-                                        raise Exception("diff_months value not supported: " + str(diff_months))
+                                        raise Exception('diff_months value not supported: ' + str(diff_months))
 
                                 # also apply paymentplan filter to transactions
                                 transactionfilter = transactionfilter.and_concat(
@@ -1127,21 +1127,21 @@ class PyMoneyConsole(cmd.Cmd):
                         tableformatter.add_column(0)
                         tableformatter.add_column(1)
                         column = tableformatter.add_column(2)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column.set_precision(2)
-                        column.set_type("f")
+                        column.set_type('f')
                         column = tableformatter.add_column(3)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column.set_precision(2)
-                        column.set_type("f")
+                        column.set_type('f')
                         column = tableformatter.add_column(4)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column.set_precision(2)
-                        column.set_type("f")
+                        column.set_type('f')
                         column = tableformatter.add_column(5)
-                        column.set_alignment(">")
+                        column.set_alignment('>')
                         column.set_precision(2)
-                        column.set_type("f")
+                        column.set_type('f')
 
                         lines = tableformatter.get_formatted_lines(headerdata, tabledata)
 
@@ -1149,7 +1149,7 @@ class PyMoneyConsole(cmd.Cmd):
                         for line in lines:
                                 self.print(line)
                                 if is_first_line:
-                                        self.print("")
+                                        self.print('')
 
                                 is_first_line = False
 
@@ -1170,40 +1170,40 @@ class PyMoneyConsole(cmd.Cmd):
                             return
 
                         try:
-                                category = self.pyMoney.get_moneydata().get_category(arguments.__dict__["category"])
+                                category = self.pyMoney.get_moneydata().get_category(arguments.__dict__['category'])
                         except Exception as e:
                                 self.print_error(e)
                                 return
 
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
-                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroup"]:
+                        if arguments.__dict__['paymentplansonly'] or arguments.__dict__['paymentplan'] or arguments.__dict__['paymentplangroup']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: not pp is None)
                                 )
 
-                        if arguments.__dict__["nopaymentplans"]:
+                        if arguments.__dict__['nopaymentplans']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: pp is None)
                                 )
 
-                        if arguments.__dict__["paymentplan"]:
+                        if arguments.__dict__['paymentplan']:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__["paymentplan"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__['paymentplan'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
 
-                        if arguments.__dict__["paymentplangroup"]:
+                        if arguments.__dict__['paymentplangroup']:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["paymentplangroup"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['paymentplangroup'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
 
-                        sub_time_interval_summary(category, paymentplanfilter, mindate.year, mindate.month, 1, maxdate, arguments.__dict__["balance"])
+                        sub_time_interval_summary(category, paymentplanfilter, mindate.year, mindate.month, 1, maxdate, arguments.__dict__['balance'])
 
                 def cmd_yearly(arguments):
                         mindate = None
@@ -1222,78 +1222,78 @@ class PyMoneyConsole(cmd.Cmd):
                             return
 
                         try:
-                                category = self.pyMoney.get_moneydata().get_category(arguments.__dict__["category"])
+                                category = self.pyMoney.get_moneydata().get_category(arguments.__dict__['category'])
                         except Exception as e:
                                 self.print_error(e)
                                 return
 
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
-                        if arguments.__dict__["paymentplansonly"] or arguments.__dict__["paymentplan"] or arguments.__dict__["paymentplangroup"]:
+                        if arguments.__dict__['paymentplansonly'] or arguments.__dict__['paymentplan'] or arguments.__dict__['paymentplangroup']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: not pp is None)
                                 )
 
-                        if arguments.__dict__["nopaymentplans"]:
+                        if arguments.__dict__['nopaymentplans']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: pp is None)
                                 )
 
-                        if arguments.__dict__["paymentplan"]:
+                        if arguments.__dict__['paymentplan']:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__["paymentplan"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.name == arguments.__dict__['paymentplan'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
 
-                        if arguments.__dict__["paymentplangroup"]:
+                        if arguments.__dict__['paymentplangroup']:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__["paymentplangroup"])
+                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['paymentplangroup'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
 
-                        sub_time_interval_summary(category, paymentplanfilter, mindate.year, 1, 12, maxdate, arguments.__dict__["balance"])
+                        sub_time_interval_summary(category, paymentplanfilter, mindate.year, 1, 12, maxdate, arguments.__dict__['balance'])
 
                 parser = lib.argparse.ArgumentParser()
-                sp_summary = parser.add_subparsers(title="command")
+                sp_summary = parser.add_subparsers(title='command')
 
-                p_summary_categories = sp_summary.add_parser("categories")
-                p_summary_categories.set_defaults(command="categories")
+                p_summary_categories = sp_summary.add_parser('categories')
+                p_summary_categories.set_defaults(command='categories')
                 p_summary_categories.set_defaults(parser=p_summary_categories)
-                p_summary_categories.add_argument("--maxlevel", type=int, nargs='?')
-                p_summary_categories.add_argument("--showempty", action='store_true')
-                p_summary_categories.add_argument("--cashflowcategory")
-                p_summary_categories.add_argument("--category")
-                p_summary_categories.add_argument("--nopaymentplans", action='store_true')
-                p_summary_categories.add_argument("--paymentplansonly", action='store_true')
-                p_summary_categories.add_argument("--paymentplan")
-                p_summary_categories.add_argument("--paymentplangroup")
-                p_summary_categories.add_argument("year", nargs='?')
-                p_summary_categories.add_argument("month", type=int, nargs='?')
-                p_summary_categories.add_argument("day", type=int, nargs='?')
+                p_summary_categories.add_argument('--maxlevel', type=int, nargs='?')
+                p_summary_categories.add_argument('--showempty', action='store_true')
+                p_summary_categories.add_argument('--cashflowcategory')
+                p_summary_categories.add_argument('--category')
+                p_summary_categories.add_argument('--nopaymentplans', action='store_true')
+                p_summary_categories.add_argument('--paymentplansonly', action='store_true')
+                p_summary_categories.add_argument('--paymentplan')
+                p_summary_categories.add_argument('--paymentplangroup')
+                p_summary_categories.add_argument('year', nargs='?')
+                p_summary_categories.add_argument('month', type=int, nargs='?')
+                p_summary_categories.add_argument('day', type=int, nargs='?')
 
-                p_summary_monthly = sp_summary.add_parser("monthly")
-                p_summary_monthly.set_defaults(command="monthly")
+                p_summary_monthly = sp_summary.add_parser('monthly')
+                p_summary_monthly.set_defaults(command='monthly')
                 p_summary_monthly.set_defaults(parser=p_summary_monthly)
-                p_summary_monthly.add_argument("--balance", action='store_true')
-                p_summary_monthly.add_argument("--nopaymentplans", action='store_true')
-                p_summary_monthly.add_argument("--paymentplansonly", action='store_true')
-                p_summary_monthly.add_argument("--paymentplan")
-                p_summary_monthly.add_argument("--paymentplangroup")
-                p_summary_monthly.add_argument("category")
+                p_summary_monthly.add_argument('--balance', action='store_true')
+                p_summary_monthly.add_argument('--nopaymentplans', action='store_true')
+                p_summary_monthly.add_argument('--paymentplansonly', action='store_true')
+                p_summary_monthly.add_argument('--paymentplan')
+                p_summary_monthly.add_argument('--paymentplangroup')
+                p_summary_monthly.add_argument('category')
 
-                p_summary_yearly = sp_summary.add_parser("yearly")
-                p_summary_yearly.set_defaults(command="yearly")
+                p_summary_yearly = sp_summary.add_parser('yearly')
+                p_summary_yearly.set_defaults(command='yearly')
                 p_summary_yearly.set_defaults(parser=p_summary_yearly)
-                p_summary_yearly.add_argument("--balance", action='store_true')
-                p_summary_yearly.add_argument("--nopaymentplans", action='store_true')
-                p_summary_yearly.add_argument("--paymentplansonly", action='store_true')
-                p_summary_yearly.add_argument("--paymentplan")
-                p_summary_yearly.add_argument("--paymentplangroup")
-                p_summary_yearly.add_argument("category")
+                p_summary_yearly.add_argument('--balance', action='store_true')
+                p_summary_yearly.add_argument('--nopaymentplans', action='store_true')
+                p_summary_yearly.add_argument('--paymentplansonly', action='store_true')
+                p_summary_yearly.add_argument('--paymentplan')
+                p_summary_yearly.add_argument('--paymentplangroup')
+                p_summary_yearly.add_argument('category')
 
                 try:
                         arguments = parser.parse_args(shlex.split(args))
@@ -1303,33 +1303,33 @@ class PyMoneyConsole(cmd.Cmd):
                         return
 
                 d_commands = {
-                        "categories": cmd_categories,
-                        "monthly": cmd_monthly,
-                        "yearly": cmd_yearly
+                        'categories': cmd_categories,
+                        'monthly': cmd_monthly,
+                        'yearly': cmd_yearly
                 }
 
-                if not "command" in arguments.__dict__:
+                if not 'command' in arguments.__dict__:
                         parser.print_help()
                 else:
                         try:
-                                d_commands[arguments.__dict__["command"]](arguments)
+                                d_commands[arguments.__dict__['command']](arguments)
                         except Exception as e:
                                 self.print_error(e)
-                                arguments.__dict__["parser"].print_help()
+                                arguments.__dict__['parser'].print_help()
                                 return
 
         def do_export(self, args):
                 'Exports data from the given date range. Outputs pyMoney cli commands. Use export -h for more details.'
 
                 def cmd_export(arguments):
-                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__["year"], arguments.__dict__["month"], arguments.__dict__["day"])
+                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__['year'], arguments.__dict__['month'], arguments.__dict__['day'])
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
-                        if arguments.__dict__["category"]:
+                        if arguments.__dict__['category']:
                                 try:
-                                        category = self.pyMoney.moneydata.get_category(arguments.__dict__["category"])
+                                        category = self.pyMoney.moneydata.get_category(arguments.__dict__['category'])
                                         transactionfilter = transactionfilter.and_concat(
-                                                self.pyMoney.filterFactory.create_or_category_transactionfilter(arguments.__dict__["category"], arguments.__dict__["category"])
+                                                self.pyMoney.filterFactory.create_or_category_transactionfilter(arguments.__dict__['category'], arguments.__dict__['category'])
                                         )
                                         paymentplanfilter = paymentplanfilter.and_concat(
                                                 lib.data.filterchain.Filter(lambda pp: pp.fromcategory.is_contained_in_subtree(category) or pp.tocategory.is_contained_in_subtree(category))
@@ -1338,21 +1338,21 @@ class PyMoneyConsole(cmd.Cmd):
                                         self.print_error(e)
                                         return
 
-                        if arguments.__dict__["fromcategory"] or arguments.__dict__["tocategory"]:
+                        if arguments.__dict__['fromcategory'] or arguments.__dict__['tocategory']:
                                 try:
-                                        if arguments.__dict__["fromcategory"]:
-                                                fromcategory = self.pyMoney.moneydata.get_category(arguments.__dict__["fromcategory"])
+                                        if arguments.__dict__['fromcategory']:
+                                                fromcategory = self.pyMoney.moneydata.get_category(arguments.__dict__['fromcategory'])
                                                 paymentplanfilter = paymentplanfilter.and_concat(
                                                         lib.data.filterchain.Filter(lambda pp: pp.fromcategory.is_contained_in_subtree(fromcategory))
                                                 )
-                                        if arguments.__dict__["tocategory"]:
-                                                tocategory = self.pyMoney.moneydata.get_category(arguments.__dict__["tocategory"])
+                                        if arguments.__dict__['tocategory']:
+                                                tocategory = self.pyMoney.moneydata.get_category(arguments.__dict__['tocategory'])
                                                 paymentplanfilter = paymentplanfilter.and_concat(
                                                         lib.data.filterchain.Filter(lambda pp: pp.tocategory.is_contained_in_subtree(tocategory))
                                                 )
 
                                         transactionfilter = transactionfilter.and_concat(
-                                                self.pyMoney.filterFactory.create_and_category_transactionfilter(arguments.__dict__["fromcategory"], arguments.__dict__["tocategory"])
+                                                self.pyMoney.filterFactory.create_and_category_transactionfilter(arguments.__dict__['fromcategory'], arguments.__dict__['tocategory'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
@@ -1372,7 +1372,7 @@ class PyMoneyConsole(cmd.Cmd):
                                 parent_category_name = c.parent.get_full_name()
                                 category_name = c.name
 
-                                self.print("category add \"" + parent_category_name + "\" \"" + category_name + "\"")
+                                self.print('category add \"' + parent_category_name + '\" \"' + category_name + '\"')
 
                         for pp in paymentplans_iterator:
                                 assert isinstance(pp, lib.data.moneydata.PaymentPlan)
@@ -1382,7 +1382,7 @@ class PyMoneyConsole(cmd.Cmd):
                                 if not paymentplanfilter(pp):
                                         continue
 
-                                self.print("paymentplan add \"" + pp.name + "\" \"" + pp.groupname + "\" \"" + pp.fromcategory.get_full_name() + "\" \"" + pp.tocategory.get_full_name() + "\" " + str(pp.amount) + " \"" + pp.comment + "\"")
+                                self.print('paymentplan add "' + pp.name + '" "' + pp.groupname + '" "' + pp.fromcategory.get_full_name() + '" "' + pp.tocategory.get_full_name() + '" ' + str(pp.amount) + ' "' + pp.comment + '"')
 
                         for t in transactions_iterator:
                                 assert isinstance(t, lib.data.moneydata.Transaction)
@@ -1390,7 +1390,7 @@ class PyMoneyConsole(cmd.Cmd):
                                 assert isinstance(t.tocategory, lib.data.moneydata.CategoryTreeNode)
 
                                 if t.paymentplan is None:
-                                        self.print("transaction add " + str(t.date) + " \"" + t.fromcategory.get_full_name() + "\" \"" + t.tocategory.get_full_name() + "\" " + str(t.amount) + " \"" + t.comment + "\"")
+                                        self.print('transaction add ' + str(t.date) + ' "' + t.fromcategory.get_full_name() + '" "' + t.tocategory.get_full_name() + '" ' + str(t.amount) + ' "' + t.comment + '"')
                                 else:
                                         assert isinstance(t.paymentplan, lib.data.moneydata.PaymentPlan)
 
@@ -1401,25 +1401,25 @@ class PyMoneyConsole(cmd.Cmd):
                                                 update_paymentplan = True
 
                                         if update_paymentplan:
-                                                self.print("paymentplan edit \"" + t.paymentplan.name + "\" \"" + t.paymentplan.groupname + "\" \"" + t.fromcategory.get_unique_name() + "\" \"" + t.tocategory.get_unique_name() + "\" " + str(t.paymentplan.amount) + " \"" + t.paymentplan.comment + "\"")
+                                                self.print('paymentplan edit "' + t.paymentplan.name + '" "' + t.paymentplan.groupname + '" "' + t.fromcategory.get_unique_name() + '" "' + t.tocategory.get_unique_name() + '" ' + str(t.paymentplan.amount) + ' "' + t.paymentplan.comment + '"')
 
                                         if t.amount == t.paymentplan.amount:
-                                                self.print("paymentplan execute \"" + t.paymentplan.name + "\" " + str(t.date))
+                                                self.print('paymentplan execute "' + t.paymentplan.name + '" ' + str(t.date))
                                         else:
-                                                self.print("paymentplan execute \"" + t.paymentplan.name + "\" " + str(t.date) + " " + str(t.amount))
+                                                self.print('paymentplan execute "' + t.paymentplan.name + '" ' + str(t.date) + ' ' + str(t.amount))
 
 
                                         if update_paymentplan:
-                                                self.print("paymentplan edit \"" + t.paymentplan.name + "\" \"" + t.paymentplan.groupname + "\" \"" + t.paymentplan.fromcategory.get_unique_name() + "\" \"" + t.paymentplan.tocategory.get_unique_name() + "\" " + str(t.paymentplan.amount) + " \"" + t.paymentplan.comment + "\"")
+                                                self.print('paymentplan edit "' + t.paymentplan.name + '" "' + t.paymentplan.groupname + '" "' + t.paymentplan.fromcategory.get_unique_name() + '" "' + t.paymentplan.tocategory.get_unique_name() + '" ' + str(t.paymentplan.amount) + ' "' + t.paymentplan.comment + '"')
 
 
                 parser = lib.argparse.ArgumentParser()
-                parser.add_argument("year", nargs='?')
-                parser.add_argument("month", type=int, nargs='?')
-                parser.add_argument("day", type=int, nargs='?')
-                parser.add_argument("--category")
-                parser.add_argument("--fromcategory")
-                parser.add_argument("--tocategory")
+                parser.add_argument('year', nargs='?')
+                parser.add_argument('month', type=int, nargs='?')
+                parser.add_argument('day', type=int, nargs='?')
+                parser.add_argument('--category')
+                parser.add_argument('--fromcategory')
+                parser.add_argument('--tocategory')
 
                 try:
                         arguments = parser.parse_args(shlex.split(args))
@@ -1444,57 +1444,57 @@ class PyMoneyConsole(cmd.Cmd):
 
         ### additional help entries
         def help_parameters(self):
-                self.stdout.write("--fileprefix [prefix]\t- loads data from [prefix].transactions, [preifix].categories files. Default value: 'pymoney'\n")
-                self.stdout.write("--script\t\t- Executes commands piped from stdin\n")
-                self.stdout.write("--cli\t\t\t- Shows a prompt and executes commands from stdin\n")
+                self.stdout.write("--fileprefix [prefix]\t- loads data from [prefix].transactions, [prefix].categories files. Default value: 'pymoney'\n")
+                self.stdout.write('--script\t\t- Executes commands piped from stdin\n')
+                self.stdout.write('--cli\t\t\t- Shows a prompt and executes commands from stdin\n')
 
         ### Cmd behaviour
         def emptyline(self):
                 return
 
         def precmd(self, line):
-                if line == "EOF":
-                        return "quit"
+                if line == 'EOF':
+                        return 'quit'
                 else:
                         return line
 
         def get_argument_parser(self):
                 p_main = lib.argparse.ArgumentParser()
-                p_main.add_argument("--fileprefix", default="pymoney")
-                p_main.add_argument("--script", action='store_true')
-                p_main.add_argument("--cli", action='store_true')
-                p_main.add_argument("command", nargs=argparse.REMAINDER)
+                p_main.add_argument('--fileprefix', default='pymoney')
+                p_main.add_argument('--script', action='store_true')
+                p_main.add_argument('--cli', action='store_true')
+                p_main.add_argument('command', nargs=argparse.REMAINDER)
 
                 return p_main
 
         def do_help(self, arg):
                 parser = lib.argparse.ArgumentParser()
-                parser.add_argument("command", nargs='?')
+                parser.add_argument('command', nargs='?')
 
                 arguments = parser.parse_args(shlex.split(arg))
 
-                cmd.Cmd.do_help(self, arguments.__dict__["command"])
+                cmd.Cmd.do_help(self, arguments.__dict__['command'])
 
         def main(self):
-                if self.arguments.__dict__["script"]:
+                if self.arguments.__dict__['script']:
                         self.is_interactive = False
-                        self.prompt = "."
+                        self.prompt = '.'
                         self.cmdloop()
-                elif self.arguments.__dict__["cli"]:
+                elif self.arguments.__dict__['cli']:
                         self.cmdloop()
                 else:
-                        argv = self.arguments.__dict__["command"]
+                        argv = self.arguments.__dict__['command']
 
                         if len(argv) > 0:
                                 self.onecmd(argv[0] + ' "' + '" "'.join(argv[1:]) + '"')
                                 self.do_quit([])
                         else:
-                                self.do_help("")
+                                self.do_help('')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
         argv = sys.argv[1:]
-        if len(sys.argv)>1 and sys.argv[1] in ("-h", "--help"):
+        if len(sys.argv)>1 and sys.argv[1] in ('-h', '--help'):
                 if len(sys.argv)>2:
                         argv = sys.argv[2:] + [sys.argv[1]]
                 else:
