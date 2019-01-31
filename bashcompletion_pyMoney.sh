@@ -375,12 +375,12 @@ _pymoney_summary()
 					COMPREPLY=( $( compgen -W "$( _pymoney_category_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
-				--paymentplangroup)
+				--group)
 					COMPREPLY=( $( compgen -W "$( _pymoney_paymentplangroup_list ${COMP_WORDS[0]} )" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--category --cashflowcategory --paymentplangroup --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--category --cashflowcategory --group --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;

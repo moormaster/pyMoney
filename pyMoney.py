@@ -254,7 +254,7 @@ class PyMoneyCompletion:
 
                 if len(argv) >= 2:
                         if argv[1] == 'paymentplansprediction':
-                                parameters = ['category', 'cashflowcategory', 'paymentplangroup', 'showempty', 'maxlevel']
+                                parameters = ['category', 'cashflowcategory', 'group', 'showempty', 'maxlevel']
 
                                 if argv[-2] in ['--category', '--cashflowcategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -262,7 +262,7 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
-                                elif argv[-2] == '--paymentplangroup':
+                                elif argv[-2] == '--group':
                                         groupnames = self.pyMoney.get_moneydata().get_paymentplangroupnames()
                                         groupnames = list(filter(lambda v: v.startswith(argv[-1]), groupnames))
 
@@ -1140,15 +1140,15 @@ class PyMoneyConsole(cmd.Cmd):
                 def cmd_paymentplansprediction(arguments):
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
-                        if arguments.__dict__['paymentplangroup']:
+                        if arguments.__dict__['group']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: not pp is None)
                                 )
 
-                        if arguments.__dict__['paymentplangroup']:
+                        if arguments.__dict__['group']:
                                 try:
                                         paymentplanfilter = paymentplanfilter.and_concat(
-                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['paymentplangroup'])
+                                                lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['group'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)
@@ -1426,7 +1426,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_paymentplansprediction.add_argument('--showempty', action='store_true')
                 p_summary_paymentplansprediction.add_argument('--cashflowcategory')
                 p_summary_paymentplansprediction.add_argument('--category')
-                p_summary_paymentplansprediction.add_argument('--paymentplangroup')
+                p_summary_paymentplansprediction.add_argument('--group')
 
                 p_summary_monthly = sp_summary.add_parser('monthly')
                 p_summary_monthly.set_defaults(command='monthly')
