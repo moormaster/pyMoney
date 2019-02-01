@@ -225,7 +225,7 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["summary", "paymentplansprediction", "--maxlevel", "2"])
                 self.pymoney(["summary", "paymentplansprediction", "--cashflowcategory", "Rent"])
 
-                self.pymoney(["summary", "paymentplansprediction", "--paymentplangroup", "Monthly", "--category", "Expenses"])
+                self.pymoney(["summary", "paymentplansprediction", "--group", "Monthly", "--category", "Expenses"])
 
                 self.pymoney(["summary", "monthly", "--balance", "Giro"])
                 self.pymoney(["summary", "monthly", "--paymentplangroup", "Monthly", "Expenses"])
