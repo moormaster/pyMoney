@@ -439,7 +439,7 @@ class MoneyData:
 
                 return d_summary
 
-        def create_paymentplan_summary(self, paymentplanfilter, d_summary=None):
+        def create_paymentplan_summary(self, paymentplanfilter, factor, d_summary=None):
                 if d_summary is None:
                         d_summary = {}  # resulting map unqique category name -> NodeSummary() object
                 d_unique_name = {}      # cached category.get_unique_name() results
@@ -469,11 +469,11 @@ class MoneyData:
                         fromkey = d_unique_name[id(pp.fromcategory)]
                         tokey = d_unique_name[id(pp.tocategory)]
 
-                        d_summary[fromkey].amountout -= pp.amount * fp_correction_factor
-                        d_summary[fromkey].amount -= pp.amount * fp_correction_factor
+                        d_summary[fromkey].amountout -= pp.amount * fp_correction_factor * factor
+                        d_summary[fromkey].amount -= pp.amount * fp_correction_factor * factor
 
-                        d_summary[tokey].amountin += pp.amount * fp_correction_factor
-                        d_summary[tokey].amount += pp.amount * fp_correction_factor
+                        d_summary[tokey].amountin += pp.amount * fp_correction_factor * factor
+                        d_summary[tokey].amount += pp.amount * fp_correction_factor * factor
 
                         c = pp.fromcategory
                         while not c is None:
@@ -482,8 +482,8 @@ class MoneyData:
                                 d_summary[key].paymentplancount = d_summary[key].paymentplancount + 1
                                 d_summary[key].sumcountout = d_summary[key].sumcountout + 1
                                 d_summary[key].sumcount = d_summary[key].sumcount + 1
-                                d_summary[key].sumout -= pp.amount * fp_correction_factor
-                                d_summary[key].sum -= pp.amount * fp_correction_factor
+                                d_summary[key].sumout -= pp.amount * fp_correction_factor * factor
+                                d_summary[key].sum -= pp.amount * fp_correction_factor * factor
                                 c = c.parent
 
                         c = pp.tocategory
@@ -493,8 +493,8 @@ class MoneyData:
                                 d_summary[key].paymentplancount = d_summary[key].paymentplancount + 1
                                 d_summary[key].sumcountin = d_summary[key].sumcountin + 1
                                 d_summary[key].sumcount = d_summary[key].sumcount + 1
-                                d_summary[key].sumin += pp.amount * fp_correction_factor
-                                d_summary[key].sum += pp.amount * fp_correction_factor
+                                d_summary[key].sumin += pp.amount * fp_correction_factor * factor
+                                d_summary[key].sum += pp.amount * fp_correction_factor * factor
                                 c = c.parent
 
                 for key in d_summary:

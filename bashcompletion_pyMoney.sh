@@ -380,7 +380,7 @@ _pymoney_summary()
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--category --cashflowcategory --group --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--category --cashflowcategory --factor --divisor --group --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;

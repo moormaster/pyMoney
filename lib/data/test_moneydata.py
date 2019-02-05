@@ -787,7 +787,7 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.moneydata.add_paymentplan("plan3", "group", "Source", "Target", "30.0", "")
 
                 filter_func = lambda t: True
-                summary = self.moneydata.create_paymentplan_summary(filter_func)
+                summary = self.moneydata.create_paymentplan_summary(filter_func, 1)
 
                 self.assertEqual(summary["Source"].amountin, 0.0)
                 self.assertEqual(summary["Source"].amountout, -60.0)
@@ -822,6 +822,66 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertEqual(summary["Target"].sumout, 0.0)
                 self.assertEqual(summary["Target"].sum, 60.0)
 
+        def test_create_paymentplan_summary_should_apply_the_given_factor(self):
+                self.moneydata.add_category("All", "Source")
+                self.moneydata.add_category("All", "Target")
+
+                self.moneydata.add_paymentplan("plan1", "group", "Source", "Target", "10.0", "")
+                self.moneydata.add_paymentplan("plan2", "group", "Source", "Target", "20.0", "")
+                self.moneydata.add_paymentplan("plan3", "group", "Source", "Target", "30.0", "")
+
+                filter_func = lambda t: True
+                summary = self.moneydata.create_paymentplan_summary(filter_func, 3)
+
+                self.assertEqual(summary["Source"].amountin, 0.0)
+                self.assertEqual(summary["Source"].amountout, -180.0)
+                self.assertEqual(summary["Source"].amount, -180.0)
+
+                self.assertEqual(summary["Source"].sumcountin, 0)
+                self.assertEqual(summary["Source"].sumcountout, 3)
+                self.assertEqual(summary["Source"].sumcount, 3)
+
+                self.assertEqual(summary["Source"].paymentplancountin, 0)
+                self.assertEqual(summary["Source"].paymentplancountout, 3)
+                self.assertEqual(summary["Source"].paymentplancount, 3)
+
+                self.assertEqual(summary["Source"].sumin, 0.0)
+                self.assertEqual(summary["Source"].sumout, -180.0)
+                self.assertEqual(summary["Source"].sum, -180.0)
+
+
+                self.assertEqual(summary["Target"].amountin, 180.0)
+                self.assertEqual(summary["Target"].amountout, 0.0)
+                self.assertEqual(summary["Target"].amount, 180.0)
+
+                self.assertEqual(summary["Target"].sumcountin, 3)
+                self.assertEqual(summary["Target"].sumcountout, 0)
+                self.assertEqual(summary["Target"].sumcount, 3)
+
+                self.assertEqual(summary["Target"].paymentplancountin, 3)
+                self.assertEqual(summary["Target"].paymentplancountout, 0)
+                self.assertEqual(summary["Target"].paymentplancount, 3)
+
+                self.assertEqual(summary["Target"].sumin, 180.0)
+                self.assertEqual(summary["Target"].sumout, 0.0)
+                self.assertEqual(summary["Target"].sum, 180.0)
+
+                self.assertEqual(summary["All"].amountin, 0)
+                self.assertEqual(summary["All"].amountout, 0)
+                self.assertEqual(summary["All"].amount, 0)
+
+                self.assertEqual(summary["All"].sumin, 180.0)
+                self.assertEqual(summary["All"].sumout, -180.0)
+                self.assertEqual(summary["All"].sum, 0.0)
+
+                self.assertEqual(summary["All"].sumcountin, 3)
+                self.assertEqual(summary["All"].sumcountout, 3)
+                self.assertEqual(summary["All"].sumcount, 6)
+
+                self.assertEqual(summary["All"].paymentplancountin, 3)
+                self.assertEqual(summary["All"].paymentplancountout, 3)
+                self.assertEqual(summary["All"].paymentplancount, 6)
+
         def test_create_paymentplan_summary_should_not_accumulate_floating_point_errors(self):
                 self.moneydata.add_category("All", "Source")
                 self.moneydata.add_category("All", "Target")
@@ -834,7 +894,7 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertNotEqual(almostZero, 0, "python floating point arithmetic should fail to exactly sum up 0.01 six times")
 
                 filter_func = lambda t: True
-                summary = self.moneydata.create_paymentplan_summary(filter_func)
+                summary = self.moneydata.create_paymentplan_summary(filter_func, 1)
 
                 self.assertEqual(summary["Target"].amount, 0, "create_summary() should make sure that adding 0.01 six times and subtracting 0.06 equals exactly 0")
 
@@ -847,7 +907,7 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.moneydata.add_paymentplan("plan3", "group", "Source", "Target", "30.0", "")
 
                 filter_func = lambda t: True
-                summary = self.moneydata.create_paymentplan_summary(filter_func)
+                summary = self.moneydata.create_paymentplan_summary(filter_func, 1)
 
                 self.assertEqual(summary["All"].amountin, 0)
                 self.assertEqual(summary["All"].amountout, 0)
@@ -883,7 +943,7 @@ class TestMoneyData_Summary(unittest.TestCase):
 
 
                 filter_func = lambda t: True
-                summary = self.moneydata.create_paymentplan_summary(filter_func, d_previous_summary)
+                summary = self.moneydata.create_paymentplan_summary(filter_func, 1, d_previous_summary)
 
                 self.assertEqual(summary["All"].amountin, 10.0)
                 self.assertEqual(summary["All"].amountout, -10.0)

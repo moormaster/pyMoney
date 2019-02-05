@@ -254,7 +254,7 @@ class PyMoneyCompletion:
 
                 if len(argv) >= 2:
                         if argv[1] == 'paymentplansprediction':
-                                parameters = ['category', 'cashflowcategory', 'group', 'showempty', 'maxlevel']
+                                parameters = ['category', 'cashflowcategory', 'factor', 'divisor', 'group', 'showempty', 'maxlevel']
 
                                 if argv[-2] in ['--category', '--cashflowcategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -874,7 +874,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                                 tabledata.append(row)
 
-                        d_summary = self.pyMoney.get_moneydata().create_paymentplan_summary(paymentplanfilter)
+                        d_summary = self.pyMoney.get_moneydata().create_paymentplan_summary(paymentplanfilter, 1)
 
                         if summarycategory:
                                 _summarycategory = summarycategory.get_unique_name()
@@ -1139,6 +1139,13 @@ class PyMoneyConsole(cmd.Cmd):
                 'Prints a summarized report of predicted payments across categories based on the paymentplans. Use summary -h for more details.'
                 def cmd_paymentplansprediction(arguments):
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
+                        factor = 1
+
+                        if not arguments.__dict__['factor'] is None:
+                                factor = arguments.__dict__['factor']
+
+                        if not arguments.__dict__['divisor'] is None:
+                                factor = 1 / arguments.__dict__['divisor']
 
                         if arguments.__dict__['group']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
@@ -1169,7 +1176,7 @@ class PyMoneyConsole(cmd.Cmd):
                         if arguments.__dict__['category']:
                                 categoryfilter = categoryfilter.and_concat(self.pyMoney.filterFactory.create_subtree_categoryfilter(arguments.__dict__['category']))
 
-                        d_summary = self.pyMoney.get_moneydata().create_paymentplan_summary(paymentplanfilter)
+                        d_summary = self.pyMoney.get_moneydata().create_paymentplan_summary(paymentplanfilter, factor)
                         category_name_formatter = lib.formatter.CategoryNameFormatter()
                         category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_NAME)
                         category_name_formatter.set_indent_with_tree_level(True)
@@ -1426,6 +1433,8 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_paymentplansprediction.add_argument('--showempty', action='store_true')
                 p_summary_paymentplansprediction.add_argument('--cashflowcategory')
                 p_summary_paymentplansprediction.add_argument('--category')
+                p_summary_paymentplansprediction.add_argument('--factor', type=float)
+                p_summary_paymentplansprediction.add_argument('--divisor', type=float)
                 p_summary_paymentplansprediction.add_argument('--group')
 
                 p_summary_monthly = sp_summary.add_parser('monthly')
