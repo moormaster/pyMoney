@@ -369,7 +369,7 @@ added transaction 51: transferred amount 10.0 from Income.Misc to Cash
 $ ./pyMoney.py summary categories --category Assets
 node           amount    sum +    sum -      sum
 
-  Assets         0.00 16310.00 -1790.00 14520.00
+  Assets         0.00 15410.00  -890.00 14520.00
     Cash       600.00   810.00  -210.00   600.00
     DayMoney 10500.00 10500.00     0.00 10500.00
     Giro      3420.00  5000.00 -1580.00  3420.00
@@ -547,7 +547,7 @@ added transaction 99: transferred amount 8.0 from Cash to Lunch
 $ ./pyMoney.py summary categories --category Assets
 node                   amount    sum +    sum -      sum
 
-  Assets                 0.00 19210.00 -3580.00 15630.00
+  Assets                 0.00 17410.00 -1780.00 15630.00
     Cash               790.00  1210.00  -420.00   790.00
     Giro              3840.00  7000.00 -3160.00  3840.00
     DayMoneyAccounts     0.00 11000.00     0.00 11000.00
@@ -557,10 +557,10 @@ node                   amount    sum +    sum -      sum
 $ ./pyMoney.py summary categories 2000 01
 node                    amount    sum +     sum -       sum
 
-All                       0.00 17700.00 -17700.00      0.00
+All                       0.00     0.00      0.00      0.00
   Equity                  0.00     0.00 -13400.00 -13400.00
     OpeningBalance   -13400.00     0.00 -13400.00 -13400.00
-  Assets                  0.00 16810.00  -2290.00  14520.00
+  Assets                  0.00 15410.00   -890.00  14520.00
     Cash                600.00   810.00   -210.00    600.00
     Giro               2920.00  5000.00  -2080.00   2920.00
     DayMoneyAccounts      0.00 11000.00      0.00  11000.00
@@ -582,8 +582,8 @@ All                       0.00 17700.00 -17700.00      0.00
 $ ./pyMoney.py summary categories 2000 02
 node                amount   sum +    sum -      sum
 
-All                   0.00 3290.00 -3290.00     0.00
-  Assets              0.00 2400.00 -1290.00  1110.00
+All                   0.00    0.00     0.00     0.00
+  Assets              0.00 2000.00  -890.00  1110.00
     Cash            190.00  400.00  -210.00   190.00
     Giro            920.00 2000.00 -1080.00   920.00
   Income              0.00    0.00 -2000.00 -2000.00
@@ -601,10 +601,10 @@ All                   0.00 3290.00 -3290.00     0.00
 $ ./pyMoney.py summary categories 2000 01 --maxlevel 2
 node                    amount    sum +     sum -       sum
 
-All                       0.00 17700.00 -17700.00      0.00
+All                       0.00     0.00      0.00      0.00
   Equity                  0.00     0.00 -13400.00 -13400.00
     OpeningBalance   -13400.00     0.00 -13400.00 -13400.00
-  Assets                  0.00 16810.00  -2290.00  14520.00
+  Assets                  0.00 15410.00   -890.00  14520.00
     Cash                600.00   810.00   -210.00    600.00
     Giro               2920.00  5000.00  -2080.00   2920.00
     DayMoneyAccounts      0.00 11000.00      0.00  11000.00
@@ -618,7 +618,7 @@ All                       0.00 17700.00 -17700.00      0.00
 $ ./pyMoney.py summary categories 2000 01 --cashflowcategory Rent
 node          amount  sum +   sum -     sum
 
-All             0.00 600.00 -600.00    0.00
+All             0.00   0.00    0.00    0.00
   Assets        0.00   0.00 -600.00 -600.00
     Giro     -600.00   0.00 -600.00 -600.00
   Expenses      0.00 600.00    0.00  600.00

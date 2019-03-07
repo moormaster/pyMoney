@@ -395,8 +395,9 @@ class MoneyData:
                                 key = d_unique_name[id(c)]
                                 d_summary[key].sumcountout = d_summary[key].sumcountout + 1
                                 d_summary[key].sumcount = d_summary[key].sumcount + 1
-                                d_summary[key].sumout -= t.amount * fp_correction_factor
-                                d_summary[key].sum -= t.amount * fp_correction_factor
+                                if t.fromcategory.is_contained_in_subtree(c) and not t.tocategory.is_contained_in_subtree(c):
+                                        d_summary[key].sumout -= t.amount * fp_correction_factor
+                                        d_summary[key].sum -= t.amount * fp_correction_factor
                                 c = c.parent
 
                         c = t.tocategory
@@ -404,8 +405,9 @@ class MoneyData:
                                 key = d_unique_name[id(c)]
                                 d_summary[key].sumcountin = d_summary[key].sumcountin + 1
                                 d_summary[key].sumcount = d_summary[key].sumcount + 1
-                                d_summary[key].sumin += t.amount * fp_correction_factor
-                                d_summary[key].sum += t.amount * fp_correction_factor
+                                if not t.fromcategory.is_contained_in_subtree(c) and t.tocategory.is_contained_in_subtree(c):
+                                        d_summary[key].sumin += t.amount * fp_correction_factor
+                                        d_summary[key].sum += t.amount * fp_correction_factor
                                 c = c.parent
 
                 for name in self.paymentplans:

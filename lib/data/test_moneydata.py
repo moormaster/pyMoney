@@ -718,12 +718,16 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertEqual(summary["Target"].amount, 0, "create_summary() should make sure that adding 0.01 six times and subtracting 0.06 equals exactly 0")
 
         def test_create_summary_should_accumulate_values_of_subcategories(self):
-                self.moneydata.add_category("All", "Source")
-                self.moneydata.add_category("All", "Target")
+                self.moneydata.add_category("All", "Sources")
+                self.moneydata.add_category("Sources", "Source1")
+                self.moneydata.add_category("Sources", "Source2")
+                self.moneydata.add_category("All", "Targets")
+                self.moneydata.add_category("Targets", "Target1")
+                self.moneydata.add_category("Targets", "Target2")
 
-                self.moneydata.add_paymentplan("plan1", "group", "Source", "Target", "10.0", "")
-                self.moneydata.add_paymentplan("plan2", "group", "Source", "Target", "20.0", "")
-                self.moneydata.add_paymentplan("plan3", "group", "Source", "Target", "30.0", "")
+                self.moneydata.add_paymentplan("plan1", "group", "Source1", "Target1", "10.0", "")
+                self.moneydata.add_paymentplan("plan2", "group", "Source2", "Target1", "20.0", "")
+                self.moneydata.add_paymentplan("plan3", "group", "Source1", "Target2", "30.0", "")
 
                 self.moneydata.execute_paymentplan("plan1", "2000-01-01")
                 self.moneydata.execute_paymentplan("plan2", "2000-01-01")
@@ -736,8 +740,8 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertEqual(summary["All"].amountout, 0)
                 self.assertEqual(summary["All"].amount, 0)
 
-                self.assertEqual(summary["All"].sumin, 60.0)
-                self.assertEqual(summary["All"].sumout, -60.0)
+                self.assertEqual(summary["All"].sumin, 0.0)
+                self.assertEqual(summary["All"].sumout, 0.0)
                 self.assertEqual(summary["All"].sum, 0.0)
 
                 self.assertEqual(summary["All"].sumcountin, 3)
@@ -748,6 +752,14 @@ class TestMoneyData_Summary(unittest.TestCase):
                 self.assertEqual(summary["All"].paymentplancountout, 3)
                 self.assertEqual(summary["All"].paymentplancount, 6)
 
+                self.assertEqual(summary["Sources"].sumin, 0.0)
+                self.assertEqual(summary["Sources"].sumout, -60.0)
+                self.assertEqual(summary["Sources"].sum, -60.0)
+
+                self.assertEqual(summary["Targets"].sumin, 60.0)
+                self.assertEqual(summary["Targets"].sumout, 0.0)
+                self.assertEqual(summary["Targets"].sum, 60.0)
+
         def test_create_summary_should_use_the_given_initial_sums_based_on_previous_result(self):
                 self.moneydata.add_category("All", "Source")
                 self.moneydata.add_category("All", "Target")
@@ -756,27 +768,42 @@ class TestMoneyData_Summary(unittest.TestCase):
 
                 self.moneydata.execute_paymentplan("plan", "2000-01-01")
 
-                d_previous_summary = {"All": moneydata.NodeSummary()}
+                d_previous_summary = {"Source": moneydata.NodeSummary()}
 
-                d_previous_summary["All"].amount = 0.0
-                d_previous_summary["All"].amountin = 10.0
-                d_previous_summary["All"].amountout = -10.0
+                d_previous_summary["Source"].amount = -10.0
+                d_previous_summary["Source"].amountin = 0.0
+                d_previous_summary["Source"].amountout = -10.0
 
-                d_previous_summary["All"].sum = 0.0
-                d_previous_summary["All"].sumin = 10.0
-                d_previous_summary["All"].sumout = -10.0
+                d_previous_summary["Source"].sum = -10.0
+                d_previous_summary["Source"].sumin = 0.0
+                d_previous_summary["Source"].sumout = -10.0
 
+                d_previous_summary["Target"].amount = 10.0
+                d_previous_summary["Target"].amountin = 10.0
+                d_previous_summary["Target"].amountout = 0.0
+
+                d_previous_summary["Target"].sum = 10.0
+                d_previous_summary["Target"].sumin = 10.0
+                d_previous_summary["Target"].sumout = 0.0
 
                 filter_func = lambda t: True
                 summary = self.moneydata.create_summary(filter_func, filter_func, d_previous_summary)
 
-                self.assertEqual(summary["All"].amountin, 10.0)
-                self.assertEqual(summary["All"].amountout, -10.0)
-                self.assertEqual(summary["All"].amount, 0)
+                self.assertEqual(summary["Source"].amount, -20.0)
+                self.assertEqual(summary["Source"].amountin, 0.0)
+                self.assertEqual(summary["Source"].amountout, -20.0)
 
-                self.assertEqual(summary["All"].sumin, 20.0)
-                self.assertEqual(summary["All"].sumout, -20.0)
-                self.assertEqual(summary["All"].sum, 0.0)
+                self.assertEqual(summary["Source"].sum, -20.0)
+                self.assertEqual(summary["Source"].sumin, 0.0)
+                self.assertEqual(summary["Source"].sumout, -20.0)
+
+                self.assertEqual(summary["Target"].amount, 20.0)
+                self.assertEqual(summary["Target"].amountin, 20.0)
+                self.assertEqual(summary["Target"].amountout, 0.0)
+
+                self.assertEqual(summary["Target"].sum, 20.0)
+                self.assertEqual(summary["Target"].sumin, 20.0)
+                self.assertEqual(summary["Target"].sumout, 0.0)
 
         def test_create_paymentplan_summary_should_accumulate_transactions_of_a_category(self):
                 self.moneydata.add_category("All", "Source")
