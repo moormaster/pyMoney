@@ -147,7 +147,7 @@ class FilterFactory:
                                 raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
 
                         transactionfilter = transactionfilter.or_concat(
-                                lambda t: t.fromcategory is fromcategory or t.fromcategory.is_contained_in_subtree(fromcategory)
+                                lambda t: t.fromcategory.is_contained_in_subtree(fromcategory)
                         )
 
                 if filter_to_category:
@@ -157,7 +157,32 @@ class FilterFactory:
                                 raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
 
                         transactionfilter = transactionfilter.or_concat(
-                                lambda t: t.tocategory is tocategory or t.tocategory.is_contained_in_subtree(tocategory)
+                                lambda t: t.tocategory.is_contained_in_subtree(tocategory)
+                        )
+
+                return transactionfilter
+
+        def create_xor_category_transactionfilter(self, filter_from_category, filter_to_category):
+                transactionfilter = lib.data.filterchain.Filter(lambda t: False)
+
+                if filter_from_category:
+                        fromcategory = self.moneydata.get_category(filter_from_category)
+
+                        if not fromcategory:
+                                raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
+
+                        transactionfilter = transactionfilter.xor_concat(
+                                lambda t: t.fromcategory.is_contained_in_subtree(fromcategory)
+                        )
+
+                if filter_to_category:
+                        tocategory = self.moneydata.get_category(filter_to_category)
+
+                        if not tocategory:
+                                raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
+
+                        transactionfilter = transactionfilter.xor_concat(
+                                lambda t: t.tocategory.is_contained_in_subtree(tocategory)
                         )
 
                 return transactionfilter
@@ -172,7 +197,7 @@ class FilterFactory:
                                 raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
 
                         transactionfilter = transactionfilter.and_concat(
-                                lambda t: t.fromcategory is fromcategory or t.fromcategory.is_contained_in_subtree(fromcategory)
+                                lambda t: t.fromcategory.is_contained_in_subtree(fromcategory)
                         )
 
                 if filter_to_category:
@@ -182,7 +207,7 @@ class FilterFactory:
                                 raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
 
                         transactionfilter = transactionfilter.and_concat(
-                                lambda t: t.tocategory is tocategory or t.tocategory.is_contained_in_subtree(tocategory)
+                                lambda t: t.tocategory.is_contained_in_subtree(tocategory)
                         )
 
                 return transactionfilter
@@ -197,7 +222,7 @@ class FilterFactory:
                                 raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
 
                         paymentplanfilter = paymentplanfilter.or_concat(
-                                lambda pp: pp.fromcategory is fromcategory or pp.fromcategory.is_contained_in_subtree(fromcategory)
+                                lambda pp: pp.fromcategory.is_contained_in_subtree(fromcategory)
                         )
 
                 if filter_to_category:
@@ -207,7 +232,7 @@ class FilterFactory:
                                 raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
 
                         paymentplanfilter = paymentplanfilter.or_concat(
-                                lambda pp: pp.tocategory is tocategory or pp.tocategory.is_contained_in_subtree(tocategory)
+                                lambda pp: pp.tocategory.is_contained_in_subtree(tocategory)
                         )
 
                 return paymentplanfilter
@@ -222,7 +247,7 @@ class FilterFactory:
                                 raise lib.data.moneydata.NoSuchCategoryException(filter_from_category)
 
                         paymentplanfilter = paymentplanfilter.and_concat(
-                                lambda pp: pp.fromcategory is fromcategory or pp.fromcategory.is_contained_in_subtree(fromcategory)
+                                lambda pp: pp.fromcategory.is_contained_in_subtree(fromcategory)
                         )
 
                 if filter_to_category:
@@ -232,7 +257,7 @@ class FilterFactory:
                                 raise lib.data.moneydata.NoSuchCategoryException(filter_to_category)
 
                         paymentplanfilter = paymentplanfilter.and_concat(
-                                lambda pp: pp.tocategory is tocategory or pp.tocategory.is_contained_in_subtree(tocategory)
+                                lambda pp: pp.tocategory.is_contained_in_subtree(tocategory)
                         )
 
                 return paymentplanfilter
@@ -254,7 +279,7 @@ class FilterFactory:
                         raise lib.data.moneydata.NoSuchCategoryException(filter_rootcategory)
 
                 categoryfilter = categoryfilter.and_concat(
-                        lambda c: c is rootcategory or c.is_contained_in_subtree(rootcategory)
+                        lambda c: c.is_contained_in_subtree(rootcategory)
                 )
 
                 return categoryfilter

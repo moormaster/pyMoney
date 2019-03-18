@@ -1069,7 +1069,7 @@ class PyMoneyConsole(cmd.Cmd):
                         if arguments.__dict__['cashflowcategory']:
                                 try:
                                         transactionfilter = transactionfilter.and_concat(
-                                                self.pyMoney.filterFactory.create_or_category_transactionfilter(arguments.__dict__['cashflowcategory'], arguments.__dict__['cashflowcategory'])
+                                                self.pyMoney.filterFactory.create_xor_category_transactionfilter(arguments.__dict__['cashflowcategory'], arguments.__dict__['cashflowcategory'])
                                         )
                                 except Exception as e:
                                         self.print_error(e)

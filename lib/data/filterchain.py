@@ -9,6 +9,9 @@ class Filter:
         def or_concat(self, filter_func):
                 return Filter(lambda item: self(item) or filter_func(item))
 
+        def xor_concat(self, filter_func):
+                return Filter(lambda item: self(item) and not filter_func(item) or not self(item) and filter_func(item))
+
         def and_concat(self, filter_func):
                 return Filter(lambda item: self(item) and filter_func(item))
 

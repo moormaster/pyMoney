@@ -24,6 +24,17 @@ class TestFilter(unittest.TestCase):
                 self.assertTrue(true_or_false_filter(123), "true or false should equal to true")
                 self.assertTrue(true_or_true_filter(123), "true or true should equal to true")
 
+        def test_xor_concat(self):
+                false_xor_false_filter = self.falseFilter.xor_concat(self.falseFilter)
+                false_xor_true_filter = self.falseFilter.xor_concat(self.trueFilter)
+                true_xor_false_filter = self.trueFilter.xor_concat(self.falseFilter)
+                true_xor_true_filter = self.trueFilter.xor_concat(self.trueFilter)
+
+                self.assertFalse(false_xor_false_filter(123), "false xor false should equal to false")
+                self.assertTrue(false_xor_true_filter(123), "false xor true should equal to true")
+                self.assertTrue(true_xor_false_filter(123), "true xor false should equal to true")
+                self.assertFalse(true_xor_true_filter(123), "true xor true should equal to false")
+
         def test_and_concat(self):
                 false_and_false_filter = self.falseFilter.and_concat(self.falseFilter)
                 false_and_true_filter = self.falseFilter.and_concat(self.trueFilter)
