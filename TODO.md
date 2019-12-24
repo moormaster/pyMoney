@@ -65,8 +65,8 @@
                           add --showempty parameter to display all 
 - [x] editing of transactions
       transaction edit <id> <YYYY-MM-DD> <from-category>] <to-category> <amount> [comment]
-- [ ] bug: deletion of a category in --cli mode breaks transactions
-- [ ] introduce paymentplans:
+- [x] bug: deletion of a category in --cli mode breaks transactions
+- [x] introduce paymentplans:
       paymentplan add <name> <groupname> <from-category> <to-category> <amount>
       paymentplan edit <name> [--group <groupname>] [--from-category <category>] [--to-category <category>] [--amount <amount>]
       paymentplan remove <name>
@@ -97,3 +97,4 @@
 
 
       -> check wether to use "summary paymentplans" or "summary categories --paymentplan <name>" / "summary categories "--paymentplangroup <groupname>"
+- [ ] unify date range parameters (.i.e. --range, --date-range)
