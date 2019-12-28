@@ -622,6 +622,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_transaction_list = sp_transaction.add_parser('list')
                 p_transaction_list.set_defaults(command='list')
                 p_transaction_list.set_defaults(parser=p_transaction_list)
+                # TODO: implement --after, --before, --range
                 p_transaction_list.add_argument('year', nargs='?')
                 p_transaction_list.add_argument('month', type=int, nargs='?')
                 p_transaction_list.add_argument('day', type=int, nargs='?')
@@ -1422,6 +1423,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_categories.add_argument('--paymentplansonly', action='store_true')
                 p_summary_categories.add_argument('--paymentplan')
                 p_summary_categories.add_argument('--paymentplangroup')
+                # TODO: implement --after, --before, --range
                 p_summary_categories.add_argument('year', nargs='?')
                 p_summary_categories.add_argument('month', type=int, nargs='?')
                 p_summary_categories.add_argument('day', type=int, nargs='?')
@@ -1577,6 +1579,7 @@ class PyMoneyConsole(cmd.Cmd):
 
 
                 parser = lib.argparse.ArgumentParser()
+                # TODO: implement --after, --before, --range
                 parser.add_argument('year', nargs='?')
                 parser.add_argument('month', type=int, nargs='?')
                 parser.add_argument('day', type=int, nargs='?')
