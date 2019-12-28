@@ -5,6 +5,7 @@ import lib.app
 import lib.argparse
 import lib.formatter
 import lib.data
+import lib.data.daterange
 import lib.data.filterchain
 import lib.data.moneydata
 import lib.data.tree
@@ -425,6 +426,40 @@ class PyMoneyConsole(cmd.Cmd):
                 return self.completion.complete_summary(text, line, beginidx, endidx)
 
         ### Cmd commands
+        def parse_daterange(self, arguments):
+                str_year = arguments.__dict__['year']
+                str_month = arguments.__dict__['month']
+                str_day = arguments.__dict__['day']
+
+                year = None
+                month = None
+                day = None
+                if not str_month is None and len(str(str_month)):
+                        month = int(str_month)
+                if not str_day is None and len(str(str_day)):
+                        day = int(str_day)
+
+                daterange = lib.data.daterange.DateRange()
+
+                if not str_year is None and len(str(str_year)):
+                        if str(str_year)[:2] == "<=":
+                                year = int(str_year[2:])
+                                daterange = lib.data.daterange.DateRange(year, month, day, operator="<=")
+                        elif str(str_year)[:2] == ">=":
+                                year = int(str_year[2:])
+                                daterange = lib.data.daterange.DateRange(year, month, day, operator=">=")
+                        elif str(str_year)[:1] == "<":
+                                year = int(str_year[1:])
+                                daterange = lib.data.daterange.DateRange(year, month, day, operator="<")
+                        elif str(str_year)[:1] == ">":
+                                year = int(str_year[1:])
+                                daterange = lib.data.daterange.DateRange(year, month, day, operator=">")
+                        else:
+                                year = int(str_year)
+                                daterange = lib.data.daterange.DateRange(year, month, day)
+
+                return daterange
+
         def do_transaction(self, args):
                 'Adds, edits, deletes or lists transaction(s). Use transaction -h for more details.'
                 def cmd_add(arguments):
@@ -460,7 +495,8 @@ class PyMoneyConsole(cmd.Cmd):
                                 self.print_error(e)
 
                 def cmd_list(arguments):
-                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__['year'], arguments.__dict__['month'], arguments.__dict__['day'])
+                        daterange = self.parse_daterange(arguments)
+                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(daterange)
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
                         if arguments.__dict__['paymentplansonly'] or arguments.__dict__['paymentplan'] or arguments.__dict__['paymentplangroup']:
@@ -1036,7 +1072,8 @@ class PyMoneyConsole(cmd.Cmd):
         def do_summary(self, args):
                 'Prints a summarized report across categories / date intervals. Use summary -h for more details.'
                 def cmd_categories(arguments):
-                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__['year'], arguments.__dict__['month'], arguments.__dict__['day'])
+                        daterange = self.parse_daterange(arguments)
+                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(daterange)
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
                         is_paymentplanfilter_active = False
 
@@ -1239,9 +1276,9 @@ class PyMoneyConsole(cmd.Cmd):
                         d_summary = None
                         while datetime.date(year, month, 1) <= maxdate:
                                 if diff_months == 1:
-                                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(str(year), str(month), None)
+                                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(lib.data.daterange.DateRange(year, month))
                                 elif diff_months == 12:
-                                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(str(year), None, None)
+                                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(lib.data.daterange.DateRange(year))
                                 else:
                                         raise Exception('diff_months value not supported: ' + str(diff_months))
 
@@ -1487,7 +1524,8 @@ class PyMoneyConsole(cmd.Cmd):
                 'Exports data from the given date range. Outputs pyMoney cli commands. Use export -h for more details.'
 
                 def cmd_export(arguments):
-                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(arguments.__dict__['year'], arguments.__dict__['month'], arguments.__dict__['day'])
+                        daterange = self.parse_daterange(arguments)
+                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(daterange)
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
                         if arguments.__dict__['category']:
