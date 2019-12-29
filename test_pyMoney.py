@@ -232,6 +232,11 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["summary", "monthly", "Expenses"])
                 self.pymoney(["summary", "yearly", "Expenses"])
 
+                self.pymoney(["summary", "monthly", "--balance", "Giro", "--after", "2000-01"])
+                self.pymoney(["summary", "monthly", "--paymentplangroup", "Monthly", "Expenses", "--after", "2000-01"])
+                self.pymoney(["summary", "monthly", "Expenses", "--after", "2000-01"])
+                self.pymoney(["summary", "yearly", "Expenses", "--after", "1999"])
+
                 self.pymoney(["transaction", "list", "--from", "2000-01"])
                 self.pymoney(["transaction", "list", "--from", "2000-02"])
                 self.pymoney(["transaction", "list", "--before-or-from", "2000-02-15"])

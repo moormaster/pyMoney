@@ -50,7 +50,7 @@ class PyMoneyCompletion:
 
                                         return list(categorynames)
                         elif argv[1] == 'list':
-                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'category', 'fromcategory', 'tocategory', 'from', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
+                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'category', 'fromcategory', 'tocategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
                                 if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -274,7 +274,7 @@ class PyMoneyCompletion:
                                         else:
                                                 return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
                         if argv[1] == 'categories':
-                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'category', 'cashflowcategory', 'from', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
+                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'category', 'cashflowcategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
 
                                 if argv[-2] in ['--category', '--cashflowcategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -298,7 +298,7 @@ class PyMoneyCompletion:
                                         else:
                                                 return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
                         elif argv[1] == 'monthly' or argv[1] == 'yearly':
-                                parameters = ['balance', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
+                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'balance', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
                                 if len(argv) == 3:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -337,7 +337,7 @@ class PyMoneyCompletion:
                         argv.append('')
 
                 if len(argv) >= 2:
-                        parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'category', 'fromcategory', 'tocategory', 'from']
+                        parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'category', 'fromcategory', 'tocategory']
 
                         if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                 categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -426,7 +426,7 @@ class PyMoneyConsole(cmd.Cmd):
                 return self.completion.complete_summary(text, line, beginidx, endidx)
 
         ### Cmd commands
-        def parse_daterange(self, str_operator, str_daterange):
+        def parse_daterange(self, str_operator, str_daterange, ignore_day=False):
                 # parse string of form [OP]YYYY[-MM[-DD]], i.e. >=2019 or 2019-01-01
                 operator = "="
                 str_year = None
@@ -471,8 +471,9 @@ class PyMoneyConsole(cmd.Cmd):
                         year = int(str_year)
                 if not str_month is None and len(str_month):
                         month = int(str_month)
-                if not str_day is None and len(str_day):
-                        day = int(str_day)
+                if not ignore_day:
+                        if not str_day is None and len(str_day):
+                                day = int(str_day)
 
                 daterange = None
                 if not str_year is None and len(str_year):
@@ -684,7 +685,6 @@ class PyMoneyConsole(cmd.Cmd):
                 p_transaction_list.set_defaults(command='list')
                 p_transaction_list.set_defaults(parser=p_transaction_list)
 
-                # TODO: implement --after, --before, --from
                 p_transaction_list.add_argument('--after', metavar='AFTER-DATERANGE')
                 p_transaction_list.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 p_transaction_list.add_argument('--before', metavar='BEFROE-DATERANGE')
@@ -1294,7 +1294,7 @@ class PyMoneyConsole(cmd.Cmd):
 
                                 is_first_line = False
 
-                def sub_time_interval_summary(category, paymentplanfilter, start_year, start_month, diff_months, maxdate, calculate_balance):
+                def sub_time_interval_summary(category, paymentplanfilter, datefilter, start_year, start_month, diff_months, maxdate, calculate_balance):
                         assert isinstance(category, lib.data.moneydata.CategoryTreeNode)
 
                         category_name_formatter = lib.formatter.CategoryNameFormatter()
@@ -1310,21 +1310,21 @@ class PyMoneyConsole(cmd.Cmd):
                         d_summary = None
                         while datetime.date(year, month, 1) <= maxdate:
                                 if diff_months == 1:
-                                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(lib.data.daterange.DateRange(year, month), None, None, None, None)
+                                        timestep_transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(lib.data.daterange.DateRange(year, month), None, None, None, None)
                                 elif diff_months == 12:
-                                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(lib.data.daterange.DateRange(year), None, None, None, None)
+                                        timestep_transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(lib.data.daterange.DateRange(year), None, None, None, None)
                                 else:
                                         raise Exception('diff_months value not supported: ' + str(diff_months))
 
                                 # also apply paymentplan filter to transactions
-                                transactionfilter = transactionfilter.and_concat(
+                                timestep_transactionfilter = timestep_transactionfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda t: paymentplanfilter(t.paymentplan))
                                 )
 
                                 if calculate_balance:
-                                        d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, paymentplanfilter, d_summary)
+                                        d_summary = self.pyMoney.get_moneydata().create_summary(timestep_transactionfilter, paymentplanfilter, d_summary)
                                 else:
-                                        d_summary = self.pyMoney.get_moneydata().create_summary(transactionfilter, paymentplanfilter, None)
+                                        d_summary = self.pyMoney.get_moneydata().create_summary(timestep_transactionfilter, paymentplanfilter, None)
 
                                 displayday = calendar.monthrange(year, month)[1]
                                 if diff_months != 12:
@@ -1332,13 +1332,14 @@ class PyMoneyConsole(cmd.Cmd):
                                 else:
                                         displaymonth = 12
                                 
-                                tabledata.append([
-                                        str(datetime.date(year, displaymonth, displayday)),
-                                        name,
-                                        d_summary[key].amount,
-                                        d_summary[key].sumin,
-                                        d_summary[key].sumout,
-                                        d_summary[key].sum])
+                                if datefilter is None or datefilter(datetime.date(year, month, 1)):
+                                        tabledata.append([
+                                                str(datetime.date(year, displaymonth, displayday)),
+                                                name,
+                                                d_summary[key].amount,
+                                                d_summary[key].sumin,
+                                                d_summary[key].sumout,
+                                                d_summary[key].sum])
 
                                 month += diff_months
 
@@ -1377,9 +1378,22 @@ class PyMoneyConsole(cmd.Cmd):
                                 is_first_line = False
 
                 def cmd_monthly(arguments):
+                        after_daterange = self.parse_daterange(">", arguments.__dict__['after'], ignore_day=True)
+                        after_or_from_daterange = self.parse_daterange(">=", arguments.__dict__['after_or_from'], ignore_day=True)
+                        before_daterange = self.parse_daterange("<", arguments.__dict__['before'], ignore_day=True)
+                        before_or_from_daterange = self.parse_daterange("<=", arguments.__dict__['before_or_from'], ignore_day=True)
+                        from_daterange = self.parse_daterange("=", arguments.__dict__['from'], ignore_day=True)
+                        datefilter = self.pyMoney.filterFactory.create_and_datefilter(from_daterange, before_daterange, before_or_from_daterange, after_daterange, after_or_from_daterange)
+
                         mindate = None
                         maxdate = None
                         for transaction in self.pyMoney.get_moneydata().get_transactions_iterator():
+                                if not datefilter is None:
+                                        if not datefilter(transaction.date):
+                                                # when not calculating balance skip transactions not applying to the date filter
+                                                if not arguments.__dict__['balance']:
+                                                        continue
+
                                 if not mindate or transaction.date < mindate:
                                         mindate = transaction.date
 
@@ -1426,12 +1440,25 @@ class PyMoneyConsole(cmd.Cmd):
                                 except Exception as e:
                                         self.print_error(e)
 
-                        sub_time_interval_summary(category, paymentplanfilter, mindate.year, mindate.month, 1, maxdate, arguments.__dict__['balance'])
+                        sub_time_interval_summary(category, paymentplanfilter, datefilter, mindate.year, mindate.month, 1, maxdate, arguments.__dict__['balance'])
 
                 def cmd_yearly(arguments):
+                        after_daterange = self.parse_daterange(">", arguments.__dict__['after'], ignore_day=True)
+                        after_or_from_daterange = self.parse_daterange(">=", arguments.__dict__['after_or_from'], ignore_day=True)
+                        before_daterange = self.parse_daterange("<", arguments.__dict__['before'], ignore_day=True)
+                        before_or_from_daterange = self.parse_daterange("<=", arguments.__dict__['before_or_from'], ignore_day=True)
+                        from_daterange = self.parse_daterange("=", arguments.__dict__['from'], ignore_day=True)
+                        datefilter = self.pyMoney.filterFactory.create_and_datefilter(from_daterange, before_daterange, before_or_from_daterange, after_daterange, after_or_from_daterange)
+
                         mindate = None
                         maxdate = None
                         for transaction in self.pyMoney.get_moneydata().get_transactions_iterator():
+                                if not datefilter is None:
+                                        if not datefilter(transaction.date):
+                                                # when not calculating balance skip transactions not applying to the date filter
+                                                if not arguments.__dict__['balance']:
+                                                        continue
+
                                 if not mindate or transaction.date < mindate:
                                         mindate = transaction.date
 
@@ -1478,7 +1505,7 @@ class PyMoneyConsole(cmd.Cmd):
                                 except Exception as e:
                                         self.print_error(e)
 
-                        sub_time_interval_summary(category, paymentplanfilter, mindate.year, 1, 12, maxdate, arguments.__dict__['balance'])
+                        sub_time_interval_summary(category, paymentplanfilter, datefilter, mindate.year, 1, 12, maxdate, arguments.__dict__['balance'])
 
                 parser = lib.argparse.ArgumentParser()
                 sp_summary = parser.add_subparsers(title='command')
@@ -1494,7 +1521,6 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_categories.add_argument('--paymentplansonly', action='store_true')
                 p_summary_categories.add_argument('--paymentplan')
                 p_summary_categories.add_argument('--paymentplangroup')
-                # TODO: implement --after, --before, --from
                 p_summary_categories.add_argument('--after', metavar='AFTER-DATERANGE')
                 p_summary_categories.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 p_summary_categories.add_argument('--before', metavar='BEFROE-DATERANGE')
@@ -1520,6 +1546,11 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_monthly.add_argument('--paymentplansonly', action='store_true')
                 p_summary_monthly.add_argument('--paymentplan')
                 p_summary_monthly.add_argument('--paymentplangroup')
+                p_summary_monthly.add_argument('--after', metavar='AFTER-DATERANGE')
+                p_summary_monthly.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
+                p_summary_monthly.add_argument('--before', metavar='BEFROE-DATERANGE')
+                p_summary_monthly.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                p_summary_monthly.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
                 p_summary_monthly.add_argument('category')
 
                 p_summary_yearly = sp_summary.add_parser('yearly')
@@ -1530,6 +1561,11 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_yearly.add_argument('--paymentplansonly', action='store_true')
                 p_summary_yearly.add_argument('--paymentplan')
                 p_summary_yearly.add_argument('--paymentplangroup')
+                p_summary_yearly.add_argument('--after', metavar='AFTER-DATERANGE')
+                p_summary_yearly.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
+                p_summary_yearly.add_argument('--before', metavar='BEFROE-DATERANGE')
+                p_summary_yearly.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                p_summary_yearly.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
                 p_summary_yearly.add_argument('category')
 
                 try:
@@ -1658,7 +1694,6 @@ class PyMoneyConsole(cmd.Cmd):
 
 
                 parser = lib.argparse.ArgumentParser()
-                # TODO: implement --after, --before, --from
                 parser.add_argument('--after', metavar='AFTER-DATERANGE')
                 parser.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 parser.add_argument('--before', metavar='BEFROE-DATERANGE')

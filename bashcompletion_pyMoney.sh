@@ -141,7 +141,7 @@ _pymoney_transaction()
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --category --fromcategory --tocategory --from --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --from --category --fromcategory --tocategory --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;
@@ -364,7 +364,7 @@ _pymoney_summary()
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --category --cashflowcategory --from --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --from --category --cashflowcategory --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup --showempty --maxlevel" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;
@@ -403,7 +403,7 @@ _pymoney_summary()
 							;;
 
 						*)
-							COMPREPLY=( $( compgen -W "--balance --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+							COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --from --balance --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 							;;
 					esac
 					;;
@@ -428,7 +428,7 @@ _pymoney_summary()
 							;;
 
 						*)
-							COMPREPLY=( $( compgen -W "--balance --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+							COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --from --balance --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 							;;
 					esac
 					;;
@@ -450,7 +450,7 @@ _pymoney_export()
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --category --fromcategory --tocategory --from" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --from --category --fromcategory --tocategory" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
