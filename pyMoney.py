@@ -688,7 +688,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_transaction_list.add_argument('--after', metavar='AFTER-DATERANGE')
                 p_transaction_list.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 p_transaction_list.add_argument('--before', metavar='BEFROE-DATERANGE')
-                p_transaction_list.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                p_transaction_list.add_argument('--before-or-from', metavar='BEFORE-OR-FROM-DATERANGE')
                 p_transaction_list.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
 
                 p_transaction_list.add_argument('--category')
@@ -1524,7 +1524,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_categories.add_argument('--after', metavar='AFTER-DATERANGE')
                 p_summary_categories.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 p_summary_categories.add_argument('--before', metavar='BEFROE-DATERANGE')
-                p_summary_categories.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                p_summary_categories.add_argument('--before-or-from', metavar='BEFORE-OR-FROM-DATERANGE')
                 p_summary_categories.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
 
                 p_summary_paymentplansprediction = sp_summary.add_parser('paymentplansprediction')
@@ -1549,7 +1549,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_monthly.add_argument('--after', metavar='AFTER-DATERANGE')
                 p_summary_monthly.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 p_summary_monthly.add_argument('--before', metavar='BEFROE-DATERANGE')
-                p_summary_monthly.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                p_summary_monthly.add_argument('--before-or-from', metavar='BEFORE-OR-FROM-DATERANGE')
                 p_summary_monthly.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
                 p_summary_monthly.add_argument('category')
 
@@ -1564,7 +1564,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_yearly.add_argument('--after', metavar='AFTER-DATERANGE')
                 p_summary_yearly.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 p_summary_yearly.add_argument('--before', metavar='BEFROE-DATERANGE')
-                p_summary_yearly.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                p_summary_yearly.add_argument('--before-or-from', metavar='BEFORE-OR-FROM-DATERANGE')
                 p_summary_yearly.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
                 p_summary_yearly.add_argument('category')
 
@@ -1697,7 +1697,7 @@ class PyMoneyConsole(cmd.Cmd):
                 parser.add_argument('--after', metavar='AFTER-DATERANGE')
                 parser.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 parser.add_argument('--before', metavar='BEFROE-DATERANGE')
-                parser.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                parser.add_argument('--before-or-from', metavar='BEFORE-OR-FROM-DATERANGE')
                 parser.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
                 parser.add_argument('--category')
                 parser.add_argument('--fromcategory')
