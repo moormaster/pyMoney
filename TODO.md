@@ -97,6 +97,6 @@
 
 
       -> check wether to use "summary paymentplans" or "summary categories --paymentplan <name>" / "summary categories "--paymentplangroup <groupname>"
-- [ ] unify date range parameters (ie. --from, --before, --after)
+- [x] unify date range parameters (ie. --from, --before, --after)
 - [ ] allow date range in monthly/yearly summaries
 - [ ] allow quarterly time ranges in summary (ie. 2019 Q1)

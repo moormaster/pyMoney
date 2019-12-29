@@ -234,10 +234,10 @@ class PymoneySafetyNet(unittest.TestCase):
 
                 self.pymoney(["transaction", "list", "--from", "2000-01"])
                 self.pymoney(["transaction", "list", "--from", "2000-02"])
-                self.pymoney(["transaction", "list", "--from", "<=2000-02-15"])
-                self.pymoney(["transaction", "list", "--from", "<2000-02-16"])
-                self.pymoney(["transaction", "list", "--from", ">=2000-01-15"])
-                self.pymoney(["transaction", "list", "--from", ">2000-01-14"])
+                self.pymoney(["transaction", "list", "--before-or-from", "2000-02-15"])
+                self.pymoney(["transaction", "list", "--before", "2000-02-16"])
+                self.pymoney(["transaction", "list", "--after-or-from", "2000-01-15"])
+                self.pymoney(["transaction", "list", "--after", "2000-01-14"])
 
                 self.pymoney(["transaction", "list", "--category", "Rent"])
 

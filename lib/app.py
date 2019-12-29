@@ -43,13 +43,28 @@ class FilterFactory:
                 assert isinstance(moneydata, lib.data.moneydata.MoneyData)
                 self.moneydata = moneydata
 
-        def create_and_date_transactionfilter(self, filter_daterange):
+        def create_and_date_transactionfilter(self, filter_from_daterange, filter_before_daterange, filter_before_or_from_daterange, filter_after_daterange, filter_after_or_from_daterange):
                 transactionfilter = lib.data.filterchain.Filter(lambda t: True)
 
-                if not filter_daterange is None:
-                        assert isinstance(filter_daterange, lib.data.daterange.DateRange)
+                if not filter_from_daterange is None:
+                        assert isinstance(filter_from_daterange, lib.data.daterange.DateRange)
+                        transactionfilter = transactionfilter.and_concat( lambda t: filter_from_daterange.is_date_in_range(t.date) )
 
-                        transactionfilter = transactionfilter.and_concat( lambda t: filter_daterange.is_date_in_range(t.date) )
+                if not filter_before_daterange is None:
+                        assert isinstance(filter_before_daterange, lib.data.daterange.DateRange)
+                        transactionfilter = transactionfilter.and_concat( lambda t: filter_before_daterange.is_date_in_range(t.date) )
+
+                if not filter_before_or_from_daterange is None:
+                        assert isinstance(filter_before_or_from_daterange, lib.data.daterange.DateRange)
+                        transactionfilter = transactionfilter.and_concat( lambda t: filter_before_or_from_daterange.is_date_in_range(t.date) )
+
+                if not filter_after_daterange is None:
+                        assert isinstance(filter_after_daterange, lib.data.daterange.DateRange)
+                        transactionfilter = transactionfilter.and_concat( lambda t: filter_after_daterange.is_date_in_range(t.date) )
+
+                if not filter_after_or_from_daterange is None:
+                        assert isinstance(filter_after_or_from_daterange, lib.data.daterange.DateRange)
+                        transactionfilter = transactionfilter.and_concat( lambda t: filter_after_or_from_daterange.is_date_in_range(t.date) )
 
                 return transactionfilter
 

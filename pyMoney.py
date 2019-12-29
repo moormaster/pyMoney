@@ -50,7 +50,7 @@ class PyMoneyCompletion:
 
                                         return list(categorynames)
                         elif argv[1] == 'list':
-                                parameters = ['category', 'fromcategory', 'tocategory', 'from', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
+                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'category', 'fromcategory', 'tocategory', 'from', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
                                 if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -274,7 +274,7 @@ class PyMoneyCompletion:
                                         else:
                                                 return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
                         if argv[1] == 'categories':
-                                parameters = ['category', 'cashflowcategory', 'from', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
+                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'category', 'cashflowcategory', 'from', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
 
                                 if argv[-2] in ['--category', '--cashflowcategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -337,7 +337,7 @@ class PyMoneyCompletion:
                         argv.append('')
 
                 if len(argv) >= 2:
-                        parameters = ['category', 'fromcategory', 'tocategory', 'from']
+                        parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'category', 'fromcategory', 'tocategory', 'from']
 
                         if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                 categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -426,26 +426,24 @@ class PyMoneyConsole(cmd.Cmd):
                 return self.completion.complete_summary(text, line, beginidx, endidx)
 
         ### Cmd commands
-        def parse_daterange(self, str_daterange):
+        def parse_daterange(self, str_operator, str_daterange):
                 # parse string of form [OP]YYYY[-MM[-DD]], i.e. >=2019 or 2019-01-01
                 operator = "="
                 str_year = None
                 str_month = None
                 str_day = None
-                if not str_daterange is None and len(str(str_daterange)):
-                        if str_daterange[:2] == "<=":
-                                operator = "<="
-                                str_daterange = str_daterange[2:]
-                        elif str_daterange[:2] == ">=":
-                                operator = ">="
-                                str_daterange = str_daterange[2:]
-                        elif str_daterange[:1] == "<":
-                                operator = "<"
-                                str_daterange = str_daterange[1:]
-                        elif str_daterange[:1] == ">":
-                                operator = ">"
-                                str_daterange = str_daterange[1:]
 
+                if not str_operator is None and len(str(str_operator)):
+                        if str_operator  == "<=":
+                                operator = "<="
+                        elif str_operator  == ">=":
+                                operator = ">="
+                        elif str_operator  == "<":
+                                operator = "<"
+                        elif str_operator  == ">":
+                                operator = ">"
+
+                if not str_daterange is None and len(str(str_daterange)):
                         pos_minus = str_daterange.find("-")
                         if pos_minus < 0:
                                 str_year = str_daterange
@@ -476,7 +474,7 @@ class PyMoneyConsole(cmd.Cmd):
                 if not str_day is None and len(str_day):
                         day = int(str_day)
 
-                daterange = lib.data.daterange.DateRange()
+                daterange = None
                 if not str_year is None and len(str_year):
                         daterange = lib.data.daterange.DateRange(year, month, day, operator=operator)
 
@@ -517,8 +515,13 @@ class PyMoneyConsole(cmd.Cmd):
                                 self.print_error(e)
 
                 def cmd_list(arguments):
-                        daterange = self.parse_daterange(arguments.__dict__['from'])
-                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(daterange)
+                        after_daterange = self.parse_daterange(">", arguments.__dict__['after'])
+                        after_or_from_daterange = self.parse_daterange(">=", arguments.__dict__['after_or_from'])
+                        before_daterange = self.parse_daterange("<", arguments.__dict__['before'])
+                        before_or_from_daterange = self.parse_daterange("<=", arguments.__dict__['before_or_from'])
+                        from_daterange = self.parse_daterange("=", arguments.__dict__['from'])
+                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(from_daterange, before_daterange, before_or_from_daterange, after_daterange, after_or_from_daterange)
+
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
                         if arguments.__dict__['paymentplansonly'] or arguments.__dict__['paymentplan'] or arguments.__dict__['paymentplangroup']:
@@ -682,6 +685,10 @@ class PyMoneyConsole(cmd.Cmd):
                 p_transaction_list.set_defaults(parser=p_transaction_list)
 
                 # TODO: implement --after, --before, --from
+                p_transaction_list.add_argument('--after', metavar='AFTER-DATERANGE')
+                p_transaction_list.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
+                p_transaction_list.add_argument('--before', metavar='BEFROE-DATERANGE')
+                p_transaction_list.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
                 p_transaction_list.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
 
                 p_transaction_list.add_argument('--category')
@@ -1094,8 +1101,13 @@ class PyMoneyConsole(cmd.Cmd):
         def do_summary(self, args):
                 'Prints a summarized report across categories / date intervals. Use summary -h for more details.'
                 def cmd_categories(arguments):
-                        daterange = self.parse_daterange(arguments.__dict__['from'])
-                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(daterange)
+                        after_daterange = self.parse_daterange(">", arguments.__dict__['after'])
+                        after_or_from_daterange = self.parse_daterange(">=", arguments.__dict__['after_or_from'])
+                        before_daterange = self.parse_daterange("<", arguments.__dict__['before'])
+                        before_or_from_daterange = self.parse_daterange("<=", arguments.__dict__['before_or_from'])
+                        from_daterange = self.parse_daterange("=", arguments.__dict__['from'])
+                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(from_daterange, before_daterange, before_or_from_daterange, after_daterange, after_or_from_daterange)
+
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
                         is_paymentplanfilter_active = False
 
@@ -1298,9 +1310,9 @@ class PyMoneyConsole(cmd.Cmd):
                         d_summary = None
                         while datetime.date(year, month, 1) <= maxdate:
                                 if diff_months == 1:
-                                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(lib.data.daterange.DateRange(year, month))
+                                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(lib.data.daterange.DateRange(year, month), None, None, None, None)
                                 elif diff_months == 12:
-                                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(lib.data.daterange.DateRange(year))
+                                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(lib.data.daterange.DateRange(year), None, None, None, None)
                                 else:
                                         raise Exception('diff_months value not supported: ' + str(diff_months))
 
@@ -1483,6 +1495,10 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_categories.add_argument('--paymentplan')
                 p_summary_categories.add_argument('--paymentplangroup')
                 # TODO: implement --after, --before, --from
+                p_summary_categories.add_argument('--after', metavar='AFTER-DATERANGE')
+                p_summary_categories.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
+                p_summary_categories.add_argument('--before', metavar='BEFROE-DATERANGE')
+                p_summary_categories.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
                 p_summary_categories.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
 
                 p_summary_paymentplansprediction = sp_summary.add_parser('paymentplansprediction')
@@ -1544,8 +1560,13 @@ class PyMoneyConsole(cmd.Cmd):
                 'Exports data from the given date range. Outputs pyMoney cli commands. Use export -h for more details.'
 
                 def cmd_export(arguments):
-                        daterange = self.parse_daterange(arguments.__dict__['from'])
-                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(daterange)
+                        after_daterange = self.parse_daterange(">", arguments.__dict__['after'])
+                        after_or_from_daterange = self.parse_daterange(">=", arguments.__dict__['after_or_from'])
+                        before_daterange = self.parse_daterange("<", arguments.__dict__['before'])
+                        before_or_from_daterange = self.parse_daterange("<=", arguments.__dict__['before_or_from'])
+                        from_daterange = self.parse_daterange("=", arguments.__dict__['from'])
+                        transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(from_daterange, before_daterange, before_or_from_daterange, after_daterange, after_or_from_daterange)
+
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
                         if arguments.__dict__['category']:
@@ -1638,6 +1659,10 @@ class PyMoneyConsole(cmd.Cmd):
 
                 parser = lib.argparse.ArgumentParser()
                 # TODO: implement --after, --before, --from
+                parser.add_argument('--after', metavar='AFTER-DATERANGE')
+                parser.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
+                parser.add_argument('--before', metavar='BEFROE-DATERANGE')
+                parser.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
                 parser.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
                 parser.add_argument('--category')
                 parser.add_argument('--fromcategory')
