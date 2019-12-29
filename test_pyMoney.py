@@ -127,8 +127,8 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["transaction", "add", "2000-01-20", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-01-20", "Cash", "Lunch", "8"])
 
-                self.pymoney(["summary", "categories", "2000", "01", "--category", "Frequent", "--showempty"])
-                self.pymoney(["summary", "categories", "2000", "01", "--paymentplangroup", "Monthly", "--category", "Expenses", "--showempty"])
+                self.pymoney(["summary", "categories", "--from", "2000-01", "--category", "Frequent", "--showempty"])
+                self.pymoney(["summary", "categories", "--from", "2000-01", "--paymentplangroup", "Monthly", "--category", "Expenses", "--showempty"])
 
                 self.pymoney(["transaction", "add", "2000-01-21", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-01-21", "Cash", "Lunch", "8"])
@@ -187,8 +187,8 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["transaction", "add", "2000-02-18", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-02-18", "Cash", "Lunch", "8"])
 
-                self.pymoney(["summary", "categories", "2000", "02", "--category", "Frequent", "--showempty"])
-                self.pymoney(["summary", "categories", "2000", "02", "--paymentplangroup", "Monthly", "--category", "Expenses", "--showempty"])
+                self.pymoney(["summary", "categories", "--from", "2000-02", "--category", "Frequent", "--showempty"])
+                self.pymoney(["summary", "categories", "--from", "2000-02", "--paymentplangroup", "Monthly", "--category", "Expenses", "--showempty"])
 
                 self.pymoney(["transaction", "add", "2000-02-21", "Cash", "Breakfast", "2.00", "Bakery"])
                 self.pymoney(["transaction", "add", "2000-02-21", "Cash", "Lunch", "8"])
@@ -211,14 +211,14 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["transaction", "add", "2000-02-29", "Cash", "Lunch", "8"])
                 self.pymoney(["summary", "categories", "--category", "Assets"])
 
-                self.pymoney(["summary", "categories", "2000", "01"])
-                self.pymoney(["summary", "categories", "2000", "02"])
+                self.pymoney(["summary", "categories", "--from", "2000-01"])
+                self.pymoney(["summary", "categories", "--from", "2000-02"])
 
-                self.pymoney(["summary", "categories", "2000", "01", "--maxlevel", "2"])
-                self.pymoney(["summary", "categories", "2000", "01", "--cashflowcategory", "Rent"])
+                self.pymoney(["summary", "categories", "--from", "2000-01", "--maxlevel", "2"])
+                self.pymoney(["summary", "categories", "--from", "2000-01", "--cashflowcategory", "Rent"])
 
-                self.pymoney(["summary", "categories", "2000", "01", "--paymentplangroup", "Monthly", "--category", "Expenses"])
-                self.pymoney(["summary", "categories", "2000", "02", "--paymentplangroup", "Monthly", "--category", "Expenses"])
+                self.pymoney(["summary", "categories", "--from", "2000-01", "--paymentplangroup", "Monthly", "--category", "Expenses"])
+                self.pymoney(["summary", "categories", "--from", "2000-02", "--paymentplangroup", "Monthly", "--category", "Expenses"])
 
                 self.pymoney(["summary", "paymentplansprediction"])
 
@@ -232,12 +232,12 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["summary", "monthly", "Expenses"])
                 self.pymoney(["summary", "yearly", "Expenses"])
 
-                self.pymoney(["transaction", "list", "2000", "01"])
-                self.pymoney(["transaction", "list", "2000", "02"])
-                self.pymoney(["transaction", "list", "<=2000", "02", "15"])
-                self.pymoney(["transaction", "list", "<2000", "02", "16"])
-                self.pymoney(["transaction", "list", ">=2000", "01", "15"])
-                self.pymoney(["transaction", "list", ">2000", "01", "14"])
+                self.pymoney(["transaction", "list", "--from", "2000-01"])
+                self.pymoney(["transaction", "list", "--from", "2000-02"])
+                self.pymoney(["transaction", "list", "--from", "<=2000-02-15"])
+                self.pymoney(["transaction", "list", "--from", "<2000-02-16"])
+                self.pymoney(["transaction", "list", "--from", ">=2000-01-15"])
+                self.pymoney(["transaction", "list", "--from", ">2000-01-14"])
 
                 self.pymoney(["transaction", "list", "--category", "Rent"])
 
@@ -266,7 +266,7 @@ class PymoneySafetyNet(unittest.TestCase):
                 self.pymoney(["transaction", "delete", "10"])
                 self.pymoney(["transaction", "list"])
 
-                self.pymoney(["export", "2000","01"])
+                self.pymoney(["export", "--from", "2000-01"])
                 self.pymoney(["export"])
 
         def pymoney(self, argv):

@@ -50,7 +50,7 @@ class PyMoneyCompletion:
 
                                         return list(categorynames)
                         elif argv[1] == 'list':
-                                parameters = ['category', 'fromcategory', 'tocategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
+                                parameters = ['category', 'fromcategory', 'tocategory', 'from', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
                                 if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -274,7 +274,7 @@ class PyMoneyCompletion:
                                         else:
                                                 return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
                         if argv[1] == 'categories':
-                                parameters = ['category', 'cashflowcategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
+                                parameters = ['category', 'cashflowcategory', 'from', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
 
                                 if argv[-2] in ['--category', '--cashflowcategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -337,7 +337,7 @@ class PyMoneyCompletion:
                         argv.append('')
 
                 if len(argv) >= 2:
-                        parameters = ['category', 'fromcategory', 'tocategory']
+                        parameters = ['category', 'fromcategory', 'tocategory', 'from']
 
                         if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                 categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -426,37 +426,59 @@ class PyMoneyConsole(cmd.Cmd):
                 return self.completion.complete_summary(text, line, beginidx, endidx)
 
         ### Cmd commands
-        def parse_daterange(self, arguments):
-                str_year = arguments.__dict__['year']
-                str_month = arguments.__dict__['month']
-                str_day = arguments.__dict__['day']
+        def parse_daterange(self, str_daterange):
+                # parse string of form [OP]YYYY[-MM[-DD]], i.e. >=2019 or 2019-01-01
+                operator = "="
+                str_year = None
+                str_month = None
+                str_day = None
+                if not str_daterange is None and len(str(str_daterange)):
+                        if str_daterange[:2] == "<=":
+                                operator = "<="
+                                str_daterange = str_daterange[2:]
+                        elif str_daterange[:2] == ">=":
+                                operator = ">="
+                                str_daterange = str_daterange[2:]
+                        elif str_daterange[:1] == "<":
+                                operator = "<"
+                                str_daterange = str_daterange[1:]
+                        elif str_daterange[:1] == ">":
+                                operator = ">"
+                                str_daterange = str_daterange[1:]
+
+                        pos_minus = str_daterange.find("-")
+                        if pos_minus < 0:
+                                str_year = str_daterange
+                                str_daterange = ''
+                        else:
+                                str_year = str_daterange[:pos_minus]
+                                str_daterange = str_daterange[pos_minus+1:]
+        
+                        pos_minus = str_daterange.find("-")
+                        if pos_minus < 0:
+                                str_month = str_daterange
+                                str_daterange = ''
+                        else:
+                                str_month = str_daterange[:pos_minus]
+                                str_daterange = str_daterange[pos_minus+1:]
+        
+                        if len(str_daterange):
+                                str_day = str_daterange
+                                str_daterange = ''
 
                 year = None
                 month = None
                 day = None
-                if not str_month is None and len(str(str_month)):
+                if not str_year is None and len(str_year):
+                        year = int(str_year)
+                if not str_month is None and len(str_month):
                         month = int(str_month)
-                if not str_day is None and len(str(str_day)):
+                if not str_day is None and len(str_day):
                         day = int(str_day)
 
                 daterange = lib.data.daterange.DateRange()
-
-                if not str_year is None and len(str(str_year)):
-                        if str(str_year)[:2] == "<=":
-                                year = int(str_year[2:])
-                                daterange = lib.data.daterange.DateRange(year, month, day, operator="<=")
-                        elif str(str_year)[:2] == ">=":
-                                year = int(str_year[2:])
-                                daterange = lib.data.daterange.DateRange(year, month, day, operator=">=")
-                        elif str(str_year)[:1] == "<":
-                                year = int(str_year[1:])
-                                daterange = lib.data.daterange.DateRange(year, month, day, operator="<")
-                        elif str(str_year)[:1] == ">":
-                                year = int(str_year[1:])
-                                daterange = lib.data.daterange.DateRange(year, month, day, operator=">")
-                        else:
-                                year = int(str_year)
-                                daterange = lib.data.daterange.DateRange(year, month, day)
+                if not str_year is None and len(str_year):
+                        daterange = lib.data.daterange.DateRange(year, month, day, operator=operator)
 
                 return daterange
 
@@ -495,7 +517,7 @@ class PyMoneyConsole(cmd.Cmd):
                                 self.print_error(e)
 
                 def cmd_list(arguments):
-                        daterange = self.parse_daterange(arguments)
+                        daterange = self.parse_daterange(arguments.__dict__['from'])
                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(daterange)
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
@@ -658,10 +680,10 @@ class PyMoneyConsole(cmd.Cmd):
                 p_transaction_list = sp_transaction.add_parser('list')
                 p_transaction_list.set_defaults(command='list')
                 p_transaction_list.set_defaults(parser=p_transaction_list)
+
                 # TODO: implement --after, --before, --from
-                p_transaction_list.add_argument('year', nargs='?')
-                p_transaction_list.add_argument('month', type=int, nargs='?')
-                p_transaction_list.add_argument('day', type=int, nargs='?')
+                p_transaction_list.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
+
                 p_transaction_list.add_argument('--category')
                 p_transaction_list.add_argument('--fromcategory')
                 p_transaction_list.add_argument('--tocategory')
@@ -1072,7 +1094,7 @@ class PyMoneyConsole(cmd.Cmd):
         def do_summary(self, args):
                 'Prints a summarized report across categories / date intervals. Use summary -h for more details.'
                 def cmd_categories(arguments):
-                        daterange = self.parse_daterange(arguments)
+                        daterange = self.parse_daterange(arguments.__dict__['from'])
                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(daterange)
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
                         is_paymentplanfilter_active = False
@@ -1461,9 +1483,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_categories.add_argument('--paymentplan')
                 p_summary_categories.add_argument('--paymentplangroup')
                 # TODO: implement --after, --before, --from
-                p_summary_categories.add_argument('year', nargs='?')
-                p_summary_categories.add_argument('month', type=int, nargs='?')
-                p_summary_categories.add_argument('day', type=int, nargs='?')
+                p_summary_categories.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
 
                 p_summary_paymentplansprediction = sp_summary.add_parser('paymentplansprediction')
                 p_summary_paymentplansprediction.set_defaults(command='paymentplansprediction')
@@ -1524,7 +1544,7 @@ class PyMoneyConsole(cmd.Cmd):
                 'Exports data from the given date range. Outputs pyMoney cli commands. Use export -h for more details.'
 
                 def cmd_export(arguments):
-                        daterange = self.parse_daterange(arguments)
+                        daterange = self.parse_daterange(arguments.__dict__['from'])
                         transactionfilter = self.pyMoney.filterFactory.create_and_date_transactionfilter(daterange)
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
@@ -1618,14 +1638,15 @@ class PyMoneyConsole(cmd.Cmd):
 
                 parser = lib.argparse.ArgumentParser()
                 # TODO: implement --after, --before, --from
-                parser.add_argument('year', nargs='?')
-                parser.add_argument('month', type=int, nargs='?')
-                parser.add_argument('day', type=int, nargs='?')
+                parser.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
                 parser.add_argument('--category')
                 parser.add_argument('--fromcategory')
                 parser.add_argument('--tocategory')
 
                 try:
+                        if args == '""':
+                                args = ''
+
                         arguments = parser.parse_args(shlex.split(args))
                 except Exception as e:
                         # parse errors already handled by parser (printed to user)

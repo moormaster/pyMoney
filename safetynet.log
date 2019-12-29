@@ -289,7 +289,7 @@ added transaction 30: transferred amount 2.0 from Cash to Breakfast
 $ ./pyMoney.py transaction add 2000-01-20 Cash Lunch 8
 added transaction 31: transferred amount 8.0 from Cash to Lunch
 
-$ ./pyMoney.py summary categories 2000 01 --category Frequent --showempty
+$ ./pyMoney.py summary categories --from 2000-01 --category Frequent --showempty
 node           amount sum + sum -   sum
 
     Frequent     0.00 50.00  0.00 50.00
@@ -297,7 +297,7 @@ node           amount sum + sum -   sum
       Energy    50.00 50.00  0.00 50.00
       Internet   0.00  0.00  0.00  0.00
 
-$ ./pyMoney.py summary categories 2000 01 --paymentplangroup Monthly --category Expenses --showempty
+$ ./pyMoney.py summary categories --from 2000-01 --paymentplangroup Monthly --category Expenses --showempty
 node           amount sum + sum -   sum
 
   Expenses       0.00 50.00  0.00 50.00
@@ -469,7 +469,7 @@ added transaction 79: transferred amount 2.0 from Cash to Breakfast
 $ ./pyMoney.py transaction add 2000-02-18 Cash Lunch 8
 added transaction 80: transferred amount 8.0 from Cash to Lunch
 
-$ ./pyMoney.py summary categories 2000 02 --category Frequent --showempty
+$ ./pyMoney.py summary categories --from 2000-02 --category Frequent --showempty
 node           amount sum + sum -   sum
 
     Frequent     0.00 50.00  0.00 50.00
@@ -477,7 +477,7 @@ node           amount sum + sum -   sum
       Energy    50.00 50.00  0.00 50.00
       Internet   0.00  0.00  0.00  0.00
 
-$ ./pyMoney.py summary categories 2000 02 --paymentplangroup Monthly --category Expenses --showempty
+$ ./pyMoney.py summary categories --from 2000-02 --paymentplangroup Monthly --category Expenses --showempty
 node           amount sum + sum -   sum
 
   Expenses       0.00 50.00  0.00 50.00
@@ -554,7 +554,7 @@ node                   amount    sum +    sum -      sum
       DayMoney       10500.00 10500.00     0.00 10500.00
       OtherDayMoney    500.00   500.00     0.00   500.00
 
-$ ./pyMoney.py summary categories 2000 01
+$ ./pyMoney.py summary categories --from 2000-01
 node                    amount    sum +     sum -       sum
 
 All                       0.00     0.00      0.00      0.00
@@ -579,7 +579,7 @@ All                       0.00     0.00      0.00      0.00
         Breakfast        42.00    42.00      0.00     42.00
         Lunch           168.00   168.00      0.00    168.00
 
-$ ./pyMoney.py summary categories 2000 02
+$ ./pyMoney.py summary categories --from 2000-02
 node                amount   sum +    sum -      sum
 
 All                   0.00    0.00     0.00     0.00
@@ -598,7 +598,7 @@ All                   0.00    0.00     0.00     0.00
         Breakfast    42.00   42.00     0.00    42.00
         Lunch       168.00  168.00     0.00   168.00
 
-$ ./pyMoney.py summary categories 2000 01 --maxlevel 2
+$ ./pyMoney.py summary categories --from 2000-01 --maxlevel 2
 node                    amount    sum +     sum -       sum
 
 All                       0.00     0.00      0.00      0.00
@@ -615,7 +615,7 @@ All                       0.00     0.00      0.00      0.00
     Frequent              0.00   680.00      0.00    680.00
     OnDemand              0.00   210.00      0.00    210.00
 
-$ ./pyMoney.py summary categories 2000 01 --cashflowcategory Rent
+$ ./pyMoney.py summary categories --from 2000-01 --cashflowcategory Rent
 node          amount  sum +   sum -     sum
 
 All             0.00   0.00    0.00    0.00
@@ -625,7 +625,7 @@ All             0.00   0.00    0.00    0.00
     Frequent    0.00 600.00    0.00  600.00
       Rent    600.00 600.00    0.00  600.00
 
-$ ./pyMoney.py summary categories 2000 01 --paymentplangroup Monthly --category Expenses
+$ ./pyMoney.py summary categories --from 2000-01 --paymentplangroup Monthly --category Expenses
 node           amount  sum + sum -    sum
 
   Expenses       0.00 680.00  0.00 680.00
@@ -634,7 +634,7 @@ node           amount  sum + sum -    sum
       Energy    50.00  50.00  0.00  50.00
       Internet  30.00  30.00  0.00  30.00
 
-$ ./pyMoney.py summary categories 2000 02 --paymentplangroup Monthly --category Expenses
+$ ./pyMoney.py summary categories --from 2000-02 --paymentplangroup Monthly --category Expenses
 node           amount sum + sum -   sum
 
   Expenses       0.00 80.00  0.00 80.00
@@ -708,7 +708,7 @@ date       node     amount   sum + sum -     sum
 
 2000-12-31 Expenses   0.00 1780.00  0.00 1780.00
 
-$ ./pyMoney.py transaction list 2000 01
+$ ./pyMoney.py transaction list --from 2000-01
 Index       Date FromCategory   ToCategory      Amount Comment
 
     0 2000-01-01 OpeningBalance Cash            400.00 
@@ -765,7 +765,7 @@ Index       Date FromCategory   ToCategory      Amount Comment
    51 2000-01-31 Cash           Lunch             8.00 
    52 2000-01-31 Income.Misc    Cash             10.00 Found
 
-$ ./pyMoney.py transaction list 2000 02
+$ ./pyMoney.py transaction list --from 2000-02
 Index       Date FromCategory ToCategory  Amount Comment
 
    53 2000-02-01 Giro         Energy       50.00 Execution of payment plan Energy
@@ -816,7 +816,7 @@ Index       Date FromCategory ToCategory  Amount Comment
    98 2000-02-29 Cash         Breakfast     2.00 Bakery
    99 2000-02-29 Cash         Lunch         8.00 
 
-$ ./pyMoney.py transaction list <=2000 02 15
+$ ./pyMoney.py transaction list --from <=2000-02-15
 Index       Date FromCategory   ToCategory      Amount Comment
 
     0 2000-01-01 OpeningBalance Cash            400.00 
@@ -896,7 +896,7 @@ Index       Date FromCategory   ToCategory      Amount Comment
    74 2000-02-15 Cash           Breakfast         2.00 Bakery
    75 2000-02-15 Cash           Lunch             8.00 
 
-$ ./pyMoney.py transaction list <2000 02 16
+$ ./pyMoney.py transaction list --from <2000-02-16
 Index       Date FromCategory   ToCategory      Amount Comment
 
     0 2000-01-01 OpeningBalance Cash            400.00 
@@ -976,7 +976,7 @@ Index       Date FromCategory   ToCategory      Amount Comment
    74 2000-02-15 Cash           Breakfast         2.00 Bakery
    75 2000-02-15 Cash           Lunch             8.00 
 
-$ ./pyMoney.py transaction list >=2000 01 15
+$ ./pyMoney.py transaction list --from >=2000-01-15
 Index       Date FromCategory ToCategory     Amount Comment
 
    24 2000-01-17 Cash         Breakfast        2.00 Bakery
@@ -1056,7 +1056,7 @@ Index       Date FromCategory ToCategory     Amount Comment
    98 2000-02-29 Cash         Breakfast        2.00 Bakery
    99 2000-02-29 Cash         Lunch            8.00 
 
-$ ./pyMoney.py transaction list >2000 01 14
+$ ./pyMoney.py transaction list --from >2000-01-14
 Index       Date FromCategory ToCategory     Amount Comment
 
    24 2000-01-17 Cash         Breakfast        2.00 Bakery
@@ -1919,7 +1919,7 @@ Index       Date FromCategory   ToCategory      Amount Comment
    95 2000-02-29 Cash           Breakfast         2.00 Bakery
    96 2000-02-29 Cash           Lunch             8.00 
 
-$ ./pyMoney.py export 2000 01
+$ ./pyMoney.py export --from 2000-01
 category add "All" "Equity"
 category add "All.Equity" "OpeningBalance"
 category add "All" "Assets"

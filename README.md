@@ -65,7 +65,7 @@ $ ./pyMoney.py transaction add 2016-01-10 Bank Misc 14.99 "Favorite DVD"
 $ ./pyMoney.py transaction add 2016-01-10 VISA GoingOut 45.00 "Visiting concert of favorite band"
 
 # for each category list the sum of transactions that happened during january 2016
-$ ./pyMoney.py summary categories 2016 01
+$ ./pyMoney.py summary categories --from 2016-01
 node            amount   sum +    sum -      sum
 
 All               0.00 1724.39 -1724.39     0.00
@@ -96,7 +96,7 @@ date       node  amount   sum +   sum -     sum
 2016-01-31 Bank 3350.61 3500.00 -149.39 3350.61
 
 # list all transactions from january 2016
-$ ./pyMoney.py transaction list 2016 01
+$ ./pyMoney.py transaction list --from 2016-01
 Index       Date FromCategory ToCategory  Amount Comment
 
     3 2016-01-01 Wages        Bank       1500.00 Wages
@@ -107,15 +107,15 @@ Index       Date FromCategory ToCategory  Amount Comment
     8 2016-01-10 VISA         GoingOut     45.00 Visiting concert of favorite band
 
 # list all transactions that affected the Cash account from january 2016
-$ ./pyMoney.py transaction list 2016 01 --category Cash
+$ ./pyMoney.py transaction list --from 2016-01 --category Cash
 Index       Date FromCategory ToCategory Amount Comment
 
     4 2016-01-01 Bank         Cash       100.00 EC Money
     6 2016-01-05 Cash         DailyLife   30.00 Food
-                                          
-                              + Cash     100.00 
-                              - Cash     -30.00 
-                              sum Cash    70.00 
+
+                              + Cash     100.00
+                              - Cash     -30.00
+                              sum Cash    70.00
 
 # sum up all transactions to show current asset and liability balances
 $ ./pyMoney.py summary categories --category Assets
