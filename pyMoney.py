@@ -23,6 +23,22 @@ class PyMoneyCompletion:
         def __init__(self, pyMoney):
                 self.pyMoney = pyMoney
 
+        def complete_parameters(self, text, argv, parameters):
+                strip_count = 0
+                if len(argv) > 0:
+                    strip_count = argv[-1].rindex(text)
+
+                if argv[-1].startswith('--'):
+                    valid_parameters = filter(lambda v: v.startswith(argv[-1][2:]), parameters)
+                elif argv[-1].startswith('-'):
+                    valid_parameters = filter(lambda v: v.startswith(argv[-1][1:]), parameters)
+                else:
+                    valid_parameters = filter(lambda v: v.startswith(argv[-1]), parameters)
+                valid_parameters = map(lambda v: '--' + v, valid_parameters)
+
+                stripped_parameters = map(lambda v: v[strip_count:], valid_parameters)
+                return list(stripped_parameters)
+
         def complete_transaction(self, text, line, begidx, endidx):
                 if endidx < len(line):
                         return
@@ -69,12 +85,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 elif len(argv) >= 3:
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith('-'):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'edit', 'delete', 'list']))
 
@@ -115,13 +126,7 @@ class PyMoneyCompletion:
                         elif argv[1] == 'list' or argv[1] == 'tree':
                                 if len(argv) == 3:
                                         parameters = ['fullnamecategories']
-
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith('-'):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'delete', 'list', 'merge', 'move', 'rename', 'tree']))
 
@@ -220,12 +225,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 else:
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith('-'):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif argv[1] == 'listnames':
                                 parameters = ['group']
 
@@ -235,12 +235,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 else:
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith('-'):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'edit', 'rename', 'move', 'execute', 'delete', 'list', 'listnames', 'listgroupnames']))
 
@@ -269,10 +264,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 elif len(argv) >= 3:
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         if argv[1] == 'categories':
                                 parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'category', 'cashflowcategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
 
@@ -293,10 +285,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 elif len(argv) >= 3:
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif argv[1] == 'monthly' or argv[1] == 'yearly':
                                 parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'balance', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
@@ -317,13 +306,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 elif len(argv) >= 4:
-
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith('-'):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['categories', 'paymentplansprediction', 'monthly', 'yearly']))
 
@@ -346,12 +329,7 @@ class PyMoneyCompletion:
 
                                 return list(categorynames)
                         elif len(argv) >= 3:
-                                if argv[-1].startswith('--'):
-                                        return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                elif argv[-1].startswith('-'):
-                                        return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                else:
-                                        return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                return self.complete_parameters(text, argv, parameters)
 
 
 class PyMoneyConsole(cmd.Cmd):
