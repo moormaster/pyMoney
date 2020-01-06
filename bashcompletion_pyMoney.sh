@@ -65,10 +65,6 @@ _pymoney_transaction()
 {
 	_ARGINDEX=$1
 	case ${COMP_WORDS[$_ARGINDEX]} in
-		--fullnamecategories)
-			_pymoney_transaction $(( $_ARGINDEX + 1 ))
-			;;
-
 		add)
 			case ${COMP_CWORD} in
 				$(( $_ARGINDEX + 1 )) )
@@ -141,13 +137,13 @@ _pymoney_transaction()
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --from --category --fromcategory --tocategory --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --from --category --fromcategory --tocategory --fullnamecategories --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "--fullnamecategories add edit delete list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "add edit delete list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
@@ -156,10 +152,6 @@ _pymoney_category()
 {
 	_ARGINDEX=$1
 	case ${COMP_WORDS[$_ARGINDEX]} in
-		--fullnamecategories)
-			_pymoney_category $(( $_ARGINDEX + 1 ))
-			;;
-
 		add)
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
@@ -321,7 +313,7 @@ _pymoney_paymentplan()
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--category --fromcategory --tocategory --group" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--category --fromcategory --tocategory --fullnamecategories --group" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 			esac

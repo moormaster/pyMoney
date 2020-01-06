@@ -66,7 +66,7 @@ class PyMoneyCompletion:
 
                                         return list(categorynames)
                         elif argv[1] == 'list':
-                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'category', 'fromcategory', 'tocategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
+                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'category', 'fromcategory', 'tocategory', 'fullnamecategories', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
                                 if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -211,7 +211,7 @@ class PyMoneyCompletion:
 
                                         return names
                         elif argv[1] == 'list':
-                                parameters = ['category', 'fromcategory', 'tocategory', 'group']
+                                parameters = ['category', 'fromcategory', 'tocategory', 'fullnamecategories', 'group']
 
                                 if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -631,7 +631,6 @@ class PyMoneyConsole(cmd.Cmd):
                         self.writeOnQuit = True
 
                 parser = lib.argparse.ArgumentParser()
-                parser.add_argument('--fullnamecategories', action='store_true')
                 sp_transaction = parser.add_subparsers(title='command')
 
                 p_transaction_add = sp_transaction.add_parser('add')
@@ -672,6 +671,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_transaction_list.add_argument('--category')
                 p_transaction_list.add_argument('--fromcategory')
                 p_transaction_list.add_argument('--tocategory')
+                p_transaction_list.add_argument('--fullnamecategories', action='store_true')
                 p_transaction_list.add_argument('--nopaymentplans', action='store_true')
                 p_transaction_list.add_argument('--paymentplansonly', action='store_true')
                 p_transaction_list.add_argument('--paymentplan')
@@ -872,6 +872,10 @@ class PyMoneyConsole(cmd.Cmd):
 
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
+                        category_name_formatter = lib.formatter.CategoryNameFormatter()
+                        if arguments.__dict__['fullnamecategories']:
+                                category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
+
                         if arguments.__dict__['group']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['group'])
@@ -911,8 +915,8 @@ class PyMoneyConsole(cmd.Cmd):
 
                                 row.append(paymentplan.groupname)
                                 row.append(paymentplan.name)
-                                row.append(paymentplan.fromcategory.get_unique_name())
-                                row.append(paymentplan.tocategory.get_unique_name())
+                                row.append(category_name_formatter.format(paymentplan.fromcategory))
+                                row.append(category_name_formatter.format(paymentplan.tocategory))
                                 row.append(paymentplan.amount)
                                 row.append(paymentplan.comment)
 
@@ -1028,6 +1032,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_list.add_argument('--category')
                 p_paymentplan_list.add_argument('--fromcategory')
                 p_paymentplan_list.add_argument('--tocategory')
+                p_paymentplan_list.add_argument('--fullnamecategories', action='store_true')
                 p_paymentplan_list.add_argument('--group')
 
                 p_paymentplan_listnames = sp_paymentplan.add_parser('listnames')
