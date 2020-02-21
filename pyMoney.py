@@ -23,6 +23,22 @@ class PyMoneyCompletion:
         def __init__(self, pyMoney):
                 self.pyMoney = pyMoney
 
+        def complete_parameters(self, text, argv, parameters):
+                strip_count = 0
+                if len(argv) > 0:
+                    strip_count = argv[-1].rindex(text)
+
+                if argv[-1].startswith('--'):
+                    valid_parameters = filter(lambda v: v.startswith(argv[-1][2:]), parameters)
+                elif argv[-1].startswith('-'):
+                    valid_parameters = filter(lambda v: v.startswith(argv[-1][1:]), parameters)
+                else:
+                    valid_parameters = filter(lambda v: v.startswith(argv[-1]), parameters)
+                valid_parameters = map(lambda v: '--' + v, valid_parameters)
+
+                stripped_parameters = map(lambda v: v[strip_count:], valid_parameters)
+                return list(stripped_parameters)
+
         def complete_transaction(self, text, line, begidx, endidx):
                 if endidx < len(line):
                         return
@@ -95,7 +111,7 @@ class PyMoneyCompletion:
                                         return comments
 
                         elif argv[1] == 'list':
-                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'category', 'fromcategory', 'tocategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
+                                parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'category', 'fromcategory', 'tocategory', 'fullnamecategories', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
                                 if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -114,12 +130,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 elif len(argv) >= 3:
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith('-'):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'edit', 'delete', 'list']))
 
@@ -160,13 +171,7 @@ class PyMoneyCompletion:
                         elif argv[1] == 'list' or argv[1] == 'tree':
                                 if len(argv) == 3:
                                         parameters = ['fullnamecategories']
-
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith('-'):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'delete', 'list', 'merge', 'move', 'rename', 'tree']))
 
@@ -251,7 +256,7 @@ class PyMoneyCompletion:
 
                                         return names
                         elif argv[1] == 'list':
-                                parameters = ['category', 'fromcategory', 'tocategory', 'group']
+                                parameters = ['category', 'fromcategory', 'tocategory', 'fullnamecategories', 'group']
 
                                 if argv[-2] in ['--category', '--fromcategory', '--tocategory']:
                                         categories = self.pyMoney.get_moneydata().get_categories_iterator()
@@ -265,12 +270,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 else:
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith('-'):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif argv[1] == 'listnames':
                                 parameters = ['group']
 
@@ -280,12 +280,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 else:
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith('-'):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['add', 'edit', 'rename', 'move', 'execute', 'delete', 'list', 'listnames', 'listgroupnames']))
 
@@ -314,10 +309,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 elif len(argv) >= 3:
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         if argv[1] == 'categories':
                                 parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'category', 'cashflowcategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup', 'showempty',  'maxlevel']
 
@@ -338,10 +330,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 elif len(argv) >= 3:
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif argv[1] == 'monthly' or argv[1] == 'yearly':
                                 parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'balance', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 
@@ -362,13 +351,7 @@ class PyMoneyCompletion:
 
                                         return groupnames
                                 elif len(argv) >= 4:
-
-                                        if argv[-1].startswith('--'):
-                                                return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                        elif argv[-1].startswith('-'):
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                        else:
-                                                return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                        return self.complete_parameters(text, argv, parameters)
                         elif len(argv) == 2:
                                 return list(filter(lambda v: v.startswith(argv[-1]), ['categories', 'paymentplansprediction', 'monthly', 'yearly']))
 
@@ -391,12 +374,7 @@ class PyMoneyCompletion:
 
                                 return list(categorynames)
                         elif len(argv) >= 3:
-                                if argv[-1].startswith('--'):
-                                        return list(filter(lambda v: v.startswith(argv[-1][2:]), parameters))
-                                elif argv[-1].startswith('-'):
-                                        return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '-'+v, parameters))))
-                                else:
-                                        return list(filter(lambda v: v.startswith(argv[-1]), list(map(lambda v: '--'+v, parameters))))
+                                return self.complete_parameters(text, argv, parameters)
 
 
 class PyMoneyConsole(cmd.Cmd):
@@ -698,7 +676,6 @@ class PyMoneyConsole(cmd.Cmd):
                         self.writeOnQuit = True
 
                 parser = lib.argparse.ArgumentParser()
-                parser.add_argument('--fullnamecategories', action='store_true')
                 sp_transaction = parser.add_subparsers(title='command')
 
                 p_transaction_add = sp_transaction.add_parser('add')
@@ -733,12 +710,13 @@ class PyMoneyConsole(cmd.Cmd):
                 p_transaction_list.add_argument('--after', metavar='AFTER-DATERANGE')
                 p_transaction_list.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 p_transaction_list.add_argument('--before', metavar='BEFROE-DATERANGE')
-                p_transaction_list.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                p_transaction_list.add_argument('--before-or-from', metavar='BEFORE-OR-FROM-DATERANGE')
                 p_transaction_list.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
 
                 p_transaction_list.add_argument('--category')
                 p_transaction_list.add_argument('--fromcategory')
                 p_transaction_list.add_argument('--tocategory')
+                p_transaction_list.add_argument('--fullnamecategories', action='store_true')
                 p_transaction_list.add_argument('--nopaymentplans', action='store_true')
                 p_transaction_list.add_argument('--paymentplansonly', action='store_true')
                 p_transaction_list.add_argument('--paymentplan')
@@ -939,6 +917,10 @@ class PyMoneyConsole(cmd.Cmd):
 
                         paymentplanfilter = lib.data.filterchain.Filter(lambda pp: True)
 
+                        category_name_formatter = lib.formatter.CategoryNameFormatter()
+                        if arguments.__dict__['fullnamecategories']:
+                                category_name_formatter.set_strategy(lib.formatter.CategoryNameFormatter.STRATEGY_FULL_NAME)
+
                         if arguments.__dict__['group']:
                                 paymentplanfilter = paymentplanfilter.and_concat(
                                         lib.data.filterchain.Filter(lambda pp: pp.groupname == arguments.__dict__['group'])
@@ -978,8 +960,8 @@ class PyMoneyConsole(cmd.Cmd):
 
                                 row.append(paymentplan.groupname)
                                 row.append(paymentplan.name)
-                                row.append(paymentplan.fromcategory.get_unique_name())
-                                row.append(paymentplan.tocategory.get_unique_name())
+                                row.append(category_name_formatter.format(paymentplan.fromcategory))
+                                row.append(category_name_formatter.format(paymentplan.tocategory))
                                 row.append(paymentplan.amount)
                                 row.append(paymentplan.comment)
 
@@ -1095,6 +1077,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_paymentplan_list.add_argument('--category')
                 p_paymentplan_list.add_argument('--fromcategory')
                 p_paymentplan_list.add_argument('--tocategory')
+                p_paymentplan_list.add_argument('--fullnamecategories', action='store_true')
                 p_paymentplan_list.add_argument('--group')
 
                 p_paymentplan_listnames = sp_paymentplan.add_parser('listnames')
@@ -1569,7 +1552,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_categories.add_argument('--after', metavar='AFTER-DATERANGE')
                 p_summary_categories.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 p_summary_categories.add_argument('--before', metavar='BEFROE-DATERANGE')
-                p_summary_categories.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                p_summary_categories.add_argument('--before-or-from', metavar='BEFORE-OR-FROM-DATERANGE')
                 p_summary_categories.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
 
                 p_summary_paymentplansprediction = sp_summary.add_parser('paymentplansprediction')
@@ -1594,7 +1577,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_monthly.add_argument('--after', metavar='AFTER-DATERANGE')
                 p_summary_monthly.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 p_summary_monthly.add_argument('--before', metavar='BEFROE-DATERANGE')
-                p_summary_monthly.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                p_summary_monthly.add_argument('--before-or-from', metavar='BEFORE-OR-FROM-DATERANGE')
                 p_summary_monthly.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
                 p_summary_monthly.add_argument('category')
 
@@ -1609,7 +1592,7 @@ class PyMoneyConsole(cmd.Cmd):
                 p_summary_yearly.add_argument('--after', metavar='AFTER-DATERANGE')
                 p_summary_yearly.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 p_summary_yearly.add_argument('--before', metavar='BEFROE-DATERANGE')
-                p_summary_yearly.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                p_summary_yearly.add_argument('--before-or-from', metavar='BEFORE-OR-FROM-DATERANGE')
                 p_summary_yearly.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
                 p_summary_yearly.add_argument('category')
 
@@ -1742,7 +1725,7 @@ class PyMoneyConsole(cmd.Cmd):
                 parser.add_argument('--after', metavar='AFTER-DATERANGE')
                 parser.add_argument('--after-or-from', metavar='AFTER-OR-FROM-DATERANGE')
                 parser.add_argument('--before', metavar='BEFROE-DATERANGE')
-                parser.add_argument('--before-or-from', metavar='BEFORE-FROM-DATERANGE')
+                parser.add_argument('--before-or-from', metavar='BEFORE-OR-FROM-DATERANGE')
                 parser.add_argument('--from', metavar='FROM-DATERANGE', help='i.e. 2000 or 2000-01 or 2000-01-15')
                 parser.add_argument('--category')
                 parser.add_argument('--fromcategory')
