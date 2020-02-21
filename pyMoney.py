@@ -41,6 +41,29 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
+
+                                # comment
+                                if len(argv) == 7:
+                                        searchstring = argv[-1]
+
+                                        def unescapespaces(s):
+                                                return s.replace("\\ ", " ")
+
+                                        def escapespaces(s):
+                                                return s.replace(" ", "\\ ")
+
+                                        transactions = self.pyMoney.get_moneydata().get_transactions_iterator()
+                                        comments = map(lambda t: t.comment, transactions)
+                                        comments = list(set(filter(lambda c: c.startswith(unescapespaces(searchstring)), comments)))
+
+                                        if len(comments) == 1:
+                                                pos = unescapespaces(searchstring).rfind(" ")
+                                                if pos > 0:
+                                                        comments[0] = comments[0][pos+1:]
+
+                                        comments = list(map(escapespaces, comments))
+                                        return comments
+
                         elif argv[1] == 'edit':
                                 # from-category, to-category
                                 if len(argv) == 5 or len(argv) == 6:
@@ -49,6 +72,28 @@ class PyMoneyCompletion:
                                         categorynames = filter(lambda v: v.startswith(argv[-1]), categorynames)
 
                                         return list(categorynames)
+
+                                if len(argv) == 8:
+                                        searchstring = argv[-1]
+
+                                        def unescapespaces(s):
+                                                return s.replace("\\ ", " ")
+
+                                        def escapespaces(s):
+                                                return s.replace(" ", "\\ ")
+
+                                        transactions = self.pyMoney.get_moneydata().get_transactions_iterator()
+                                        comments = map(lambda t: t.comment, transactions)
+                                        comments = list(set(filter(lambda c: c.startswith(unescapespaces(searchstring)), comments)))
+
+                                        if len(comments) == 1:
+                                                pos = unescapespaces(searchstring).rfind(" ")
+                                                if pos > 0:
+                                                        comments[0] = comments[0][pos+1:]
+
+                                        comments = list(map(escapespaces, comments))
+                                        return comments
+
                         elif argv[1] == 'list':
                                 parameters = ['after', 'after-or-from', 'before', 'before-or-from', 'from', 'category', 'fromcategory', 'tocategory', 'nopaymentplans', 'paymentplansonly', 'paymentplan', 'paymentplangroup']
 

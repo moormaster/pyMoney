@@ -1,9 +1,10 @@
+mincacheageseconds=60
+
 _pymoney_category_list()
 {
 	pymoneycmd="$*"
 	now=$( date +%s )
 	cachetimestamp=""
-	mincacheageseconds=60
 	cachefile=pymoney.completioncache.categories
 
 	if [ -e "$cachefile" ]
@@ -24,7 +25,6 @@ _pymoney_paymentplan_list()
 	pymoneycmd="$*"
 	now=$( date +%s )
 	cachetimestamp=""
-	mincacheageseconds=60
 	cachefile=pymoney.completioncache.paymentplans
 
 	if [ -e "$cachefile" ]
@@ -45,7 +45,6 @@ _pymoney_paymentplangroup_list()
 	pymoneycmd="$*"
 	now=$( date +%s )
 	cachetimestamp=""
-	mincacheageseconds=60
 	cachefile=pymoney.completioncache.paymentplangroups
 
 	if [ -e "$cachefile" ]
@@ -61,14 +60,30 @@ _pymoney_paymentplangroup_list()
 	tail -n +2 "$cachefile"
 }
 
+_pymoney_transactioncomments_list()
+{
+	pymoneycmd="$*"
+	now=$( date +%s )
+	cachetimestamp=""
+	cachefile=pymoney.completioncache.transactioncomments
+
+	if [ -e "$cachefile" ]
+	then
+		cachetimestamp=$( head -n 1 "$cachefile" )
+	fi
+
+	if ! [ -e "$cachefile" ] || [ "$cachetimestamp" == "" ] || [ $(( $now - $cachetimestamp )) -ge $mincacheageseconds ] && [ "$cachefile" -ot "pymoney.categories" ]
+	then
+		( date +%s; "$pymoneycmd" transaction list | sed -e "s/\([ ]*[^ ]\+\)\{5\}[ ]*\(.*\)/\2/" | sort | uniq ) > "$cachefile"
+	fi
+
+	tail -n +2 "$cachefile"
+}
+
 _pymoney_transaction()
 {
 	_ARGINDEX=$1
 	case ${COMP_WORDS[$_ARGINDEX]} in
-		--fullnamecategories)
-			_pymoney_transaction $(( $_ARGINDEX + 1 ))
-			;;
-
 		add)
 			case ${COMP_CWORD} in
 				$(( $_ARGINDEX + 1 )) )
@@ -91,6 +106,36 @@ _pymoney_transaction()
 
 				$(( $_ARGINDEX + 5 )) )
 					# comment
+					tmpfile=$( mktemp )
+					_pymoney_transactioncomments_list ${COMP_WORDS[0]} > $tmpfile
+					readarray -t comments < $tmpfile
+					rm $tmpfile
+
+					withcolon=0
+					searchstring=${COMP_WORDS[$COMP_CWORD]}
+					if [ "${searchstring:0:1}" == "\"" ]
+					then
+						withcolon=1
+						searchstring="${searchstring:1}"
+					fi
+					if [ "${searchstring:$(( ${#searchstring}-1 )):1}" == "\"" ]
+					then
+						searchstring="${searchstring:0:$(( ${#searchstring}-1 ))}"
+					fi
+
+					for l in "${comments[@]}"
+					do
+						if [ "${l:0:${#searchstring}}" == "${searchstring}" ]
+						then
+							if [[ "$l" == *" "* ]] || [ $withcolon -eq 1 ]
+							then
+								COMPREPLY=( "${COMPREPLY[@]}" "\"$l\"" )
+							else
+								COMPREPLY=( "${COMPREPLY[@]}" "$l" )
+							fi
+						fi
+					done
+					;;
 			esac
 			;;
 
@@ -120,6 +165,36 @@ _pymoney_transaction()
 
 				$(( $_ARGINDEX + 6 )) )
 					# comment
+					tmpfile=$( mktemp )
+					_pymoney_transactioncomments_list ${COMP_WORDS[0]} > $tmpfile
+					readarray -t comments < $tmpfile
+					rm $tmpfile
+
+					withcolon=0
+					searchstring=${COMP_WORDS[$COMP_CWORD]}
+					if [ "${searchstring:0:1}" == "\"" ]
+					then
+						withcolon=1
+						searchstring="${searchstring:1}"
+					fi
+					if [ "${searchstring:$(( ${#searchstring}-1 )):1}" == "\"" ]
+					then
+						searchstring="${searchstring:0:$(( ${#searchstring}-1 ))}"
+					fi
+
+					for l in "${comments[@]}"
+					do
+						if [ "${l:0:${#searchstring}}" == "${searchstring}" ]
+						then
+							if [[ "$l" == *" "* ]] || [ $withcolon -eq 1 ]
+							then
+								COMPREPLY=( "${COMPREPLY[@]}" "\"$l\"" )
+							else
+								COMPREPLY=( "${COMPREPLY[@]}" "$l" )
+							fi
+						fi
+					done
+					;;
 			esac
 			;;
 
@@ -141,13 +216,13 @@ _pymoney_transaction()
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --from --category --fromcategory --tocategory --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--after --after-or-from --before --before-or-from --from --category --fromcategory --tocategory --fullnamecategories --nopaymentplans --paymentplansonly --paymentplan --paymentplangroup" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 			esac
 			;;
 
 		*)
-			COMPREPLY=( $( compgen -W "--fullnamecategories add edit delete list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+			COMPREPLY=( $( compgen -W "add edit delete list" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 			;;
 	esac
 }
@@ -156,10 +231,6 @@ _pymoney_category()
 {
 	_ARGINDEX=$1
 	case ${COMP_WORDS[$_ARGINDEX]} in
-		--fullnamecategories)
-			_pymoney_category $(( $_ARGINDEX + 1 ))
-			;;
-
 		add)
 			case $COMP_CWORD in
 				$(( $_ARGINDEX + 1 )) )
@@ -321,7 +392,7 @@ _pymoney_paymentplan()
 					;;
 
 				*)
-					COMPREPLY=( $( compgen -W "--category --fromcategory --tocategory --group" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
+					COMPREPLY=( $( compgen -W "--category --fromcategory --tocategory --fullnamecategories --group" "\\${COMP_WORDS[$COMP_CWORD]}" ) )
 					;;
 
 			esac
