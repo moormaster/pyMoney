@@ -72,10 +72,9 @@ class PyMoneyCompletion:
                                         comments = map(lambda t: t.comment, transactions)
                                         comments = list(set(filter(lambda c: c.startswith(unescapespaces(searchstring)), comments)))
 
-                                        if len(comments) == 1:
-                                                pos = unescapespaces(searchstring).rfind(" ")
-                                                if pos > 0:
-                                                        comments[0] = comments[0][pos+1:]
+                                        pos = unescapespaces(searchstring).rfind(" ")
+                                        if pos >= 0:
+                                                comments = map(lambda s: s[pos+1:], comments)
 
                                         comments = list(map(escapespaces, comments))
                                         return comments
@@ -102,10 +101,9 @@ class PyMoneyCompletion:
                                         comments = map(lambda t: t.comment, transactions)
                                         comments = list(set(filter(lambda c: c.startswith(unescapespaces(searchstring)), comments)))
 
-                                        if len(comments) == 1:
-                                                pos = unescapespaces(searchstring).rfind(" ")
-                                                if pos > 0:
-                                                        comments[0] = comments[0][pos+1:]
+                                        pos = unescapespaces(searchstring).rfind(" ")
+                                        if pos >= 0:
+                                                comments = map(lambda s: s[pos+1:], comments)
 
                                         comments = list(map(escapespaces, comments))
                                         return comments
