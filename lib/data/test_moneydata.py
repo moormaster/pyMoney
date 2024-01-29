@@ -11,6 +11,9 @@ class TestCategoryTreeNode(unittest.TestCase):
         def setUp(self):
                 self.tree = moneydata.CategoryTreeNode("All")
 
+        def test_constructor_should_not_accept_name_containing_dot(self):
+                self.assertRaises(moneydata.InvalidCategoryNameException, lambda: moneydata.CategoryTreeNode("Name.with.dots"))
+
         def test_append_childnode_should_raise_exception_for_foreign_tree_node(self):
                 self.assertRaises(AssertionError, self.tree.append_childnode, tree.TreeNode("TreeNode"))
 
@@ -61,6 +64,8 @@ class TestCategoryTreeNode(unittest.TestCase):
 
                 self.assertEqual(subchild.format(True), "    All.Child.SubChild")
 
+        def test_rename_should_not_accept_name_containing_dot(self):
+                self.assertRaises(moneydata.InvalidCategoryNameException, lambda: self.tree.rename("Name.with.dots"))
 
 class TestMoneyData_Transactions(unittest.TestCase):
         def setUp(self):

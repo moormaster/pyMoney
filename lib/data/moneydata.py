@@ -577,6 +577,10 @@ class CategoryTreeNode(tree.TreeNode):
         def __init__(self, name):
                 tree.TreeNode.__init__(self, name)
 
+        def _validate_name(self, name):
+                if "." in name:
+                        raise InvalidCategoryNameException(name)
+
         def append_by_relative_path(self, path):
                 if len(path) == 0:
                         return self
@@ -634,6 +638,11 @@ class DuplicateCategoryException(Exception):
                 Exception.__init__(self, category.get_unique_name())
 
                 self.category = category
+
+
+class InvalidCategoryNameException(Exception):
+        def __init__(self, name):
+                self.name = name
 
 
 class NoSuchCategoryException(tree.NoSuchNodeException):

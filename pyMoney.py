@@ -412,6 +412,8 @@ class PyMoneyConsole(cmd.Cmd):
                         value = 'category not found: ' + error.name
                 elif isinstance(error, lib.data.moneydata.DuplicateCategoryException):
                         value = 'category already exists: ' + error.category.get_unique_name()
+                elif isinstance(error, lib.data.moneydata.InvalidCategoryNameException):
+                        value = 'invalid category name: ' + error.name
                 elif isinstance(error, lib.data.moneydata.CategoryIsTopCategoryException):
                         value = 'top category may not be deleted: ' + error.category.get_unique_name()
                 elif isinstance(error, lib.data.moneydata.AmbiguousCategoryNameException):

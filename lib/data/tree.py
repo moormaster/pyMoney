@@ -1,10 +1,13 @@
 # vim: expandtab softtabstop=0 list listchars=tab\:>-,space\:·:
 class TreeNode:
         def __init__(self, name):
+                self._validate_name(name)
+
                 self.parent = None
                 self.name = name
                 self.children = {}
 
+        def _validate_name(self, name):
                 if "." in name:
                         raise Exception("name may not contain character .")
 
@@ -83,6 +86,8 @@ class TreeNode:
                 targetnode.append_childnode(self)
 
         def rename(self, newnodename):
+                self._validate_name(newnodename)
+                
                 parent = self.parent
 
                 if parent:
