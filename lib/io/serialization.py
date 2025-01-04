@@ -28,9 +28,6 @@ class MoneyDataSerialization:
             "version": self.fileprefix + ".version"
         }
 
-    def get_moneydata(self):
-        return self.moneydata
-
     def read(self):
         moneydata = lib.data.moneydata.MoneyData()
 

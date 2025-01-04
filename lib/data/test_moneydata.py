@@ -566,7 +566,7 @@ class TestMoneyData_PaymentPlans(unittest.TestCase):
 
         self.assertRaisesRegex(moneydata.NoSuchCategoryException, "Unknown", self.moneydata.edit_paymentplan, "plan", "group", "Unknown", "All", 10.0, "Example plan")
 
-    def test_edit_paymentplan_should_raise_an_exception_if_fromcategory_was_not_found(self):
+    def test_edit_paymentplan_should_raise_an_exception_if_tocategory_was_not_found(self):
         self.moneydata.add_paymentplan("plan", "group", "All", "All", 10.0, "Example plan")
 
         self.assertRaisesRegex(moneydata.NoSuchCategoryException, "Unknown", self.moneydata.edit_paymentplan, "plan", "group", "All", "Unknown", 10.0, "Example plan")
@@ -773,7 +773,10 @@ class TestMoneyData_Summary(unittest.TestCase):
 
         self.moneydata.execute_paymentplan("plan", "2000-01-01")
 
-        d_previous_summary = {"Source": moneydata.NodeSummary()}
+        d_previous_summary = {
+            "Source": moneydata.NodeSummary(),
+            "Target": moneydata.NodeSummary()
+        }
 
         d_previous_summary["Source"].amount = -10.0
         d_previous_summary["Source"].amountin = 0.0
@@ -957,7 +960,7 @@ class TestMoneyData_Summary(unittest.TestCase):
         self.assertEqual(summary["All"].paymentplancountout, 3)
         self.assertEqual(summary["All"].paymentplancount, 6)
 
-    def test_create_summary_should_use_the_given_initial_sums_based_on_previous_result(self):
+    def test_create_paymentplan_summary_should_use_the_given_initial_sums_based_on_previous_result(self):
         self.moneydata.add_category("All", "Source")
         self.moneydata.add_category("All", "Target")
 

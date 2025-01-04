@@ -21,7 +21,7 @@ class CategoryNameFormatter:
 
     def set_strategy(self, strategy):
         if not strategy in [self.STRATEGY_NAME, self.STRATEGY_UNIQUE_NAME, self.STRATEGY_FULL_NAME]:
-            raise "invalid strategy: " + str(strategy)
+            raise Exception("invalid strategy: " + str(strategy))
 
         if self.strategy != strategy:
             self.d_namecache = {}
