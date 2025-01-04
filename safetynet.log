@@ -2015,7 +2015,7 @@ transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.B
 transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-28 "All.Income.Wages" "All.Assets.Giro" 2000.0 ""
 paymentplan edit "Save" "Monthly" "Giro" "Giro" 500.0 "Monthly saving now happening to other account"
-paymentplan execute "Save" 2000-01-28
+paymentplan execute "Save" 2000-01-28 500.0 "Monthly saving"
 paymentplan edit "Save" "Monthly" "Giro" "OtherDayMoney" 500.0 "Monthly saving now happening to other account"
 transaction add 2000-01-28 "All.Assets.Giro" "All.Assets.Cash" 400.0 ""
 paymentplan execute "Save" 2000-01-28
@@ -2099,7 +2099,7 @@ transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.B
 transaction add 2000-01-28 "All.Assets.Cash" "All.Expenses.OnDemand.Life.Break.Lunch" 8.0 ""
 transaction add 2000-01-28 "All.Income.Wages" "All.Assets.Giro" 2000.0 ""
 paymentplan edit "Save" "Monthly" "Giro" "Giro" 500.0 "Monthly saving now happening to other account"
-paymentplan execute "Save" 2000-01-28
+paymentplan execute "Save" 2000-01-28 500.0 "Monthly saving"
 paymentplan edit "Save" "Monthly" "Giro" "OtherDayMoney" 500.0 "Monthly saving now happening to other account"
 transaction add 2000-01-28 "All.Assets.Giro" "All.Assets.Cash" 400.0 ""
 paymentplan execute "Save" 2000-01-28

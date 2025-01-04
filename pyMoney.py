@@ -1711,11 +1711,12 @@ class PyMoneyConsole(cmd.Cmd):
                                         if update_paymentplan:
                                                 self.print('paymentplan edit "' + t.paymentplan.name + '" "' + t.paymentplan.groupname + '" "' + t.fromcategory.get_unique_name() + '" "' + t.tocategory.get_unique_name() + '" ' + str(t.paymentplan.amount) + ' "' + t.paymentplan.comment + '"')
 
-                                        if t.amount == t.paymentplan.amount:
+                                        if t.comment == t.paymentplan.comment and t.amount == t.paymentplan.amount:
                                                 self.print('paymentplan execute "' + t.paymentplan.name + '" ' + str(t.date))
-                                        else:
+                                        elif t.comment == t.paymentplan.comment:
                                                 self.print('paymentplan execute "' + t.paymentplan.name + '" ' + str(t.date) + ' ' + str(t.amount))
-
+                                        else:
+                                                self.print('paymentplan execute "' + t.paymentplan.name + '" ' + str(t.date) + ' ' + str(t.amount) + ' "' + t.comment + '"')
 
                                         if update_paymentplan:
                                                 self.print('paymentplan edit "' + t.paymentplan.name + '" "' + t.paymentplan.groupname + '" "' + t.paymentplan.fromcategory.get_unique_name() + '" "' + t.paymentplan.tocategory.get_unique_name() + '" ' + str(t.paymentplan.amount) + ' "' + t.paymentplan.comment + '"')
